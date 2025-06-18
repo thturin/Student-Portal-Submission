@@ -1,0 +1,91 @@
+/server
+├── app.js
+├── /routes
+│   └── submissionRoutes.js
+├── /controllers
+│   └── submissionController.js
+├── /services
+│   ├── gitService.js
+│   ├── languageService.js
+│   └── gradingService.js
+├── /autograders
+│   ├── pythonGrader.py
+│   └── javaGrader.sh
+├── /uploads
+├── .env
+└── prisma/schema.prisma
+
+
+
+npx prisma migrate dev --name init
+npx prisma generate
+
+
+
+
+
+HOW NODE WORKS 
++---------+       +-----------+       +----------+
+| Browser | --->  | HTTP Server| ---> |  Handler |
++---------+       +-----------+       +----------+
+                                      | Business |
+                                      |  Logic   |
+                                      +----------+
+Browser (client) makes a request (e.g. GET request).
+Node.js HTTP Server listens to request (using http.createServer()).
+Passes request to your handler function.
+You send back response.
+
+
+SEND AN ENTRY TO PRISMA DB
+curl -X POST http://localhost:5000/api/submit -H "Content-Type: application/json" -d "{\"repoUrl\":\"https://github.com/thturin/test_autograder.git\",\"language\":\"java\",\"score\":95}"
+curl -X POST http://localhost:5000/api/submit -H "Content-Type: application/json" -d "{}"
+
+
+SCHEMA.PRISMA FOR LATER
+
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+
+model User {
+  id        Int       @id @default(autoincrement())
+  username  String    @unique
+  password  String
+  role      String
+  submissions Submission[]
+}
+
+model Assignment {
+  id          Int      @id @default(autoincrement())
+  title       String
+  dueDate     DateTime
+  submissions Submission[]
+}
+
+model Submission {
+  id            Int      @id @default(autoincrement())
+
+  userId        Int
+  user          User     @relation(fields:[userId], references:[id])
+  assignmentId  Int
+  assignment    Assignment @relation(fields: [assignmentId], references: [id])
+
+  repoUrl       String
+  language      String
+  score         Float
+  submittedAt   DateTime @default(now())
+}

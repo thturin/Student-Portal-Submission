@@ -1,0 +1,40 @@
+# Node modules (backend and frontend)
+node_modules/
+client/node_modules/
+
+# Build output
+build/
+client/build/
+dist/
+client/dist/
+
+# Environment variables and secrets
+.env
+client/.env
+
+# Prisma generated files
+prisma/dev.db
+prisma/dev.db-journal
+prisma/.env
+generated/
+client/generated/
+.prisma/
+client/.prisma/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+logs/
+*.log
+
+# VSCode settings (optional)
+.vscode/
+
+# Coverage reports
+coverage/
+client/coverage/
