@@ -8,6 +8,9 @@ client/build/
 dist/
 client/dist/
 
+#uploads
+uploads/
+
 # Environment variables and secrets
 .env
 client/.env
