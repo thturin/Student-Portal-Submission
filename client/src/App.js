@@ -4,7 +4,7 @@ import SubmitForm from './components/SubmitForm.jsx';
 function App() {
   return (
     <div className="App">
-      <h1>🗳️JAVA WORK SUBMISSION PORTAL🗳️</h1>
+      <h1>🗳️SUBMISSION PORTAL🗳️</h1>
       <SubmitForm />
     </div>
   );

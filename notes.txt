@@ -15,13 +15,14 @@
 ├── .env
 └── prisma/schema.prisma
 
-
+nodemon app.js
+npm start
 
 npx prisma migrate dev --name init
 npx prisma generate
 
 
-
+npx prisma studio
 
 
 HOW NODE WORKS 

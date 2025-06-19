@@ -29,7 +29,7 @@ async function gradeJavaSubmission(clonePath){
 
                 const output = runStdout.trim();
                 const expected = 'hello world';
-                console.log(output,expected);
+                //console.log(output,expected);
                 
                 if(output === expected){resolve(100);}else{resolve(50)};
             });

@@ -9,6 +9,6 @@ const {handleSubmission, getAllSubmissions, createSubmission} = require('../cont
 router.get('/',getAllSubmissions); //this pathway is relative to the base path set in app.js (api/submit)
 // router.post('/',createSubmission);
 
-router.post('/',handleSubmission)
+router.post('/',handleSubmission);
 
 module.exports = router; //export router object so your main server file can use it

@@ -6,12 +6,18 @@
 
 generator client {
   provider = "prisma-client-js"
-  output   = "../generated/prisma"
 }
 
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+}
+
+model User{
+  id          Int     @id @default(autoincrement())
+  email       String  @unique
+  name        String
+  submission  Submission[] 
 }
 
 
@@ -21,4 +27,15 @@ model Submission {
   language      String
   score         Float
   submittedAt   DateTime  @default(now())
+  assignment    Assignment @relation(fields: [assignmentId], references: [id])
+  assignmentId  Int
+  user          User? @relation(fields:[userId], references: [id])
+  userId        Int?
+}
+
+model Assignment {
+  id          Int      @id @default(autoincrement())
+  title       String
+  dueDate     DateTime
+  submissions Submission[]
 }

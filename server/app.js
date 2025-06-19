@@ -1,7 +1,8 @@
 const express = require('express');
 const cors = require('cors');
 const submissionRoutes = require('./routes/submissionRoutes');
-const {PrismaClient} = require('./generated/prisma');
+const assignmentRoutes = require('./routes/assignmentRoutes');
+const {PrismaClient} = require('@prisma/client');
 require('dotenv').config(); //load environment variables from .env
 
 
@@ -16,6 +17,8 @@ app.get('/', (req, res)=>{
 });
 
 app.use('/api/submit', submissionRoutes); //call the router object in submissionRoutes (it is exported)
+app.use('/api/assignments', assignmentRoutes); //call the router object in assignmentRoutes
+
 
 
 const PORT = process.env.PORT;

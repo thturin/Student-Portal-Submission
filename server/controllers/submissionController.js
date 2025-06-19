@@ -5,16 +5,15 @@
 const{cloneRepo} = require('../services/gitService');
 const{gradeJavaSubmission} = require('../services/gradingService');
 //const{gradeSubmission} = require('../services/gradingService');
-const {PrismaClient} = require('../generated/prisma');
+const {PrismaClient} = require('@prisma/client');
 const prisma = new PrismaClient();
 
 const handleSubmission = async (req,res)=>{
     try{
         //const repoUrl =  `https://github.com/thturin/test_autograder.git`;
-        const language = `java`;
         let score = 200;
         console.log(`Request from handleSubmission -> ${req.body}`);
-        let {repoUrl} = req.body;
+        let {repoUrl, assignmentId, assignment} = req.body;
    
         const path = `./uploads/${Date.now()}`; //where repo will be cloned to locally
         try{
@@ -32,8 +31,9 @@ const handleSubmission = async (req,res)=>{
         const newSub = await prisma.submission.create({
             data: {
                 repoUrl,
-                language,
-                score
+                language: 'java',
+                score,
+                assignmentId
             }
         
         });
