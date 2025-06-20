@@ -57,7 +57,7 @@ const SubmitForm = ()=>{
                     style = {{ width: '250px', padding: '8px', marginRight: '10px' }}
                 >
                     <option value=""> Select Assignment</option>
-                    {assignments.map(ass=>(
+                    {assignments.map(ass=>( //print out each assignment that exists as option
                         <option key={ass.id} value={ass.id}>
                             {ass.title}
                         </option>
@@ -70,7 +70,7 @@ const SubmitForm = ()=>{
                     placeholder="https://github.com/username/repo"
                     value={repoUrl}
                     onChange={(e)=>{
-                        setRepoUrl(e.target.value);
+                        setRepoUrl(e.target.value.trim());
                         //console.log(`LOOK HERE ->> ${e.target.value}`);    
                     }}
                     required style={{ width: '400px', padding: '8px' }}
