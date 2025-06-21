@@ -13,7 +13,7 @@ const handleSubmission = async (req,res)=>{
         //const repoUrl =  `https://github.com/thturin/test_autograder.git`;
         let score = 200;
         console.log(`Request from handleSubmission -> ${req.body}`);
-        let {repoUrl, assignmentId, assignment} = req.body;
+        let {repoUrl, assignmentId} = req.body;
    
         const path = `./uploads/${Date.now()}`; //where repo will be cloned to locally
         try{
@@ -69,7 +69,11 @@ const handleSubmission = async (req,res)=>{
 
 const getAllSubmissions = async (req,res)=>{
     try{
-        const submissions = await prisma.submission.findMany();
+        const submissions = await prisma.submission.findMany(
+            {
+                include: {user:true}
+            }
+        );
         res.json(submissions);
     }catch(err){
         console.log(err);

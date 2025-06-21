@@ -30,7 +30,6 @@ const SubmitForm = ()=>{
         e.preventDefault();
         setScore(null);
         setError('');
-        console.log('hello',apiUrl);
         try{
             //send the repoUrl from the state
             const res = await axios.post(apiUrl,{repoUrl,assignmentId}); 
@@ -45,7 +44,7 @@ const SubmitForm = ()=>{
 
     return (
         <div className = "submit-form">
-            <h2>Your github repo</h2>
+            <h3>Submit An Assignment</h3>
             <form onSubmit ={handleSubmit}>
 
                 {/* ASSIGNMENT OPTION  */}

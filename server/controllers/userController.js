@@ -10,7 +10,8 @@ const getAllUsers = async(req,res) =>{
             select:{
                 id:true,
                 name:true,
-                email: true
+                email: true,
+                role: true
             },
         });
         res.json(users);//sends users array as json response to whoever made http request
@@ -29,7 +30,6 @@ const loginUser = async (req, res)=>{
     }else{
         res.status(404).json({error: 'User not found'});
     }
-
 };
 
 module.exports = {getAllUsers,loginUser};

@@ -3,6 +3,8 @@ import './App.css';
 import React, {useState, useEffect} from 'react';
 import SubmitForm from './components/SubmitForm.jsx';
 import LoginBar from './components/LoginBar.jsx';
+import AdminDashboard from './components/AdminDashboard.jsx';
+import UserDashboard  from './components/UserDashboard.jsx';
 function App() {
   //set the current user in Parent compontnet (this app.js)
   const [user, setUser] = useState(null);
@@ -11,7 +13,10 @@ function App() {
   };
 
   useEffect(()=>{ //everytime the user changes, useEffect() is called
-    console.log('current user is ',user.name);
+    if(user){
+      console.log('current user is ',user.name);
+    }
+    
   },[user]);
 
 
@@ -23,8 +28,24 @@ function App() {
   return (
     <div className="App">
       <h1>🗳️SUBMISSION PORTAL🗳️</h1>
-      <LoginBar onLogin={handleLogin} />
-      <SubmitForm />
+
+      {!user && (
+        <div>
+          <h2>LOG IN</h2>
+          <LoginBar onLogin={handleLogin} />
+        </div>
+
+      )}
+
+      {user && user.role ==='student' && (
+        <UserDashboard user={user} />
+      )}
+
+      {user && user.role === 'admin' &&(
+        <AdminDashboard user={user}/>
+      )}
+
+      
     </div>
   );
 }
