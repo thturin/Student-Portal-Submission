@@ -9,9 +9,8 @@ const AdminDashboard = ({user, onLogout}) =>{
     const [assignments, setAssignments] = useState([]);
     const [submissions, setSubmissions] = useState([]);
     const [selectedAssignment, setSelectedAssignment] = useState('');
-    const selectedAssignmentObj = assignments.find(
-        ass=>ass.id == Number(selectedAssignment)
-    );
+
+
 
     useEffect(()=>{
         axios.get(`${apiUrl}/assignments`).then(res=> {
@@ -22,10 +21,13 @@ const AdminDashboard = ({user, onLogout}) =>{
 
     },[]);
 
-    const filteredSubs = submissions.filter(
+    const filteredSubs = submissions.filter( //filter submissions based on the assignment id selected
         sub=> sub.assignmentId === Number(selectedAssignment)
     );
 
+    const selectedAssignmentObj = assignments.find(
+        ass=>ass.id === Number(selectedAssignment)
+    );
 
     return(
         <div>
@@ -33,8 +35,11 @@ const AdminDashboard = ({user, onLogout}) =>{
                 <LogoutButton onLogout={onLogout}/>
                 {/* when you use the functional form of a state setter (setASsignments) , oldAssignments always 
                 represents the previous (current) state value */}
-                <CreateAssignmentForm updateAssignments={newAssignment=>setAssignments(oldAssignments=>[...oldAssignments,newAssignment])}/>
-
+                {/* //the updateAssignments property is passed to parent so setAssignments can be updated (setAssignments contains the assignments listed to admin) */}
+                <CreateAssignmentForm updateAssignments={
+                    //res.data from updateAssignments in CreateAssignmentForm component is the newAssignment (newAssignment = res.data)
+                    childData=>setAssignments(oldAssignments=>[...oldAssignments,childData])
+                    }/>
             <h3>Assignments</h3>
             <select
                 value={selectedAssignment}
@@ -50,14 +55,14 @@ const AdminDashboard = ({user, onLogout}) =>{
                 ))}
             </select>
 
-            <h3>Submissions for Assignment {selectedAssignmentObj}</h3>
+            <h3>Submissions for Assignment: {selectedAssignmentObj? selectedAssignmentObj.title : ''}</h3>
             <ul>
-                {filteredSubs.map(sub=>(
+                {filteredSubs.length ===0?(<li style={{ color: 'red' }}>No Submissions</li>) :(filteredSubs.map(sub=>(
                     <li key={sub.id} style={{paddingLeft: '16px', listStylePosition: 'inside' }}>
                     User #{sub.userId} {sub.user?.name ? sub.user.name: 'no user'} submitted to 
                     Assignment {sub.assignmentId} - Score: {sub.score}
-                    </li>
-                ))}
+                    </li>))
+                )}
             </ul>
         </div>
     );

@@ -50,5 +50,15 @@ students can re-submit
 fancier filtering option for admin
 create an assignment in admin 
 export scores to csv files 
+AUTHENTICATE USERS GITHUB
+    what if a user copies and pastes a link that is not their own? 
+        check the url string if their username is included
 
 integrate gradle tests 
+
+
+Issues
+------
+
+once a user submits an assignment, it does not update the sumbission overview FIXED had to pass the new submission to userDashboard
+re-submission duplicates

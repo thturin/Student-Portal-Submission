@@ -3,27 +3,30 @@ import axios from 'axios'; //<-- how frontend will communicate with app.js serve
 
 const apiUrl = process.env.REACT_APP_API_URL;
 
-const SubmitForm = ()=>{
+const SubmitForm = ({onNewSubmission, user, submissions})=>{
+
     const [repoUrl, setRepoUrl] = useState('');
     const [assignmentId,setAssignmentId] = useState('');
     const [assignments, setAssignments] = useState([]);
-    const [score, setScore] = useState(null);
+    const [score, setScore] = useState(null); 
     const [error, setError] = useState('');
 
-    //fetch the assignments first
+    //FETCH ASSIGNMENTES
     useEffect(()=>{ //useEffect() code to run after the component renders
         //useEffect let your perform actions (side effects) in your componenet, such as fetching api data
         async function fetchAssignments(){
+            console.log('-----FETCHING ASSIGNMENTS----------');
             try{
-                const res = await axios.get(apiUrl.replace('/submit','/assignments'));
+                //console.log(`LOOK HERE -->${apiUrl}/assignments`);
+                const res = await axios.get(`${apiUrl}/assignments`);
                 setAssignments(res.data);
             }catch(err){
                 setError('Failed to load assignments');
             }
         }
         fetchAssignments();
-
-    },[]); // [] are the dependencies which means the function will run only when those dependencies change
+  
+    },[]); //happens on the mount [] are the dependencies which means the function will run only when those dependencies change
 
 
     const handleSubmit = async (e)=>{
@@ -31,10 +34,28 @@ const SubmitForm = ()=>{
         setScore(null);
         setError('');
         try{
-            //send the repoUrl from the state
-            const res = await axios.post(apiUrl,{repoUrl,assignmentId}); 
-            //receive score from 
-            setScore(res.data.score);
+            console.log('-----Handle Submit Called--------');
+            //PROBLEM HERE: SUBMISSION IS EMPTY
+            console.log('look here', submissions);
+            console.log(user);
+            if(submissions.find(sub=>{
+                console.log(sub.assignmentId,assignmentId);
+                return String(sub.assignmentId)===String(assignmentId);
+            })){
+                console.log('submission already exists');
+            }else{
+                const data = {
+                                repoUrl,
+                                assignmentId,
+                                userId:user.id
+                            };
+                            const res = await axios.post(`${apiUrl}/submit`,data); 
+                            //receive score from 
+                            setScore(res.data.score);
+                            //if property was passed in by component call in parent component, send the res.data as the value of pproperty
+                            if(onNewSubmission) onNewSubmission(res.data);
+            }
+            
         }catch(err){
             console.error(err);
             //if err.response exists -> if error.response.data exists, check the .error message
