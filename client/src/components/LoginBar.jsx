@@ -2,7 +2,7 @@ import React, {useState} from 'react';
 import axios from 'axios';
 
 
-const apiUrl = process.env.REACT_APP_API_URL.replace('/submit','/login');
+const apiUrl = process.env.REACT_APP_API_URL+'/login';
 
 const LoginBar = ({onLogin}) =>{
     const [email, setEmail] = useState('');
@@ -17,7 +17,7 @@ const LoginBar = ({onLogin}) =>{
         try{
             
             const res = await axios.post(apiUrl, {email});
-            console.log(res.data);
+            //console.log(res.data);
             if(res.data && res.data.user){ //if the data exists and there exists a user with that email
                 //function prop which passes the user object 
                 //{ id: 1, name: "Alice", email: "alice@school.com" }to the handleLog function

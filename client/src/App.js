@@ -5,6 +5,8 @@ import SubmitForm from './components/SubmitForm.jsx';
 import LoginBar from './components/LoginBar.jsx';
 import AdminDashboard from './components/AdminDashboard.jsx';
 import UserDashboard  from './components/UserDashboard.jsx';
+import LogoutButton from './components/LogoutButton';
+
 function App() {
   //set the current user in Parent compontnet (this app.js)
   const [user, setUser] = useState(null);
@@ -12,9 +14,15 @@ function App() {
     setUser(userData); 
   };
 
+  const handleLogout=()=>{
+    setUser(null);
+  }
+
   useEffect(()=>{ //everytime the user changes, useEffect() is called
     if(user){
       console.log('current user is ',user.name);
+    }else{
+      console.log('User is null');
     }
     
   },[user]);
@@ -28,6 +36,7 @@ function App() {
   return (
     <div className="App">
       <h1>🗳️SUBMISSION PORTAL🗳️</h1>
+      <LogoutButton onLogout ={handleLogout}/>
 
       {!user && (
         <div>
@@ -38,14 +47,12 @@ function App() {
       )}
 
       {user && user.role ==='student' && (
-        <UserDashboard user={user} />
+        <UserDashboard user={user} onLogout={handleLogout} />
       )}
 
       {user && user.role === 'admin' &&(
-        <AdminDashboard user={user}/>
+        <AdminDashboard user={user} onLogout={handleLogout}/>
       )}
-
-      
     </div>
   );
 }

@@ -17,7 +17,7 @@ app.get('/', (req, res)=>{
     console.log(req);
 });
 
-app.use('/api/submit', submissionRoutes); //call the router object in submissionRoutes (it is exported)
+app.use('/api/', submissionRoutes); //call the router object in submissionRoutes (it is exported)
 app.use('/api/assignments', assignmentRoutes); //call the router object in assignmentRoutes
 app.use('/api/',userRoutes);//two different endpoints /users and /login
 
