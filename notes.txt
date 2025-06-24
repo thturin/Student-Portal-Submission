@@ -53,12 +53,13 @@ export scores to csv files
 AUTHENTICATE USERS GITHUB
     what if a user copies and pastes a link that is not their own? 
         check the url string if their username is included
+    they must share their github account
 
 integrate gradle tests 
 
 
 Issues
-------
+------npm install passport passport-github2 express-session
 
 once a user submits an assignment, it does not update the sumbission overview FIXED had to pass the new submission to userDashboard
 re-submission duplicates

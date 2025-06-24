@@ -35,26 +35,15 @@ async function main(){
     //const bob = await prisma.user.findUnique({where:{email: 'bob@student.com'}});
 
 
-    await prisma.submission.create({
-        data:{
-            repoUrl: 'https://github.com/thturin/test_autograder_WRONG.git',
-            language: 'javascript',
-            score: 100,
-            assignmentId: 1, // make sure this assignment exists
-            userId: alice.id
-        }
-    });
-
-    await prisma.submission.create({
-        data:{
-            repoUrl: 'https://github.com/thturin/test_autograder.git',
-            language: 'javascript',
-            score: 50,
-            assignmentId: 2, // make sure this assignment exists
-            userId: charlie.id
-        }
-    });
-
+    // await prisma.assignment.create({
+    //     data:{
+    //         repoUrl: 'https://github.com/thturin/test_autograder_WRONG.git',
+    //         language: 'javascript',
+    //         score: 100,
+    //         assignmentId: 1, // make sure this assignment exists
+    //         userId: alice.id
+    //     }
+    // });
 
     console.log('DATA SEEDED');
 }

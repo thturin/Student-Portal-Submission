@@ -1,5 +1,5 @@
-import React, {useState, useEffect} from 'react';
 import axios from 'axios'; //<-- how frontend will communicate with app.js server
+import { useEffect, useState } from 'react';
 
 const apiUrl = process.env.REACT_APP_API_URL;
 
@@ -10,12 +10,13 @@ const SubmitForm = ({onNewSubmission, user, submissions})=>{
     const [assignments, setAssignments] = useState([]);
     const [score, setScore] = useState(null); 
     const [error, setError] = useState('');
+    const [submissionExists, setSubmissionExists] = useState(false);
 
     //FETCH ASSIGNMENTES
     useEffect(()=>{ //useEffect() code to run after the component renders
         //useEffect let your perform actions (side effects) in your componenet, such as fetching api data
         async function fetchAssignments(){
-            console.log('-----FETCHING ASSIGNMENTS----------');
+            console.log('-------FETCHING ASSIGNMENTS----------');
             try{
                 //console.log(`LOOK HERE -->${apiUrl}/assignments`);
                 const res = await axios.get(`${apiUrl}/assignments`);
@@ -30,19 +31,26 @@ const SubmitForm = ({onNewSubmission, user, submissions})=>{
 
 
     const handleSubmit = async (e)=>{
+        setSubmissionExists(false);
         e.preventDefault();
         setScore(null);
         setError('');
         try{
-            console.log('-----Handle Submit Called--------');
-            //PROBLEM HERE: SUBMISSION IS EMPTY
-            console.log('look here', submissions);
-            console.log(user);
-            if(submissions.find(sub=>{
-                console.log(sub.assignmentId,assignmentId);
-                return String(sub.assignmentId)===String(assignmentId);
-            })){
-                console.log('submission already exists');
+            console.log('-----Handle Submission--------');
+            //IF SUBMISSION ALREADY EXISTS, 
+            const existingSubmission = submissions.find(
+                sub=> String(sub.assignmentId) === String(assignmentId)
+            );
+     
+            if(existingSubmission){ //go to the ssubmission and update it
+                setSubmissionExists(true);
+                const res = await axios.put(`${apiUrl}/submissions/${existingSubmission.id}`,{
+                    repoUrl,
+                    assignmentId,
+                    userId: user.id
+                });
+                setScore(res.data.score); //score is added to database and evaluated on backend
+                if(onNewSubmission) onNewSubmission(res.data);
             }else{
                 const data = {
                                 repoUrl,
@@ -55,7 +63,6 @@ const SubmitForm = ({onNewSubmission, user, submissions})=>{
                             //if property was passed in by component call in parent component, send the res.data as the value of pproperty
                             if(onNewSubmission) onNewSubmission(res.data);
             }
-            
         }catch(err){
             console.error(err);
             //if err.response exists -> if error.response.data exists, check the .error message
@@ -96,6 +103,11 @@ const SubmitForm = ({onNewSubmission, user, submissions})=>{
                     required style={{ width: '400px', padding: '8px' }}
                 />
                 <button type="submit" style={{ marginLeft: '10px' }}>Submit</button>
+                <span  style={{ color: 'green', marginLeft: '12px', verticalAlign: 'middle' }}>
+                    {submissionExists ? "Resubmitted"
+                    : (!error && "")
+                    }
+                </span>
             </form>
 
 

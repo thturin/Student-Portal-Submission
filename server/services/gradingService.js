@@ -5,6 +5,7 @@ const fs = require('fs');
 //compares system output of java file (main.java)
 async function gradeJavaSubmission(clonePath){
     console.log(`--------------GRADING SERVICE -------------`);
+    console.log(clonePath);
     console.log('Files in clonePath:', fs.readdirSync(clonePath));
   
     return new Promise((resolve,reject)=>{
@@ -18,7 +19,7 @@ async function gradeJavaSubmission(clonePath){
 
             //run code (assume class is main)
             exec(`java -cp ${clonePath}  main`, (runErr, runStdout, runStderr)=>{ //run the main.class file and compare outputs
-                console.log(`Running callback`)
+                console.log(`Running callback`);
                 if(runErr){
                     console.error('Runtime error:',runStderr);
                     return resolve(0);

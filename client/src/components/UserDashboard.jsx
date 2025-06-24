@@ -35,11 +35,13 @@ const UserDashboard = ({user, onLogout})=>{
             <SubmitForm 
                     onNewSubmission={ //childData res.data from child component 
                         childData=>setSubmissions(//oldSubmissions is previous array
-                            oldSubmissions=>[...oldSubmissions,childData] //concatenate the array
+                            oldSubmissions=>[...oldSubmissions.filter( //remove duplicatres.. this happens when user updates a submission
+                                                        sub=>String(sub.assignmentId) !==String(childData.assignmentId))    
+                                ,childData] //concatenate the array
                         )
                     } 
                     user={user}
-                    submissions={submissions}
+                    submissions={submissions || []}
             />
             <h3>Your Submissions</h3>
             <ul>

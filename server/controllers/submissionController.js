@@ -8,25 +8,30 @@ const{gradeJavaSubmission} = require('../services/gradingService');
 const {PrismaClient} = require('@prisma/client');
 const prisma = new PrismaClient();
 
-const handleSubmission = async (req,res)=>{
-    try{
-        //const repoUrl =  `https://github.com/thturin/test_autograder.git`;
-        let score = 200;
-        console.log(`Request from handleSubmission -> ${req.body}`);
-        let {repoUrl, assignmentId,userId} = req.body;
-   
-        const path = `./uploads/${Date.now()}`; //where repo will be cloned to locally
+
+const cloneAndScore = async (repoUrl, path)=>{
         try{
+        
             await cloneRepo(repoUrl,path); //returns a promise since cloneRepo is async function
         }catch(cloneError){
             console.error("Error cloning repo:",cloneError);
             return res.status(500).json({ error: 'Failed to clone repo' });
         }
 
-        score = await gradeJavaSubmission(path);
-        console.log(score);
+        return await gradeJavaSubmission(path);
+};
 
-        
+const handleSubmission = async (req,res)=>{
+    try{
+        let score = 200;
+       // console.log(`Request from handleSubmission -> ${req.body}`);
+        let {repoUrl, assignmentId,userId} = req.body;
+       const path = `./uploads/${Date.now()}`; //where repo will be cloned to locally
+
+
+        //without await score returrns a promise
+        score = await cloneAndScore(repoUrl,path);
+        console.log(score);
 
         const newSub = await prisma.submission.create({
             data: {
@@ -45,27 +50,46 @@ const handleSubmission = async (req,res)=>{
         console.error(err);
         res.status(500).json({ error: 'Failed to insert submission' });
     }
-}
+};
+
+const updateSubmission = async(req,res)=>{
+    const {id} = req.params;
+    const {repoUrl, assignmentId, userId} = req.body
+    console.log('Look here', id, req.body);
+    const path = `./uploads/${Date.now()}`; //where repo will be cloned to locally
+    
+    const score = await cloneAndScore(repoUrl,path);
+    console.log(score);
+
+    try{
+        const updated = await prisma.submission.update({
+            where: {id:Number(id)},
+            data: {repoUrl, assignmentId, userId, score}
+        });
+        res.json(updated);
+    }catch(err){
+        console.error('PUT /submission werror',err);
+        res.status(400).json({error: 'Failed to update submission'});
+    }
+};
 
 
-// async function handleSubmission(req,res){
-//     //const{repoUrl} = req.body;
+const getSubmission = async(req,res)=>{
+    const {id} = req.params;
 
-//     //const clonePath = `./uploads/${Date.now()}`;
-//     const {repoUrl} = `https://github.com/thturin/test_autograder.git`;
-
-//     try{
-//         // await cloneRepo(repoUrl,clonePath);
-//         // const lang = detectLang(clonePath);
-//         // const score = await gradeSubmission(clonePath,lang);
-//         res.json({'language':'java','score':'92'});
-
-//     }catch(err){
-//         console.err(err);
-//         res.status(500).json({error:'Submission failed'});
-//     }
-
-// }
+    try{
+        //find the submission by id
+        const submission = await prisma.submission.findUnique({
+            where:{ id:Number(id)}
+        });
+        if(!submission){
+            return res.status(404)({error:'Submission not found'});
+        }
+        res.json(submission);
+    }catch(err){
+        res.status(500).json({error: 'Server error'});
+    }
+};
 
 
 const getAllSubmissions = async (req,res)=>{
@@ -99,5 +123,7 @@ const createSubmission = (req,res)=>{
 module.exports = {
     getAllSubmissions,
     createSubmission,
-    handleSubmission
+    handleSubmission,
+    getSubmission,
+    updateSubmission
 };
