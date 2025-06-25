@@ -7,7 +7,7 @@ async function main(){
         data: [
             {
                 name: 'Alice Adams',
-                email: 'alice@school.com',
+                email: 'alice@student.com',
                 role: 'student'
             },
             {

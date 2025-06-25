@@ -43,23 +43,25 @@ curl -X POST http://localhost:5000/api/submit -H "Content-Type: application/json
 curl -X POST http://localhost:5000/api/submit -H "Content-Type: application/json" -d "{}"
 
 
+------npm install passport passport-github2 express-session
+
+-------
 Agenda 
 -------
-Password feature 
-students can re-submit
-fancier filtering option for admin
-create an assignment in admin 
-export scores to csv files 
-AUTHENTICATE USERS GITHUB
+Password feature []
+students can re-submit [x]
+fancier filtering option for admin []
+create an assignment in admin [x]
+export scores to csv files []
+AUTHENTICATE USERS GITHUB []
     what if a user copies and pastes a link that is not their own? 
         check the url string if their username is included
     they must share their github account
 
-integrate gradle tests 
+integrate gradle tests []
 
-
+-------
 Issues
-------npm install passport passport-github2 express-session
-
+--------
 once a user submits an assignment, it does not update the sumbission overview FIXED had to pass the new submission to userDashboard
-re-submission duplicates
+re-submission duplicates FIXED

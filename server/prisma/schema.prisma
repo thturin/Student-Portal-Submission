@@ -14,11 +14,13 @@ datasource db {
 }
 
 model User{
-  id          Int     @id @default(autoincrement())
-  email       String  @unique
-  name        String
-  submission  Submission[]
-  role        String 
+  id              Int           @id @default(autoincrement())
+  email           String        @unique
+  name            String
+  githubId        String?       @unique
+  githubUsername  String?       @unique
+  submission      Submission[]
+  role            String 
 }
 
 

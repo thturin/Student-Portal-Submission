@@ -7,6 +7,14 @@ const {PrismaClient} = require('@prisma/client');
 require('dotenv').config(); //load environment variables from .env
 
 
+
+//REQUIRED FOR GITHUB Oauth
+const session = require('express-session');
+const passport = require('passport');
+
+require('./auth/github'); //run github.js
+
+
 const app = express();
 const prisma = new PrismaClient();
 app.use(cors());
