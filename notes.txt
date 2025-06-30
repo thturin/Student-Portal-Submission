@@ -43,7 +43,6 @@ curl -X POST http://localhost:5000/api/submit -H "Content-Type: application/json
 curl -X POST http://localhost:5000/api/submit -H "Content-Type: application/json" -d "{}"
 
 
-------npm install passport passport-github2 express-session
 
 -------
 Agenda 
@@ -54,9 +53,7 @@ fancier filtering option for admin []
 create an assignment in admin [x]
 export scores to csv files []
 AUTHENTICATE USERS GITHUB []
-    what if a user copies and pastes a link that is not their own? 
-        check the url string if their username is included
-    they must share their github account
+    
 
 integrate gradle tests []
 
@@ -65,3 +62,5 @@ Issues
 --------
 once a user submits an assignment, it does not update the sumbission overview FIXED had to pass the new submission to userDashboard
 re-submission duplicates FIXED
+only one button for login-> there are two now one for login and another for authentication
+    combine buttons 

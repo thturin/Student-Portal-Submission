@@ -10,23 +10,36 @@ require('dotenv').config(); //load environment variables from .env
 
 const app = express();
 const prisma = new PrismaClient();
-app.use(cors());
+
+app.use(cors({
+  origin:'http://localhost:3000',
+  credentials:true
+}));
+
 app.use(express.json());
 
 
 //REQUIRED FOR GITHUB Oauth
-const session = require('express-session');
-const passport = require('passport');
+const session = require('express-session');//ceaet a session
+const passport = require('passport');//create a passport
 
 app.use(session({
   secret: 'secret-key',
   resave: false,
-  saveUninitialized: false
+  saveUninitialized: false,
+  cookie:{
+    sameSite:'lax', //or 'none' if using https,
+    secure:false // true if using https
+  }
 }));
 
-require('./auth/github'); //run github.js
-app.use('/api/auth', authRoutes);
+app.use(passport.initialize());
+app.use(passport.session());
 
+
+
+require('./auth/github'); // Registers the strategy github
+app.use('/api/auth', authRoutes);
 
 app.use('/api/', submissionRoutes); //call the router object in submissionRoutes (it is exported)
 app.use('/api/assignments', assignmentRoutes); //call the router object in assignmentRoutes
@@ -39,9 +52,7 @@ app.listen(PORT, ()=>{
 });
 
 
-
-
-// app.get('/', (req, res)=>{
-//     res.send('Hello world from express!');
-//     console.log(req);
-// });
+app.get('/', (req, res)=>{
+    res.send('Backend is running!');
+    console.log(req);
+});

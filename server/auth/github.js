@@ -32,36 +32,48 @@ passport.deserializeUser(
 passport.use(new GitHubStrategy({
                             clientID: process.env.GITHUB_CLIENT_ID,
                             clientSecret: process.env.GITHUB_CLIENT_SECRET,
-                            callbackURL:'/auth/github/callback'
+                            callbackURL:'http://localhost:5000/api/auth/github/callback',
+                            passReqToCallback:true //allows you to access the original request(state parameter) inside strategy callback
+                            //callbackURL:`${process.env.REACT_APP_API_URL}/auth/github/callback`
                             },
-                            async(accessToken, refreshToken, profile, done) =>{
+                            async(req,accessToken, refreshToken, profile, done) =>{
+                                //github send you user info in `profile`   
+                                //you find or update user in DB
                                 try{
                                     //check if user already exists in DB
                                     const githubUsername = profile.username;
                                     const githubId = profile.id;
-                                    const githubEmail = profile.emails?.[0]?.value?.toLowerCase(); ///github email
-                                    const approvedUser = await prisma.user.findUnique({
-                                        where:{githubUsername},
-                                    });
+                                    //try to get github email
+                      
+                                    let githubEmail = profile.emails?.[0]?.value?.toLowerCase(); 
+                                    console.log(`github username:${githubUsername}\ngithubId:${githubId}\ngithubEmail:${githubEmail}`);
+                                    if(!githubEmail && req.session.oauthEmail){
+                                        githubEmail = req.session.oauthEmail.toLowerCase();
+                                    };
+
+                                    console.log(`github username:${githubUsername}\ngithubId:${githubId}\ngithubEmail:${githubEmail}`);
 
                                     if(!githubEmail) return done(null, false, {message: 'No github email provided'});
-
-                                    const existingUser = await prisma.user.findUnique({
-                                        where: {email:githubEmail}
+                                    
+                                    const approvedUser = await prisma.user.findUnique({
+                                        where:{email:githubEmail},
                                     });
+     
 
-                                    if(existingUser){
+                                    if(approvedUser){
                                         const updatedUser = await prisma.user.update({
-                                            where : {id: existingUser.id},
+                                            where : {id: approvedUser.id},
                                             data: {
                                                 githubId,
                                                 githubUsername
                                             }
                                         });
+
+                                        
                                         return done(null,updatedUser);
-                                    }
+                                    };
                                     //no match ?? block login (or create pending user)
-                                     return done(null,false, {message: 'User not pre-approved by instructor'});
+                                     return done(null,false, {message: 'User not on pre-approved list by admin'});
 
                                 }catch(err){
                                     console.error('Github login error: ',err);

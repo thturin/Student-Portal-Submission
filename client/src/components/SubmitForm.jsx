@@ -109,7 +109,7 @@ const SubmitForm = ({onNewSubmission, user, submissions})=>{
                     }
                 </span>
             </form>
-{/* 
+{/* }
                 output score after form submission */}
                 {score !== null && (
                     <p style={{ marginTop: '20px' }}>✅ Submission graded! Score: <strong>{score}</strong></p>

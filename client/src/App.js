@@ -10,6 +10,7 @@ import LogoutButton from './components/LogoutButton';
 function App() {
   //set the current user in Parent compontnet (this app.js)
   const [user, setUser] = useState(null);
+  
   const handleLogin=(userData)=>{
     setUser(userData); 
   };
