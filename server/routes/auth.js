@@ -5,7 +5,6 @@ const passport = require('passport');
 //http://localhost:5000/api/auth[]
 
 //start login http://localhost:5000/api/auth/github
-//router.get('/github', passport.authenticate('github', {scope:['user:email']}));
 
 router.get('/github', (req, res, next)=>{ //AUTHENTICATION STEP 1
     //forward the state parameter if present
@@ -20,6 +19,7 @@ router.get('/github/callback', //AUTHENTICATION ST EP 2
     (req,res,next) =>{
         //save state to session
         console.log('login user information',req.query);
+        //SAVE THE EMAIL STATE PARAM AS THE SESSION EMAIL
         if(req.query.state){
             //we are passing the session not the state
             req.session.oauthEmail = req.query.state;
@@ -28,7 +28,7 @@ router.get('/github/callback', //AUTHENTICATION ST EP 2
     },
     //if authenticationg fails, you will be redirected below
     passport.authenticate('github',{failureRedirect:'http://localhost:3000/login?error=oauth'}),
-    (req,res)=>{ //if authentication successful...
+    (req,res)=>{ //if authentication successful...REDIRECT TO HOMEPAGE
         console.log('Github callback hit, user: ', req.user);
         res.redirect('http://localhost:3000/'); //where the front end lands
     }
@@ -44,11 +44,15 @@ router.get('/me',
 
 //logout
 router.post('/logout', (req,res) =>{
-    req.logout(err=>{
-        if(err) return res.status(500).json({error:'Logout failed'});
-        res.sendStatus(204);
+    req.logout(()=>{ //passports logout method
+        req.session.destroy(()=>{
+            res.clearCookie('connect.sid');
+            res.sendStatus(204); //responds with not content
+        })
     });
 });
+
+
 
 module.exports = router;
 

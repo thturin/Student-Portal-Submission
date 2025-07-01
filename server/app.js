@@ -22,12 +22,14 @@ app.use(express.json());
 //REQUIRED FOR GITHUB Oauth
 const session = require('express-session');//ceaet a session
 const passport = require('passport');//create a passport
+//passport attaches helper methods to the request object for every incoming request
+// these middleware add methods to req are req.logout, req.login
 
 app.use(session({
   secret: 'secret-key',
   resave: false,
   saveUninitialized: false,
-  cookie:{
+  cookie:{ //COOKIE SETTINGS.  
     sameSite:'lax', //or 'none' if using https,
     secure:false // true if using https
   }

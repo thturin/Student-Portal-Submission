@@ -52,14 +52,15 @@ const LoginBar = ({onLogin}) =>{
     // };
 
     //handle github authorization login. After the user clicks login and we know the email exists in the database
-    const handleGithubLogin= ()=>{
+    const handleGithubLogin= (e)=>{
+        e.preventDefault(); //I think this was the problem of http://localhost:5000/api/auth/me not authorizing???
+        setError('');
         if(!email){
             setError('Please enter your email');
             return;
         }
         const url = `${process.env.REACT_APP_API_URL}/auth/github?state=${encodeURIComponent(email)}`;
         window.location.href = url;
-        
     };
 
     return (
@@ -68,7 +69,7 @@ const LoginBar = ({onLogin}) =>{
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                 <input 
                     type="email"
-                    placeholder="whatever@whatever.com"
+                    placeholder="yourbname@nycstudents.net"
                     value={email}
                     onChange={e => setEmail(e.target.value.trim())} //change useState of email
                     required

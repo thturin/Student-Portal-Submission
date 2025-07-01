@@ -6,6 +6,7 @@ import LoginBar from './components/LoginBar.jsx';
 import AdminDashboard from './components/AdminDashboard.jsx';
 import UserDashboard  from './components/UserDashboard.jsx';
 import LogoutButton from './components/LogoutButton';
+import axios from 'axios';
 
 function App() {
   //set the current user in Parent compontnet (this app.js)
@@ -15,7 +16,8 @@ function App() {
     setUser(userData); 
   };
 
-  const handleLogout=()=>{
+  const handleLogout= async ()=>{
+    await axios.post(`${process.env.REACT_APP_API_URL}/auth/logout`,{},{withCredentials:true});
     setUser(null);
   }
 
