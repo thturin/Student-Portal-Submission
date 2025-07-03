@@ -17,6 +17,9 @@ function App() {
   };
 
   const handleLogout= async ()=>{
+    //you need to make a post request because according to HTTP, actions that change 
+    //the server state should use POST, not GET
+    //also passport/express-session expects POST
     await axios.post(`${process.env.REACT_APP_API_URL}/auth/logout`,{},{withCredentials:true});
     setUser(null);
   }

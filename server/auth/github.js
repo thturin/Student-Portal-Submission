@@ -51,29 +51,54 @@ passport.use(new GitHubStrategy({
                                         githubEmail = req.session.oauthEmail.toLowerCase();
                                     };
 
-                                    console.log(`github username:${githubUsername}\ngithubId:${githubId}\ngithubEmail:${githubEmail}`);
+                                    //console.log(`github username:${githubUsername}\ngithubId:${githubId}\ngithubEmail:${githubEmail}`);
 
                                     if(!githubEmail) return done(null, false, {message: 'No github email provided'});
                                     
                                     const approvedUser = await prisma.user.findUnique({
-                                        where:{email:githubEmail},
+                                        where:{email:githubEmail}
                                     });
+
+                                    console.log({approvedUser});
      
-
+                                    //only update if githubid has changed
                                     if(approvedUser){
-                                        const updatedUser = await prisma.user.update({
-                                            where : {id: approvedUser.id},
-                                            data: {
-                                                githubId,
-                                                githubUsername
-                                            }
-                                        });
+                                       //check if another user already has the github id
+                                       const userWithGithubId = await prisma.user.findUnique({
+                                        where: {githubId}
+                                       });
 
+                                       console.log(userWithGithubId);
+                                       //if userWithGithubId exists and there are two users with the same githubId but different id's 
+                                       if(userWithGithubId && userWithGithubId.id!==approvedUser.id){ //CHECKING FOR GITHUB ID DUPES
+                                        console.log('hii');
+                                        return done(null,false,{message: 'Github account already linked to another user'});
+                                       }
+
+                                       ///prepare to update the data  
+                                       const updateData = {};
+                                       //if the approved user's githubId does not exist or needs to be updated
+                                       if(approvedUser.githubId === null || approvedUser.githubId!==githubId){
+                                        updateData.githubId=githubId;
+                                       }
+
+                                       if(approvedUser.githubUsername === null || approvedUser.githubUsername!==githubUsername){
+                                        updateData.githubUsername=githubUsername;
+                                       }
+
+                                       let updatedUser = approvedUser; //set to approved user if nothing is changed, original will get returned
+                                       if(Object.keys(updateData).length > 0){
+                                        updatedUser = await prisma.user.update({
+                                            where: {id: approvedUser.id},
+                                            data:updateData
+                                        });
+                                       }
+
+                                       return done(null,updatedUser);
+                                     }
                                         
-                                        return done(null,updatedUser);
-                                    };
-                                    //no match ?? block login (or create pending user)
-                                     return done(null,false, {message: 'User not on pre-approved list by admin'});
+                                   
+                                    return done(null,false, {message: 'User not on pre-approved list by admin'});
 
                                 }catch(err){
                                     console.error('Github login error: ',err);

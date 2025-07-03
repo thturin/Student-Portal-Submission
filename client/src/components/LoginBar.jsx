@@ -13,43 +13,19 @@ const LoginBar = ({onLogin}) =>{
     const [success, setSuccess] = useState(false);
     const [userName, setUserName] = useState('');
 
+    //WHEN THE USER LOGS OUT, YOU SHOULD NOT PERFORM THE GET METHOD BELOW `
     useEffect(()=>{
-    axios.get(`${process.env.REACT_APP_API_URL}/auth/me`, {withCredentials:true})
-    .then(res=>{
-        console.log('look here',res.data);
-        setUserName(res.data.username);
-        setSuccess(true);
-        if(onLogin) onLogin(res.data);
-        }).catch(()=>{
-            setSuccess(false);
-            setUserName('');
-        });
+        axios.get(`${process.env.REACT_APP_API_URL}/auth/me`, {withCredentials:true})
+        .then(res=>{
+            setUserName(res.data.username);
+            setSuccess(true);
+            if(onLogin) onLogin(res.data);
+            }).catch(()=>{
+                //this happens the user logs out and the user is now null, it will try to GET /auth/me but the session has expired
+                setSuccess(false);
+                setUserName('');
+            });
     },[onLogin]);
-
-    // const handleLogin = async (e)=>{
-    //     e.preventDefault();
-    //     setError('');
-    //     try{
-            
-    //         const res = await axios.post(apiUrl, {email});
-    //         //console.log(res.data);
-    //         if(res.data && res.data.user){ //if the data exists and there exists a user with that email
-    //             //function prop which passes the user object 
-    //             //{ id: 1, name: "Alice", email: "alice@school.com" }to the handleLog function
-                
-    //             //console.log('onLogin called with:', res.data.user.name);
-       
-
-    //             onLogin(res.data.user); //PASS USER DATA TO APP.JS (PARENT COMPONENT)
-    //             setUserName(res.data.user.name);
-    //             setSuccess(true);
-    //         }else{
-    //             setError('User not found');
-    //         }
-    //     }catch(err){
-    //             setError(err.response?.data?.error || 'Login failed');
-    //     }
-    // };
 
     //handle github authorization login. After the user clicks login and we know the email exists in the database
     const handleGithubLogin= (e)=>{
@@ -59,6 +35,8 @@ const LoginBar = ({onLogin}) =>{
             setError('Please enter your email');
             return;
         }
+
+        //pass the email as a state param via url to passport strateg
         const url = `${process.env.REACT_APP_API_URL}/auth/github?state=${encodeURIComponent(email)}`;
         window.location.href = url;
     };
@@ -93,3 +71,31 @@ const LoginBar = ({onLogin}) =>{
 };
 
 export default LoginBar;
+
+
+
+//OLD LOGIN
+    // const handleLogin = async (e)=>{
+    //     e.preventDefault();
+    //     setError('');
+    //     try{
+            
+    //         const res = await axios.post(apiUrl, {email});
+    //         //console.log(res.data);
+    //         if(res.data && res.data.user){ //if the data exists and there exists a user with that email
+    //             //function prop which passes the user object 
+    //             //{ id: 1, name: "Alice", email: "alice@school.com" }to the handleLog function
+                
+    //             //console.log('onLogin called with:', res.data.user.name);
+       
+
+    //             onLogin(res.data.user); //PASS USER DATA TO APP.JS (PARENT COMPONENT)
+    //             setUserName(res.data.user.name);
+    //             setSuccess(true);
+    //         }else{
+    //             setError('User not found');
+    //         }
+    //     }catch(err){
+    //             setError(err.response?.data?.error || 'Login failed');
+    //     }
+    // };

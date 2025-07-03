@@ -30,6 +30,8 @@ app.use(session({
   resave: false,
   saveUninitialized: false,
   cookie:{ //COOKIE SETTINGS.  
+    //how to set session timeout
+    maxAge: 60*60*1000,//1 hour (in milliseconds)
     sameSite:'lax', //or 'none' if using https,
     secure:false // true if using https
   }
