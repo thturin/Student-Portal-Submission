@@ -4,6 +4,8 @@ const submissionRoutes = require('./routes/submissionRoutes');
 const assignmentRoutes = require('./routes/assignmentRoutes');
 const userRoutes = require('./routes/userRoutes');
 const authRoutes = require('./routes/auth');
+const sectionRoutes = require('./routes/sectionRoutes');
+const adminRoutes = require('./routes/adminRoutes');
 const {PrismaClient} = require('@prisma/client');
 require('dotenv').config(); //load environment variables from .env
 
@@ -48,7 +50,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/', submissionRoutes); //call the router object in submissionRoutes (it is exported)
 app.use('/api/assignments', assignmentRoutes); //call the router object in assignmentRoutes
 app.use('/api/',userRoutes);//two different endpoints /users and /login
-
+app.use('/api/sections',sectionRoutes);
 
 const PORT = process.env.PORT;
 app.listen(PORT, ()=>{

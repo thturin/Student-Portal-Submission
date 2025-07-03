@@ -21,6 +21,8 @@ model User{
   githubUsername  String?       @unique
   submission      Submission[]
   role            String 
+  sectionId       Int?
+  section         Section? @relation("SectionStudents", fields: [sectionId], references: [id])
 }
 
 
@@ -41,4 +43,10 @@ model Assignment {
   title       String
   dueDate     DateTime
   submissions Submission[]
+}
+
+model Section{
+  id            Int           @id @default(autoincrement())
+  name          String
+  students      User[]        @relation("SectionStudents")
 }

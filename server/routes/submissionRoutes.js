@@ -4,7 +4,7 @@ const {updateSubmission,handleSubmission, getAllSubmissions, createSubmission, g
 
 //router.post('/', handleSubmission); //when a post request is made to this router, run handleSubmission
 
-//ROOT / ISS LOCALHOST:5000/API/SUBMIT
+//ROOT / ISS LOCALHOST:5000/API
 
 router.get('/submissions',getAllSubmissions); //this pathway is relative to the base path set in app.js (api/submit)
 // router.post('/',createSubmission);

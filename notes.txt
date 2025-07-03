@@ -52,8 +52,28 @@ students can re-submit [x]
 fancier filtering option for admin []
 create an assignment in admin [x]
 export scores to csv files []
-AUTHENTICATE USERS GITHUB []
-    
+AUTHENTICATE USERS GITHUB [x]
+
+PRIORITY 
+1. export scores to csv
+2. gradle test integration + test case diff viewer show output vs expected output for failing tests
+3. admin filters
+4. password
+
+NEXT-LEVEL FEATURES 
+1. inline feedback comments (per submission)
+2. submission history (track multiple submissions over time, show timestamps and scores )
+3. plagarism flag
+4. instructor comment broadcast 
+5. support file uploads for labs
+6. email notification on submission (nodemailer)
+
+BONUS
+1. admin data analytics dashbaord 
+2. student profile page
+3. run tests inside docker 
+    containerize the java gradingService
+
 
 integrate gradle tests []
 
@@ -63,4 +83,4 @@ Issues
 once a user submits an assignment, it does not update the sumbission overview FIXED had to pass the new submission to userDashboard
 re-submission duplicates FIXED
 only one button for login-> there are two now one for login and another for authentication
-    combine buttons 
+    combine buttons FIXED
