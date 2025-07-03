@@ -94,11 +94,16 @@ const getSubmission = async(req,res)=>{
 
 const getAllSubmissions = async (req,res)=>{
     try{
-        const submissions = await prisma.submission.findMany(
-            {
-                include: {user:true}
-            }
-        );
+        const submissions = await prisma.submission.findMany({
+            include: {
+                    user: {
+                        include: {
+                            section: true, //include section
+                        },
+                        },
+                    // ...other includes if needed
+                    },
+        });
         res.json(submissions);
     }catch(err){
         console.log(err);

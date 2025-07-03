@@ -17,6 +17,7 @@ const AdminDashboard = ({user, onLogout}) =>{
 
 
     useEffect(()=>{//on mount, retrieve the assignments 
+        console.log(user);
         axios.get(`${apiUrl}/assignments`).then(res=>setAssignments(res.data));
         //to retrieve the 
         axios.get(`${apiUrl}/submissions`).then(res=> setSubmissions(res.data));
@@ -98,7 +99,7 @@ const AdminDashboard = ({user, onLogout}) =>{
             <th style={{ border: '1px solid #ccc', padding: '4px' }}>Section ID/Name</th>
             <th style={{ border: '1px solid #ccc', padding: '4px' }}>User ID</th>
             <th style={{ border: '1px solid #ccc', padding: '4px' }}>User Name</th>
-            <th style={{ border: '1px solid #ccc', padding: '4px' }}>Assignment ID</th>
+            {/* <th style={{ border: '1px solid #ccc', padding: '4px' }}>Assignment ID</th> */}
             <th style={{ border: '1px solid #ccc', padding: '4px' }}>Score</th>
         </tr>
     </thead>
@@ -115,7 +116,7 @@ const AdminDashboard = ({user, onLogout}) =>{
                     <td style={{ border: '1px solid #ccc', padding: '4px' }}>{sub.user.sectionId} {sub.user.section.name}</td>
                     <td style={{ border: '1px solid #ccc', padding: '4px' }}>{sub.userId}</td>
                     <td style={{ border: '1px solid #ccc', padding: '4px' }}>{sub.user?.name ? sub.user.name : 'no user'}</td>
-                    <td style={{ border: '1px solid #ccc', padding: '4px' }}>{sub.assignmentId}</td>
+                    {/* <td style={{ border: '1px solid #ccc', padding: '4px' }}>{sub.assignmentId}</td> */}
                     <td style={{ border: '1px solid #ccc', padding: '4px' }}>{sub.score}</td>
                 </tr>
             ))

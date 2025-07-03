@@ -13,7 +13,8 @@ const getAllUsers = async(req,res) =>{
                 email: true,
                 role: true,
                 githubUsername: true,
-                githubId: true
+                githubId: true,
+                section:true
             },
         });
         res.json(users);//sends users array as json response to whoever made http request
