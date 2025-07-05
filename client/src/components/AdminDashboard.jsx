@@ -13,11 +13,11 @@ const AdminDashboard = ({user, onLogout}) =>{
     const [selectedAssignment, setSelectedAssignment] = useState('');
     const [sections,setSections] = useState([]);
     const [selectedSection,setSelectedSection] = useState('');
+    const [exportSuccess, setExportSuccess] = useState(null);
 
 
 
     useEffect(()=>{//on mount, retrieve the assignments 
-        console.log(user);
         axios.get(`${apiUrl}/assignments`).then(res=>setAssignments(res.data));
         //to retrieve the 
         axios.get(`${apiUrl}/submissions`).then(res=> setSubmissions(res.data));
@@ -26,17 +26,25 @@ const AdminDashboard = ({user, onLogout}) =>{
     },[]);
 
     const filteredSubs = submissions.filter( //filter submissions based on the assignment id selected
-        sub=> sub.assignmentId === Number(selectedAssignment)
-    );
-
-    const filteredSubsBySection = submissions.filter(
-        sub=> sub.assignmentId === Number(selectedAssignment) && sub.user?.sectionId === Number(selectedSection)
+        sub=>{
+            if(!selectedAssignment) return false; //if there is no selected assignment, there's not submissions in the list
+            if(!selectedSection){//if there is no section selected, return a list of the selected assignment and all of the submissions
+                return sub.assignmentId === Number(selectedAssignment); 
+            }else{
+                return sub.assignmentId === Number(selectedAssignment) && sub.user?.sectionId === Number(selectedSection);
+            }
+        } 
+     
     );
 
     const selectedAssignmentObj = assignments.find(
         ass=>ass.id === Number(selectedAssignment)
     );
     
+    const handleExport = async()=>{
+        setExportSuccess(false);
+        
+    }
 
 
     return(
@@ -86,12 +94,14 @@ const AdminDashboard = ({user, onLogout}) =>{
                 disabled={!selectedAssignment || filteredSubs.length===0}
                 onClick={async()=>{
                     if(!selectedAssignment) return;
-                    window.location.href = `${apiUrl}/admin/exportAssignment`
+                    console.log( `${apiUrl}/admin/exportAssignment`);
+                    window.location.href = `${apiUrl}/admin/exportAssignment`;
                 }}
                 style={{ padding: '4px 12px' }}
             > JUPITER EXPORT 
             </button>
 
+            {/* SUBMISSION LIST --------------------------------- */}
             <h3>Submissions for Assignment: {selectedAssignmentObj? selectedAssignmentObj.title : ''}</h3>
             <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '12px' }}>
     <thead>

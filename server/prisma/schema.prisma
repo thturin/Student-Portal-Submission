@@ -15,6 +15,7 @@ datasource db {
 
 model User{
   id              Int           @id @default(autoincrement())
+  schoolId        String?        @unique
   email           String        @unique
   name            String
   githubId        String?       @unique

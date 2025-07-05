@@ -51,6 +51,7 @@ app.use('/api/', submissionRoutes); //call the router object in submissionRoutes
 app.use('/api/assignments', assignmentRoutes); //call the router object in assignmentRoutes
 app.use('/api/',userRoutes);//two different endpoints /users and /login
 app.use('/api/sections',sectionRoutes);
+app.use('/api/admin',adminRoutes);
 
 const PORT = process.env.PORT;
 app.listen(PORT, ()=>{

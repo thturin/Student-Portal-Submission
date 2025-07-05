@@ -1,10 +1,10 @@
 const express = require('express');
 const router = express.Router();
+const exportAssignmentsCsv = require('../controllers/adminController');
 
+//ROOT LOCALHOST:5000/api/admin
 
-//ROOT LOCALHOST:5000/api
-
-router.get('/admin/exportAssignment',()=>console.log('exporting assignment...'));
+router.get('/exportAssignment',exportAssignmentsCsv);
 
 
 module.exports = router;
