@@ -49,5 +49,6 @@ model Assignment {
 model Section{
   id            Int           @id @default(autoincrement())
   name          String
+  sectionId     String        @unique
   students      User[]        @relation("SectionStudents")
 }

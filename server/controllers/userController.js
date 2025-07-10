@@ -9,12 +9,14 @@ const getAllUsers = async(req,res) =>{
             //only id, name, and email will be included
             select:{
                 id:true,
+                schoolId:true,
                 name:true,
                 email: true,
                 role: true,
                 githubUsername: true,
                 githubId: true,
                 section:true
+                
             },
         });
         res.json(users);//sends users array as json response to whoever made http request

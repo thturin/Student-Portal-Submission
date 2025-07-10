@@ -53,7 +53,7 @@ const handleSubmission = async (req,res)=>{
 };
 
 const updateSubmission = async(req,res)=>{
-    const {id} = req.params;
+    const {id} = req.params; //ID pulled from the parameters 
     const {repoUrl, assignmentId, userId} = req.body
     console.log('Look here', id, req.body);
     const path = `./uploads/${Date.now()}`; //where repo will be cloned to locally

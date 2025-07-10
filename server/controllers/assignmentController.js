@@ -32,7 +32,7 @@ const createAssignment = async(req, res) =>{
 const getAllAssignments = async(req,res)=>{
     try{
         const assignments = await prisma.assignment.findMany();
-        console.log(assignments);
+        //console.log(assignments);
         res.json(assignments);
     }catch(err){
         console.log(err);
