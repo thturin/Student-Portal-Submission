@@ -42,8 +42,10 @@ const SubmitForm = ({onNewSubmission, user, submissions})=>{
                 sub=> String(sub.assignmentId) === String(assignmentId)
             );
      
+            //IF WE ARE UPDATING THE SUBMISSION... EX: REGRADED 
             if(existingSubmission){ //go to the ssubmission and update it
                 setSubmissionExists(true);
+                //USE PUT TO UPDATE THE SUBMISSION
                 const res = await axios.put(`${apiUrl}/submissions/${existingSubmission.id}`,{
                     repoUrl,
                     assignmentId,
@@ -52,6 +54,7 @@ const SubmitForm = ({onNewSubmission, user, submissions})=>{
                 setScore(res.data.score); //score is added to database and evaluated on backend
                 if(onNewSubmission) onNewSubmission(res.data);
             }else{
+                //IF NOT, IT IS A NEW SUBMISSION
                 const data = {
                                 repoUrl,
                                 assignmentId,

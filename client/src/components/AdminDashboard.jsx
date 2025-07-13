@@ -43,7 +43,7 @@ const AdminDashboard = ({user, onLogout}) =>{
     
     const handleExport = async()=>{
         setExportSuccess(false);
-        
+
     }
 
 
@@ -91,11 +91,12 @@ const AdminDashboard = ({user, onLogout}) =>{
 
             {/* JUPITER EXPORT BUTTON ------------------------------------*/}
             <button 
-                disabled={!selectedAssignment || filteredSubs.length===0}
+                disabled={!selectedAssignment || filteredSubs.length===0 || !selectedSection}
                 onClick={async()=>{
-                    if(!selectedAssignment) return;
-                    console.log( `${apiUrl}/admin/exportAssignment`);
-                    window.location.href = `${apiUrl}/admin/exportAssignment`;
+                    //if(!selectedAssignment) return;
+                    //pass the assignmentId and sectionId as query params 
+                    let url = `${apiUrl}/admin/exportAssignment?assignmentId=${selectedAssignment}`;
+                    window.location.href = `${apiUrl}/admin/exportAssignment?assignmentId=${selectedAssignment}${selectedSection? `&sectionId=${selectedSection}`:''}`;       
                 }}
                 style={{ padding: '4px 12px' }}
             > JUPITER EXPORT 
