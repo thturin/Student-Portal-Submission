@@ -1,6 +1,9 @@
 const express = require('express');
 const router = express.Router();
 const passport = require('passport');
+const {PrismaClient} = require('@prisma/client');
+const prisma = new PrismaClient();
+
 
 //http://localhost:5000/api/auth[]
 
@@ -47,9 +50,31 @@ router.post('/logout', (req,res) =>{
     req.logout(()=>{ //passports logout method
         req.session.destroy(()=>{
             res.clearCookie('connect.sid');
-            res.sendStatus(204); //responds with not content
+            res.sendStatus(200); //responds with not content
         })
     });
+});
+
+
+//unlink github before logging in with another account 
+//for example, logging in with thturin and logging out. Then logging back in with tturin1017 causes 
+//an error because the profile is still linked to thturin. It must be unlinked first 
+//ie. changing githubId and username to NULL
+router.post('/unlink-github', async (req, res)=>{
+    const {email} = req.body;
+    if(!email) return res.status(400).json({error: 'Email is required'});
+    try{
+        const user = prisma.user.findUnique({where: {email}});
+        await prisma.user.update({
+            where: {email},
+            data: {githubId: null, githubUsername: null}
+        });
+        res.json({message: 'Github account unlinked successfully'});
+
+    }catch(err){
+        console.error('unlink github error: ',err);
+        res.status(500).json({error: 'Internal server error'});
+    }
 });
 
 

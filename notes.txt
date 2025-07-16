@@ -51,7 +51,7 @@ Password feature []
 students can re-submit [x]
 fancier filtering option for admin []
 create an assignment in admin [x]
-export scores to csv files []
+export scores to csv files [x]
 AUTHENTICATE USERS GITHUB [x]
 
 PRIORITY 
@@ -84,3 +84,5 @@ once a user submits an assignment, it does not update the sumbission overview FI
 re-submission duplicates FIXED
 only one button for login-> there are two now one for login and another for authentication
     combine buttons FIXED
+**possible issue in the future.. on logout, the githubId and githubUsername is deleted for the user. Upon login, the githubId and githubUsername is stored
+in other words, the githubId and username is temporarily stored during the user's session.

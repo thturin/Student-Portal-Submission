@@ -41,60 +41,63 @@ passport.use(new GitHubStrategy({
                                 //you find or update user in DB
                                 try{
                                     //check if user already exists in DB
-                                    const githubUsername = profile.username;
+                                    const githubUsername = profile.username; //THE PROFILE OBJECT DOESN'T UPDATE FROM PREVIOUS USER
+                    
                                     const githubId = profile.id;
                                     //try to get github email
-                      
+                                    //console.log('GitHub profile:', profile);
                                     let githubEmail = profile.emails?.[0]?.value?.toLowerCase(); 
-                                    console.log(`github username:${githubUsername}\ngithubId:${githubId}\ngithubEmail:${githubEmail}`);
+                                   
                                     if(!githubEmail && req.session.oauthEmail){
+                                        //make the session email the githubEmail
                                         githubEmail = req.session.oauthEmail.toLowerCase();
                                     };
 
+                                    console.log(`github username:${githubUsername}\ngithubId:${githubId}\ngithubEmail:${githubEmail}`);
                                     //console.log(`github username:${githubUsername}\ngithubId:${githubId}\ngithubEmail:${githubEmail}`);
 
                                     if(!githubEmail) return done(null, false, {message: 'No github email provided'});
                                     
+                                    //searches for email in database
                                     const approvedUser = await prisma.user.findUnique({
                                         where:{email:githubEmail}
                                     });
 
-                                    console.log({approvedUser});
-     
-                                    //only update if githubid has changed
                                     if(approvedUser){
-                                       //check if another user already has the github id
-                                       const userWithGithubId = await prisma.user.findUnique({
-                                        where: {githubId}
-                                       });
 
-                                       console.log(userWithGithubId);
-                                       //if userWithGithubId exists and there are two users with the same githubId but different id's 
-                                       if(userWithGithubId && userWithGithubId.id!==approvedUser.id){ //CHECKING FOR GITHUB ID DUPES
-                                        console.log('hii');
-                                        return done(null,false,{message: 'Github account already linked to another user'});
-                                       }
+                                    // THE FOLLOWING CODE CHECKS FOR USERS WITH THE SAME GITHUBid AND UPDATES
+                                    //IT IS NOT NEEDED WITH THE CURRENT WORKFLOW THAT DELETES THE GITTHUBiD AND USERNAME ON LOGOUT
+                                    //    //check if another user already has the github id
+                                    //    const userWithGithubId = await prisma.user.findUnique({
+                                    //     where: {githubId:githubId}
+                                    //    });
 
-                                       ///prepare to update the data  
-                                       const updateData = {};
-                                       //if the approved user's githubId does not exist or needs to be updated
-                                       if(approvedUser.githubId === null || approvedUser.githubId!==githubId){
-                                        updateData.githubId=githubId;
-                                       }
+                                    //    //if userWithGithubId exists and there are two users with the same githubId but different users
+                                    //    if(userWithGithubId && userWithGithubId.id!==approvedUser.id){ //CHECKING FOR GITHUB ID DUPES
+                                    //     return done(null,false,{message: 'Github account already linked to another user'});
+                                    //    }
 
-                                       if(approvedUser.githubUsername === null || approvedUser.githubUsername!==githubUsername){
-                                        updateData.githubUsername=githubUsername;
-                                       }
+                                    //    ///prepare to update the data  
+                                    //    const updateData = {};
+                                    //    //if the approved user's githubId does not exist or needs to be updated
+                                    //    if(approvedUser.githubId === null || approvedUser.githubId!==githubId){
+                                    //     updateData.githubId=githubId;
+                                    //    }
 
-                                       let updatedUser = approvedUser; //set to approved user if nothing is changed, original will get returned
-                                       if(Object.keys(updateData).length > 0){
-                                        updatedUser = await prisma.user.update({
-                                            where: {id: approvedUser.id},
-                                            data:updateData
-                                        });
-                                       }
+                                    //    if(approvedUser.githubUsername === null || approvedUser.githubUsername!==githubUsername){
+                                    //     updateData.githubUsername=githubUsername;
+                                    //    }
 
-                                       return done(null,updatedUser);
+                                    //    let updatedUser = approvedUser; //set to approved user if nothing is changed, original will get returned
+                                    //    if(Object.keys(updateData).length > 0){
+                                    //     updatedUser = await prisma.user.update({
+                                    //         where: {id: approvedUser.id},
+                                    //         data:updateData
+                                    //     });
+                                    //    }
+
+                                    //    return done(null,updatedUser);
+                                       return done(null, approvedUser);
                                      }
                                         
                                    

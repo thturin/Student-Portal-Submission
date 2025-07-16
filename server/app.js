@@ -20,7 +20,7 @@ app.use(cors({
 
 app.use(express.json());
 
-
+console.log('-----------------------BEGIN------------------');
 //REQUIRED FOR GITHUB Oauth
 const session = require('express-session');//ceaet a session
 const passport = require('passport');//create a passport
