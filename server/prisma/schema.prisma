@@ -15,7 +15,7 @@ datasource db {
 
 model User{
   id              Int           @id @default(autoincrement())
-  schoolId        String?        @unique
+  schoolId        String?       @unique
   email           String        @unique
   name            String
   githubId        String?       @unique
@@ -24,6 +24,7 @@ model User{
   role            String 
   sectionId       Int?
   section         Section? @relation("SectionStudents", fields: [sectionId], references: [id])
+  password        String?       @unique
 }
 
 

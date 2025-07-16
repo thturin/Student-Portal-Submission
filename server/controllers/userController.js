@@ -28,9 +28,9 @@ const getAllUsers = async(req,res) =>{
 }
 
 const loginUser = async (req, res)=>{
-    const {email} = req.body;
+    const {email, password} = req.body;
     const user = await prisma.user.findUnique({where: {email}});
-    if(user){
+    if(user && user.password === password){
         res.json({user}); //send the user back to api 
     }else{
         res.status(404).json({error: 'User not found'});

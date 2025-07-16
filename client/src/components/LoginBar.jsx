@@ -12,6 +12,7 @@ const LoginBar = ({onLogin}) =>{
     //the states below are needed to track the logged in user and render it in the parent component via onLogin
     const [success, setSuccess] = useState(false);
     const [userName, setUserName] = useState('');
+    const [password, setPassword] = useState('');
 
     //WHEN THE USER LOGS OUT, YOU SHOULD NOT PERFORM THE GET METHOD BELOW `
     useEffect(()=>{
@@ -28,7 +29,7 @@ const LoginBar = ({onLogin}) =>{
     },[onLogin]);
 
     //handle github authorization login. After the user clicks login and we know the email exists in the database
-    const handleGithubLogin= (e)=>{
+    const handleGithubLogin= async (e)=>{
         e.preventDefault(); //I think this was the problem of http://localhost:5000/api/auth/me not authorizing???
         setError('');
         if(!email){
@@ -36,9 +37,30 @@ const LoginBar = ({onLogin}) =>{
             return;
         }
 
-        //pass the email as a state param via url to passport strateg
-        const url = `${process.env.REACT_APP_API_URL}/auth/github?state=${encodeURIComponent(email)}`;
-        window.location.href = url;
+        if(!password){
+            setError('Please enter your password');
+            return;
+        }else{
+            ///check password
+            try{
+                const res = await axios.post(process.env.REACT_APP_API_URL+'/login', {email, password});
+                if(res.data && res.data.user){
+                    //if login is successful... there exists a response and a user found in db
+                            //pass the email as a state param via url to passport strategy
+                    const url = `${process.env.REACT_APP_API_URL}/auth/github?state=${encodeURIComponent(email)}`;
+                    window.location.href = url;
+                }else{
+                    setError('Password incorrect');
+                    return;
+                }
+
+            }catch(err){
+                setError('Could not post to /login');
+            }
+
+        }
+
+
     };
 
     return (
@@ -47,11 +69,19 @@ const LoginBar = ({onLogin}) =>{
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                 <input 
                     type="email"
-                    placeholder="yourbname@nycstudents.net"
+                    placeholder="yourname@nycstudents.net"
                     value={email}
                     onChange={e => setEmail(e.target.value.trim())} //change useState of email
                     required
                     style={{ padding: '8px', width: '250px' }}
+                />
+                <input
+                    type="password"
+                    placeholder="Password"
+                    value={password}
+                    onChange={e => setPassword(e.target.value)}
+                    required
+                    style={{ padding: '8px', width: '150px' }}
                 />
                 {/* <button type="submit" style={{ padding: '8px 16px' }}>Login</button> */}
                 <button type="submit" style={{ padding: '8px 16px' }}>

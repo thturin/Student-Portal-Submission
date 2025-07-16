@@ -55,7 +55,7 @@ export scores to csv files [x]
 AUTHENTICATE USERS GITHUB [x]
 
 PRIORITY 
-1. export scores to csv
+1. export scores to csv [x]
 2. gradle test integration + test case diff viewer show output vs expected output for failing tests
 3. admin filters
 4. password
