@@ -10,7 +10,7 @@ async function cloneRepo(repoUrl, destinationFolder){
     //create folder if it doesn't exist 
     if(!fs.existsSync(destinationFolder)){
         fs.mkdirSync(destinationFolder, {recursive:true});
-        console.log('hello');
+        console.log('folder created');
     }
 
     console.log(`Cloning ${repoUrl} into ${destinationFolder}...`);

@@ -9,13 +9,13 @@ const {PrismaClient} = require('@prisma/client');
 const prisma = new PrismaClient();
 
 
-const cloneAndScore = async (repoUrl, path)=>{
+const cloneAndScore = async (repoUrl, path)=>{ //clone student's repo pasted into submission portal
         try{
         
             await cloneRepo(repoUrl,path); //returns a promise since cloneRepo is async function
         }catch(cloneError){
             console.error("Error cloning repo:",cloneError);
-            return res.status(500).json({ error: 'Failed to clone repo' });
+            throw cloneError;
         }
 
         return await gradeJavaSubmission(path);

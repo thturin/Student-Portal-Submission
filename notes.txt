@@ -47,7 +47,8 @@ curl -X POST http://localhost:5000/api/submit -H "Content-Type: application/json
 -------
 Agenda 
 -------
-Password feature []
+when user pastes link into submission, it must match their username in the database (important for cheating)
+Password feature [x]
 students can re-submit [x]
 fancier filtering option for admin []
 create an assignment in admin [x]
@@ -58,7 +59,7 @@ PRIORITY
 1. export scores to csv [x]
 2. gradle test integration + test case diff viewer show output vs expected output for failing tests
 3. admin filters
-4. password
+4. password [x]
 
 NEXT-LEVEL FEATURES 
 1. inline feedback comments (per submission)
