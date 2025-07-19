@@ -6,7 +6,3 @@
   "delay": 3000,
   "verbose": true
 }
-
-//there was an issue with the server restarting when a project was cloned, 
-//this was causingf the grading service to restart
-//the uploads folder is now ignored if updated 

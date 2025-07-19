@@ -59,7 +59,7 @@ AUTHENTICATE USERS GITHUB [x]
 
 PRIORITY 
 1. export scores to csv [x]
-2. gradle test integration + test case diff viewer show output vs expected output for failing tests
+2. gradle test integration + test case diff viewer show output vs expected output for failing tests [x]
 3. admin filters
 4. password [x]
 
@@ -89,3 +89,12 @@ only one button for login-> there are two now one for login and another for auth
     combine buttons FIXED
 **possible issue in the future.. on logout, the githubId and githubUsername is deleted for the user. Upon login, the githubId and githubUsername is stored
 in other words, the githubId and username is temporarily stored during the user's session.
+
+
+**keeping the githubId and username after a user logged out caused the session to keep the user settings, 
+** session id and username are now permanently removed on log out
+
+
+**there was an issue with the server restarting when a project was cloned, 
+this was causingf the grading service to restart
+the uploads folder is now ignored if updated 
