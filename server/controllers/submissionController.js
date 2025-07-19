@@ -23,28 +23,38 @@ const cloneAndScore = async (repoUrl, path)=>{ //clone student's repo pasted int
 
 const handleSubmission = async (req,res)=>{
     try{
-        let score = 200;
+        let result = {score:-100, output:''};
+
        // console.log(`Request from handleSubmission -> ${req.body}`);
         let {repoUrl, assignmentId,userId} = req.body;
        const path = `./uploads/${Date.now()}`; //where repo will be cloned to locally
 
 
         //without await score returrns a promise
-        score = await cloneAndScore(repoUrl,path);
-        console.log(score);
+        result = await cloneAndScore(repoUrl,path);
+        //console.log(result);
 
         const newSub = await prisma.submission.create({
             data: {
                 repoUrl,
                 language: 'java',
-                score,
+                score: result.score,
                 assignmentId,
                 userId
             }
         
         });
         //res.status(201).json(newSub);
-        res.json(newSub);//follows REST protocol
+        //return both the submission data AND output
+        res.json({
+            ...newSub,
+            output:result.output // add output to response
+        });//follows REST protocol
+        //this res.json() will return something like this 
+        //   assignmentI:8
+        //   languageL"java"
+        //   score:50,
+        //   output:.././
 
     }catch(err){
         console.error(err);
@@ -58,15 +68,18 @@ const updateSubmission = async(req,res)=>{
     console.log('Look here', id, req.body);
     const path = `./uploads/${Date.now()}`; //where repo will be cloned to locally
     
-    const score = await cloneAndScore(repoUrl,path);
-    console.log(score);
+    let result = {score:-100, output:''}
+    result = await cloneAndScore(repoUrl,path);
 
     try{
         const updated = await prisma.submission.update({
             where: {id:Number(id)},
-            data: {repoUrl, assignmentId, userId, score}
+            data: {repoUrl, assignmentId, userId, score: result.score}
         });
-        res.json(updated);
+        res.json({
+            ...updated, //using ... so the object isn't returned but all of the contents within the object is returned 
+            output:result.output //add output to response
+        });
     }catch(err){
         console.error('PUT /submission werror',err);
         res.status(400).json({error: 'Failed to update submission'});

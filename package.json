@@ -1,22 +1,8 @@
 {
   "dependencies": {
     "json2csv": "^6.0.0-alpha.2"
-  }
-}
-
-{
-  "scripts": {
-    "dev": "nodemon app.js"
   },
-  "nodemonConfig": {
-    "ignore": [
-      "uploads/*",
-      "uploads/**/*",
-      "node_modules/*",
-      "*.log",
-      "*.tmp"
-    ],
-    "delay": 2000,
-    "verbose": true
+  "scripts": {
+    "dev": "nodemon app.js"  //RUN NPM RUN DEV
   }
 }

@@ -44,6 +44,8 @@ curl -X POST http://localhost:5000/api/submit -H "Content-Type: application/json
 
 
 
+
+IN ORDER TO RUN SERVER, USE NPM RUN DEV
 -------
 Agenda 
 -------
@@ -76,7 +78,7 @@ BONUS
     containerize the java gradingService
 
 
-integrate gradle tests []
+integrate gradle tests [x]
 
 -------
 Issues

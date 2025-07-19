@@ -11,6 +11,7 @@ const SubmitForm = ({onNewSubmission, user, submissions})=>{
     const [score, setScore] = useState(null); 
     const [error, setError] = useState('');
     const [submissionExists, setSubmissionExists] = useState(false);
+    const [output, setOutput] = useState('');
 
     //FETCH ASSIGNMENTES
     useEffect(()=>{ //useEffect() code to run after the component renders
@@ -35,6 +36,7 @@ const SubmitForm = ({onNewSubmission, user, submissions})=>{
         e.preventDefault();
         setScore(null);
         setError('');
+        setOutput('');
         try{
             console.log('-----Handle Submission--------');
             //IF SUBMISSION ALREADY EXISTS, 
@@ -52,6 +54,7 @@ const SubmitForm = ({onNewSubmission, user, submissions})=>{
                     userId: user.id
                 });
                 setScore(res.data.score); //score is added to database and evaluated on backend
+                setOutput(res.data.output);
                 if(onNewSubmission) onNewSubmission(res.data);
             }else{
                 //IF NOT, IT IS A NEW SUBMISSION
@@ -62,7 +65,9 @@ const SubmitForm = ({onNewSubmission, user, submissions})=>{
                             };
                             const res = await axios.post(`${apiUrl}/submit`,data); 
                             //receive score from 
+                            //console.log('look here->', res.data);
                             setScore(res.data.score);
+                            setOutput(res.data.output);
                             //if property was passed in by component call in parent component, send the res.data as the value of pproperty
                             if(onNewSubmission) onNewSubmission(res.data);
             }
@@ -70,6 +75,7 @@ const SubmitForm = ({onNewSubmission, user, submissions})=>{
             console.error(err);
             //if err.response exists -> if error.response.data exists, check the .error message
             setError(err.response?.data?.error || 'Submission Failed');
+            setOutput(err.response?.data?.output || '');
         }   
     };
 
@@ -116,6 +122,26 @@ const SubmitForm = ({onNewSubmission, user, submissions})=>{
                 output score after form submission */}
                 {score !== null && (
                     <p style={{ marginTop: '20px' }}>✅ Submission graded! Score: <strong>{score}</strong></p>
+                )}
+
+                {/* show gradle test output */}
+                {output && (
+                    <div style={{ marginTop: '20px' }}>
+                        <h4>Test Output:</h4>
+                        <pre style={{
+                            backgroundColor: '#f5f5f5',
+                            border: '1px solid #ddd',
+                            borderRadius: '4px',
+                            padding: '15px',
+                            whiteSpace: 'pre-wrap',
+                            overflow: 'auto',
+                            maxHeight: '400px',
+                            fontSize: '12px',
+                            fontFamily: 'Courier New, monospace'
+                        }}>
+                            {output}
+                        </pre>
+                    </div>
                 )}
 
                 {error &&(

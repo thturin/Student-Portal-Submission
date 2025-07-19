@@ -8,25 +8,15 @@ async function gradeJavaSubmission(clonePath){
     console.log(clonePath);
     console.log('Files in clonePath:', fs.readdirSync(clonePath));
   
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve, reject) => { 
         // Debug: Check if gradlew exists and is executable
         const gradlewPath = path.join(clonePath, 'gradlew');
         const hasGradlew = fs.existsSync(gradlewPath);
-
-        // if (hasGradlew) {
-        //     try {
-        //         const stats = fs.statSync(gradlewPath);
-        //         console.log('gradlew file size:', stats.size);
-        //         console.log('gradlew is file:', stats.isFile());
-        //     } catch (e) {
-        //         console.error('Error checking gradlew:', e.message);
-        //     }
-        // }
         
         // Add test-specific flags and timeout to prevent hanging
         const gradleCommand = hasGradlew ? 
-            './gradlew test --no-daemon --continue --fail-fast' : 
-            'gradle test --no-daemon --continue --fail-fast';
+            './gradlew test' : 
+            'gradle test';
         console.log('Running command:', gradleCommand);
         
         // Set a shorter timeout for debugging
@@ -35,39 +25,42 @@ async function gradeJavaSubmission(clonePath){
             resolve(-100);
         }, 300000); // 5 minutes
         
-        // Add process monitoring to see what's happening
+        // exec is synchronous and returns IMMEDIATELY
+        //but gradleCommand continues to run in the background
         const child = exec(gradleCommand, {
             cwd: clonePath,
-            timeout:300000, // 2 minutes
-            maxBuffer: 1024 * 1024 * 50, // 50MB buffer
+            timeout:300000, // 5 minutes
             env: { ...process.env }
-        }, (err, stdout, stderr) => {
-            clearTimeout(timeoutId);
-            
-            console.log('=== GRADLE EXECUTION COMPLETE ===');
-            
+        }, (err, stdout, stderr) => { //when gradle finished, this callback executes
+            clearTimeout(timeoutId); // this stops the timeout if the exec callback executes before the timer
+            console.log('=== GRADLE EXECUTION COMPLETE ===');           
             if (err) {
-                console.error('Gradle error:', err.message);
-                console.error('stderr:', stderr);
+                console.error('Not all test cases passed or there was a system error');
+
+                //if you want to print the error message uncomment below
+                //console.error(err.message);
+                //console.error('stderr:', stderr);
                 
-                // Check if it's a build failure vs system error
-                if (stderr.includes('BUILD FAILED') || stderr.includes('test')) {
-                    console.log('Build failed, checking for partial results...');
-                    // Try to parse results even if build failed
-                }else{
-                    console.log('System error occurred');
-                }
+                // // Check if it's a build failure vs system error
+                // if (stderr.includes('BUILD FAILED') || stderr.includes('test')) {
+                //     console.log('----Build failed, checking for partial results...----');
+                //     // Try to parse results even if build failed
+                // }else{
+                //     console.log('----System error occurred----');
+                // }
  
             }else{
-                console.log('Gradle succeeded - all tests passed');
-                console.log('stdout preview:', stdout.substring(0, 1000));
+                console.log('----Gradle succeeded - all tests passed-----');
+                //console.log('stdout preview:', stdout.substring(0, 1000));
             }
             
-            console.log('About to call parseTestResults');
-            parseTestResults(clonePath, resolve);
-            console.log('Called parseTestResults');
+            console.log('-----Calling parseTestResults-----');
+            parseTestResults(clonePath, resolve, stdout);
+            console.log('----Called parseTestResults----');
         });
         
+
+        //these are event listeners that run before gradle finishes
         // Monitor the child process to see exactly what's happening
         child.on('spawn', () => {
             console.log('✓ Gradle process spawned successfully');
@@ -76,7 +69,6 @@ async function gradeJavaSubmission(clonePath){
         child.on('error', (error) => {
             clearTimeout(timeoutId);
             console.error('✗ Process failed to spawn:', error.message);
-            resolve(-100);
         });
         
         child.on('exit', (code, signal) => {
@@ -84,18 +76,17 @@ async function gradeJavaSubmission(clonePath){
         });
         
         // Add stdout/stderr monitoring to see real-time output
-        child.stdout.on('data', (data) => {
-            console.log('Gradle stdout:', data.toString().substring(0, 200));
-        });
+        // child.stdout.on('data', (data) => {
+        //     console.log('Gradle stdout:', data.toString().substring(0, 200));
+        // });
         
-        child.stderr.on('data', (data) => {
-            console.log('Gradle stderr:', data.toString().substring(0, 200));
-        });
+        // child.stderr.on('data', (data) => {
+        //     console.log('Gradle stderr:', data.toString().substring(0, 200));
+        // });
     });
 }
 
-function parseTestResults(clonePath, resolve) {
-    console.log('HELLo');
+function parseTestResults(clonePath, resolve, stdout) {
     try {
         const testResultsDir = path.join(clonePath, 'build/test-results/test');
         console.log('Looking for test results in:', testResultsDir);
@@ -136,14 +127,14 @@ function parseTestResults(clonePath, resolve) {
         if (totalTest > 0) {
             const score = Math.round((totalPassedTests / totalTest) * 100);
             console.log(`Final Score: ${totalPassedTests}/${totalTest} = ${score}%`);
-            resolve(score);
+            resolve({score:score, output:stdout || 'Gradle tests completed successfully'});
         } else {
             console.log('No tests found, returning 0');
-            resolve(0);
+            resolve({score: 0, output:stdout || 'No Tests found'});
         }
     } catch (parseError) {
         console.error('Error in parsing phase:', parseError);
-        resolve(0);
+        resolve({score:0, output:stdout || 'Error parsing test results'});
     }
 }
 
