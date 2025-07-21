@@ -7,37 +7,72 @@ const{gradeJavaSubmission} = require('../services/gradingService');
 //const{gradeSubmission} = require('../services/gradingService');
 const {PrismaClient} = require('@prisma/client');
 const prisma = new PrismaClient();
+const axios = require('axios');
 
 
-const cloneAndScore = async (repoUrl, path)=>{ //clone student's repo pasted into submission portal
-        try{
-        
-            await cloneRepo(repoUrl,path); //returns a promise since cloneRepo is async function
-        }catch(cloneError){
-            console.error("Error cloning repo:",cloneError);
-            throw cloneError;
+const scoreSubmission = async (url, path, submissionType)=>{ //clone student's repo pasted into submission portal
+        //confirm that both the submission type and url verify that it is a googledoc
+        if(url.includes('docs.google.com' && submissionType === 'googledoc')){
+            const docIdMatch = url.match(/\/document\/d\/([a-zA-Z0-9-_]+)/);
+            if (!docIdMatch) {
+                throw new Error('Invalid Google Docs URL format');
+            }
+            const documentId = docIdMatch[1];
+            console.log('Checking Google Doc with ID:', documentId);
+            //CALL/POST TO PYTHON FLASK API -> send the documentId
+            const response = await axios.post('http://localhost:5001/check-doc',{
+                documentId: documentId
+            });
+
+            //RECEIVE FROM REQUEST 
+            const{filled, foundPlaceholders} = response.data;
+            const length = foundPlaceholders.length;
+            const output = filled ? 'Document completed successfully! ✅':
+                                    `Document incomplete. Found ${length} blanks ❌`;
+            return {
+                score: filled ? 100 : 0,
+                output: output
+            };
+
+
+        }else if(url.includes('github.com') && submissionType === 'github'){
+            try{
+                await cloneRepo(url,path); //returns a promise since cloneRepo is async function
+            }catch(cloneError){
+                console.error("Error cloning repo:",cloneError);
+                throw cloneError;
+            }
+            return await gradeJavaSubmission(path);
         }
+        
+        
 
-        return await gradeJavaSubmission(path);
+        
 };
 
 const handleSubmission = async (req,res)=>{
     try{
         let result = {score:-100, output:''};
-
        // console.log(`Request from handleSubmission -> ${req.body}`);
-        let {repoUrl, assignmentId,userId} = req.body;
+        let {url, assignmentId,userId, submissionType} = req.body;
        const path = `./uploads/${Date.now()}`; //where repo will be cloned to locally
 
 
         //without await score returrns a promise
-        result = await cloneAndScore(repoUrl,path);
-        //console.log(result);
+        //result will b
+        result = await scoreSubmission(url,path,submissionType);
+        //result =
+        // {
+        //     score:85,
+        //     output:'...'
+        // }
+
+        let language = submissionType === 'github'? 'none' : 'java';
 
         const newSub = await prisma.submission.create({
             data: {
-                repoUrl,
-                language: 'java',
+                url,
+                language,
                 score: result.score,
                 assignmentId,
                 userId
@@ -64,17 +99,17 @@ const handleSubmission = async (req,res)=>{
 
 const updateSubmission = async(req,res)=>{
     const {id} = req.params; //ID pulled from the parameters 
-    const {repoUrl, assignmentId, userId} = req.body
+    const {url, assignmentId, userId} = req.body
     console.log('Look here', id, req.body);
     const path = `./uploads/${Date.now()}`; //where repo will be cloned to locally
     
     let result = {score:-100, output:''}
-    result = await cloneAndScore(repoUrl,path);
+    result = await scoreSubmission(url,path);
 
     try{
         const updated = await prisma.submission.update({
             where: {id:Number(id)},
-            data: {repoUrl, assignmentId, userId, score: result.score}
+            data: {url, assignmentId, userId, score: result.score}
         });
         res.json({
             ...updated, //using ... so the object isn't returned but all of the contents within the object is returned 
@@ -124,23 +159,23 @@ const getAllSubmissions = async (req,res)=>{
     }
 };
 
-const createSubmission = (req,res)=>{
-    const {name,assignment, score} = req.body;
+// const createSubmission = (req,res)=>{
+//     const {name,assignment, score} = req.body;
 
-    const newSub = {
-        id:submissions.length+1,
-        name,
-        assignment,
-        score
-    };
+//     const newSub = {
+//         id:submissions.length+1,
+//         name,
+//         assignment,
+//         score
+//     };
 
-    //submissions.push(newSub);
-    res.status(201).json(newSub);
-};
+//     //submissions.push(newSub);
+//     res.status(201).json(newSub);
+// };
 
 module.exports = {
     getAllSubmissions,
-    createSubmission,
+
     handleSubmission,
     getSubmission,
     updateSubmission

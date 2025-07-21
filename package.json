@@ -3,6 +3,6 @@
     "json2csv": "^6.0.0-alpha.2"
   },
   "scripts": {
-    "dev": "nodemon app.js"  //RUN NPM RUN DEV
+    "dev": "nodemon app.js" 
   }
 }

@@ -124,7 +124,7 @@ const AdminDashboard = ({user, onLogout}) =>{
         ) : (
             filteredSubs.map(sub => (
                 <tr key={sub.id}>
-                    <td style={{ border: '1px solid #ccc', padding: '4px' }}>{sub.user.sectionId} {sub.user.section.name}</td>
+                    <td style={{ border: '1px solid #ccc', padding: '4px' }}>{sub.user.sectionId} {sub.user?.section?.name || ''}</td>
                     <td style={{ border: '1px solid #ccc', padding: '4px' }}>{sub.userId}</td>
                     <td style={{ border: '1px solid #ccc', padding: '4px' }}>{sub.user?.name ? sub.user.name : 'no user'}</td>
                     {/* <td style={{ border: '1px solid #ccc', padding: '4px' }}>{sub.assignmentId}</td> */}
