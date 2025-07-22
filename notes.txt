@@ -49,18 +49,19 @@ IN ORDER TO RUN SERVER, USE NPM RUN DEV
 -------
 Agenda 
 -------
-when user pastes link into submission, it must match their username in the database (important for cheating)
+when user pastes link into submission, it must match their username in the database (important for cheating) [] IMPORTANT 
 Password feature [x]
 students can re-submit [x]
 fancier filtering option for admin []
 create an assignment in admin [x]
 export scores to csv files [x]
 AUTHENTICATE USERS GITHUB [x]
+create option for github or google doc assignment for admin []
 
 PRIORITY 
 1. export scores to csv [x]
 2. gradle test integration + test case diff viewer show output vs expected output for failing tests [x]
-3. admin filters
+3. admin filters [x]
 4. password [x]
 
 NEXT-LEVEL FEATURES 
