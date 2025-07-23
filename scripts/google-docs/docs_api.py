@@ -1,15 +1,18 @@
 from flask import Flask, request, jsonify
 from google.oauth2 import service_account
 from googleapiclient.discovery import build
+import os
 
 app = Flask(__name__)
 
 #DOCUMENT_ID = '1NI0OBTvsB7bKvhDQkhIXfafJti7NGAUPe2_0LqFascs' #NOT FILLED 
 #DOCUMENT_ID = '1Lrkv6H8iIfeZp9xUam-NdbsRvwemYn7uWvT_jlyVVHY' ##FILLED
 #DOCUMENT_ID = '1VN3_lex9-c6_x99QvaeeUVs_Rfh4hDNTeQpjL7EcQlI' #NOT FILLED U1l1
-SERVICE_ACCOUNT_FILE = 'credentials/doc_reader_service_account.json'
+SERVICE_ACCOUNT_FILE = '../../credentials/doc_reader_service_account.json'
 SCOPES = ['https://www.googleapis.com/auth/documents.readonly']
 
+
+print("Looking for service account file at:", os.path.abspath(SERVICE_ACCOUNT_FILE))
 
 # Add this test route before your existing route
 @app.route('/test', methods=['GET'])
@@ -63,9 +66,9 @@ def check_document():
         for element in doc.get('body', {}).get('content', []):
             full_text += extract_text(element)
 
-        print("Full document text:")
-        print(full_text)
-        print("\n" + "="*50 + "\n")
+        # print("Full document text:")
+        # print(full_text)
+        # print("\n" + "="*50 + "\n")
 
         # Define placeholders
         placeholders = [

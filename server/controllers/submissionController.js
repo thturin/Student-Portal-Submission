@@ -35,8 +35,6 @@ const scoreSubmission = async (url, path, submissionType)=>{ //clone student's r
                 score: filled ? 100 : 0,
                 output: output
             };
-
-
         }else if(url.includes('github.com') && submissionType === 'github'){
             console.log('github assignment');
             try{
@@ -97,13 +95,12 @@ const handleSubmission = async (req,res)=>{
 
 const updateSubmission = async(req,res)=>{
     const {id} = req.params; //ID pulled from the parameters 
-    const {url, assignmentId, userId} = req.body
-    console.log('Look here', id, req.body);
+    const {url, assignmentId, userId, submissionType} = req.body
+    //console.log('Look here', id, req.body);
     const path = `./uploads/${Date.now()}`; //where repo will be cloned to locally
-    
     let result = {score:-100, output:''}
-    result = await scoreSubmission(url,path);
-
+    result = await scoreSubmission(url,path,submissionType);
+    console.log(result);
     try{
         const updated = await prisma.submission.update({
             where: {id:Number(id)},
