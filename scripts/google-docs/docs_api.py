@@ -6,7 +6,7 @@ app = Flask(__name__)
 
 #DOCUMENT_ID = '1NI0OBTvsB7bKvhDQkhIXfafJti7NGAUPe2_0LqFascs' #NOT FILLED 
 #DOCUMENT_ID = '1Lrkv6H8iIfeZp9xUam-NdbsRvwemYn7uWvT_jlyVVHY' ##FILLED
-DOCUMENT_ID = '1VN3_lex9-c6_x99QvaeeUVs_Rfh4hDNTeQpjL7EcQlI' #NOT FILLED U1l1
+#DOCUMENT_ID = '1VN3_lex9-c6_x99QvaeeUVs_Rfh4hDNTeQpjL7EcQlI' #NOT FILLED U1l1
 SERVICE_ACCOUNT_FILE = 'credentials/doc_reader_service_account.json'
 SCOPES = ['https://www.googleapis.com/auth/documents.readonly']
 

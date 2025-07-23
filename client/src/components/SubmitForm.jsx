@@ -39,7 +39,7 @@ const SubmitForm = ({onNewSubmission, user, submissions})=>{
             const assignment = assignments.find(a=>String(a.id)===String(assignmentId));
             if(assignment){
                 setSubmissionType(assignment.type || 'error');
-                setUrl('')
+                setUrl(''); //just in case
             }
         }
     },[assignmentId, assignments]); // call when current assignment changes or assignments list gets updated
@@ -51,6 +51,7 @@ const SubmitForm = ({onNewSubmission, user, submissions})=>{
         setScore(null);
         setError('');
         setGradleOutput('');
+        setDocFeedback('');
         try{
             console.log('-----Handle Submission--------');
             //IF SUBMISSION ALREADY EXISTS, 

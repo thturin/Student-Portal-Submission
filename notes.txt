@@ -57,6 +57,7 @@ create an assignment in admin [x]
 export scores to csv files [x]
 AUTHENTICATE USERS GITHUB [x]
 create option for github or google doc assignment for admin []
+you also need to verify user is pasting correct url for the right assignment [] 
 
 PRIORITY 
 1. export scores to csv [x]

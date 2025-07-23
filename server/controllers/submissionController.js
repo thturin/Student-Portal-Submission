@@ -12,7 +12,8 @@ const axios = require('axios');
 
 const scoreSubmission = async (url, path, submissionType)=>{ //clone student's repo pasted into submission portal
         //confirm that both the submission type and url verify that it is a googledoc
-        if(url.includes('docs.google.com' && submissionType === 'googledoc')){
+        console.log('-----Score Submission---------');
+        if(url.includes('docs.google.com') && submissionType === 'googledoc'){
             const docIdMatch = url.match(/\/document\/d\/([a-zA-Z0-9-_]+)/);
             if (!docIdMatch) {
                 throw new Error('Invalid Google Docs URL format');
@@ -23,6 +24,7 @@ const scoreSubmission = async (url, path, submissionType)=>{ //clone student's r
             const response = await axios.post('http://localhost:5001/check-doc',{
                 documentId: documentId
             });
+            console.log(response.data);
 
             //RECEIVE FROM REQUEST 
             const{filled, foundPlaceholders} = response.data;
@@ -36,6 +38,7 @@ const scoreSubmission = async (url, path, submissionType)=>{ //clone student's r
 
 
         }else if(url.includes('github.com') && submissionType === 'github'){
+            console.log('github assignment');
             try{
                 await cloneRepo(url,path); //returns a promise since cloneRepo is async function
             }catch(cloneError){
@@ -43,11 +46,7 @@ const scoreSubmission = async (url, path, submissionType)=>{ //clone student's r
                 throw cloneError;
             }
             return await gradeJavaSubmission(path);
-        }
-        
-        
-
-        
+        }    
 };
 
 const handleSubmission = async (req,res)=>{
@@ -56,7 +55,6 @@ const handleSubmission = async (req,res)=>{
        // console.log(`Request from handleSubmission -> ${req.body}`);
         let {url, assignmentId,userId, submissionType} = req.body;
        const path = `./uploads/${Date.now()}`; //where repo will be cloned to locally
-
 
         //without await score returrns a promise
         //result will b
@@ -67,7 +65,7 @@ const handleSubmission = async (req,res)=>{
         //     output:'...'
         // }
 
-        let language = submissionType === 'github'? 'none' : 'java';
+        let language = submissionType === 'github'? 'java' : 'none';
 
         const newSub = await prisma.submission.create({
             data: {

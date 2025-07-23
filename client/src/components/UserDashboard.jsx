@@ -37,7 +37,7 @@ const UserDashboard = ({user, onLogout})=>{
                         childData=>setSubmissions(//oldSubmissions is previous array
                             oldSubmissions=>[...oldSubmissions.filter( //remove duplicatres.. this happens when user updates a submission
                                                         sub=>String(sub.assignmentId) !==String(childData.assignmentId))    
-                                ,childData] //concatenate the array
+                                ,childData] //childData is the updated or new submission 
                         )
                     } 
                     user={user}
