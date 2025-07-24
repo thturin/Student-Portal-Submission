@@ -28,9 +28,9 @@ const scoreSubmission = async (url, path, submissionType)=>{ //clone student's r
 
             //RECEIVE FROM REQUEST 
             const{filled, foundPlaceholders} = response.data;
-            const length = foundPlaceholders.length;
+            //const length = foundPlaceholders.length;
             const output = filled ? 'Document completed successfully! ✅':
-                                    `Document incomplete. Found ${length} blanks ❌`;
+                                    `Document incomplete.❌`;
             return {
                 score: filled ? 100 : 0,
                 output: output
@@ -100,7 +100,7 @@ const updateSubmission = async(req,res)=>{
     const path = `./uploads/${Date.now()}`; //where repo will be cloned to locally
     let result = {score:-100, output:''}
     result = await scoreSubmission(url,path,submissionType);
-    console.log(result);
+    //console.log(result);
     try{
         const updated = await prisma.submission.update({
             where: {id:Number(id)},

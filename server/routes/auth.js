@@ -39,11 +39,38 @@ router.get('/github/callback', //AUTHENTICATION ST EP 2
 
 //get logged-in user
 router.get('/me', 
-    (req,res) =>{
-        if(req.user) return res.json(req.user);
-        res.status(401).json({error:'Not authenticated'});
-    }
-);
+     async (req,res) =>{
+        if(!req.user) return res.status(401).json({error: 'Not authenticated'});
+        //  By default, req.user is set by Passport and typically contains only 
+        //  the user fields fetched during authentication (often just from your 
+        //     database's user table)
+        //if you want all user information to be sent to the main page in frontend,
+        //you must send the data here 
+         try {
+        const user = await prisma.user.findUnique({
+            where: { id: req.user.id },
+            select: {
+                id: true,
+                schoolId: true,
+                name: true,
+                email: true,
+                role: true,
+                githubUsername: true,
+                githubId: true,
+                section: {
+                    select: {
+                        name: true
+                    }
+                }
+            }
+        });
+        if(!user) return res.status(404).json({error: 'User not found'});
+        res.json(user);
+     }catch(err){
+        console.error('Error fetching user with section: ', err);
+        res.status(500).json({error: 'Internal Service ERror'} );
+     }
+});
 
 //logout
 router.post('/logout', (req,res) =>{

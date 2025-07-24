@@ -18,8 +18,9 @@ const LoginBar = ({onLogin}) =>{
     useEffect(()=>{
         axios.get(`${process.env.REACT_APP_API_URL}/auth/me`, {withCredentials:true})
         .then(res=>{
-            setUserName(res.data.username);
+            setUserName(res.data.name);
             setSuccess(true);
+            console.log(`look here for the information->${JSON.stringify(res.data, null, 2)}`);
             if(onLogin) onLogin(res.data);
             }).catch(()=>{
                 //this happens the user logs out and the user is now null, it will try to GET /auth/me but the session has expired
@@ -46,7 +47,7 @@ const LoginBar = ({onLogin}) =>{
                 const res = await axios.post(process.env.REACT_APP_API_URL+'/login', {email, password});
                 if(res.data && res.data.user){
                     //if login is successful... there exists a response and a user found in db
-                            //pass the email as a state param via url to passport strategy
+                    //PASS THE EMAIL AS A STATE PARAM VIA URL TO PASSPORT STRATEGY        
                     const url = `${process.env.REACT_APP_API_URL}/auth/github?state=${encodeURIComponent(email)}`;
                     window.location.href = url;
                 }else{
