@@ -4,11 +4,23 @@
 
 const{cloneRepo} = require('../services/gitService');
 const{gradeJavaSubmission} = require('../services/gradingService');
+const{authenticateGoogle, isUserOwnerOfDoc} = require('../services/googleService');
 //const{gradeSubmission} = require('../services/gradingService');
 const {PrismaClient} = require('@prisma/client');
 const prisma = new PrismaClient();
 const axios = require('axios');
 
+const verifyDocOwnership(req,res){
+    const {documentId, userEmail} = req.body;
+    const auth = await authenticateGoogle(); //should return an authenticasted Oauth2 client
+
+    try{
+        const isOwner = await isUserOwnerOfDoc(documentId,userEmail,auth);
+        console.log(isOwner);
+    }catch(err){
+        console.error('Error verifying document ownership', err)
+    }
+}
 
 const scoreSubmission = async (url, path, submissionType)=>{ //clone student's repo pasted into submission portal
         //confirm that both the submission type and url verify that it is a googledoc
@@ -153,6 +165,9 @@ const getAllSubmissions = async (req,res)=>{
         res.status(500).json({error: 'Failed to fetch'})
     }
 };
+
+
+
 
 // const createSubmission = (req,res)=>{
 //     const {name,assignment, score} = req.body;
