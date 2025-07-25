@@ -10,17 +10,22 @@ const {PrismaClient} = require('@prisma/client');
 const prisma = new PrismaClient();
 const axios = require('axios');
 
-const verifyDocOwnership(req,res){
+
+
+const verifyDocOwnership = async (req,res)=>{
     const {documentId, userEmail} = req.body;
     const auth = await authenticateGoogle(); //should return an authenticasted Oauth2 client
 
     try{
         const isOwner = await isUserOwnerOfDoc(documentId,userEmail,auth);
-        console.log(isOwner);
-    }catch(err){
+        res.json({
+            success: isOwner,
+            output: isOwner ? 'You are the owner of this document' : '❌ You are not the owner of this document'
+        });    
+}catch(err){
         console.error('Error verifying document ownership', err)
     }
-}
+};
 
 const scoreSubmission = async (url, path, submissionType)=>{ //clone student's repo pasted into submission portal
         //confirm that both the submission type and url verify that it is a googledoc
@@ -36,7 +41,7 @@ const scoreSubmission = async (url, path, submissionType)=>{ //clone student's r
             const response = await axios.post('http://localhost:5001/check-doc',{
                 documentId: documentId
             });
-            console.log(response.data);
+            //console.log(response.data);
 
             //RECEIVE FROM REQUEST 
             const{filled, foundPlaceholders} = response.data;
@@ -185,7 +190,7 @@ const getAllSubmissions = async (req,res)=>{
 
 module.exports = {
     getAllSubmissions,
-
+    verifyDocOwnership,
     handleSubmission,
     getSubmission,
     updateSubmission

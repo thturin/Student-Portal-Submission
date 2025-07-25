@@ -58,6 +58,8 @@ export scores to csv files [x]
 AUTHENTICATE USERS GITHUB [x]
 create option for github or google doc assignment for admin []
 you also need to verify user is pasting correct url for the right assignment [] 
+    for the google doc, user google Drive API. compare owner credentials to email 
+    for github, compare url link and find github username., compare
 
 PRIORITY 
 1. export scores to csv [x]
@@ -100,3 +102,4 @@ in other words, the githubId and username is temporarily stored during the user'
 **there was an issue with the server restarting when a project was cloned, 
 this was causingf the grading service to restart
 the uploads folder is now ignored if updated 
+

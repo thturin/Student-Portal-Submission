@@ -20,7 +20,6 @@ const LoginBar = ({onLogin}) =>{
         .then(res=>{
             setUserName(res.data.name);
             setSuccess(true);
-            console.log(`look here for the information->${JSON.stringify(res.data, null, 2)}`);
             if(onLogin) onLogin(res.data);
             }).catch(()=>{
                 //this happens the user logs out and the user is now null, it will try to GET /auth/me but the session has expired

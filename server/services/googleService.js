@@ -4,12 +4,10 @@ const key = require('../../credentials/doc_reader_service_account.json');
 
 
 function authenticateGoogle(){
-    function authenticateGoogle(){
-        const auth = new google.auth.GoogleAuth({
-            credentials:key,
-            scopes: ['https://www.googleapis.com/auth/drive.readonly']
-        });
-    }
+    const auth = new google.auth.GoogleAuth({
+        credentials:key,
+        scopes: ['https://www.googleapis.com/auth/drive.readonly']
+    });
     return auth.getClient();
 }
 
@@ -20,11 +18,13 @@ async function isUserOwnerOfDoc(documentId, userEmail, auth){
         fileId: documentId,
         fields: 'permissions(emailAddress,role,displayName)'
     });
-    console.log(permissions);
+    //console.log(permissions);
 
     const isOwner = permissions.data.permissions.some(
         item => item.emailAddress === userEmail && item.role === 'owner'
     );
+
+    //console.log(permissions.data.permissions); //prints out who has access to file
 
     return isOwner;
 }

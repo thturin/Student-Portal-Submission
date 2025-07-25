@@ -13,7 +13,7 @@ const SubmitForm = ({onNewSubmission, user, submissions})=>{
     const [submissionExists, setSubmissionExists] = useState(false);
     const [gradleOutput, setGradleOutput] = useState(''); //gradle test output
     const [submissionType, setSubmissionType] = useState(''); //github or googledoc
-    const [docFeedback, setDocFeedback] = useState(''); //show googledoc feedback
+    const [verificationFeedback, setVerificationFeedback] = useState(''); //show googledoc feedback
 
 
     //FETCH ASSIGNMENTES
@@ -30,19 +30,19 @@ const SubmitForm = ({onNewSubmission, user, submissions})=>{
             }
         }
         fetchAssignments();
-  
     },[apiUrl]); //happens on the mount [] are the dependencies which means the function will run only when those dependencies change
 
     //When assignment is selected, determine the assignment type
     useEffect(()=>{
         if(assignmentId){
             const assignment = assignments.find(a=>String(a.id)===String(assignmentId));
-            if(assignment){
+            if(assignment){//if the assignment exists, set the submission type
                 setSubmissionType(assignment.type || 'error');
                 setUrl(''); //just in case
             }
         }
     },[assignmentId, assignments]); // call when current assignment changes or assignments list gets updated
+
 
 
     const handleSubmit = async (e)=>{
@@ -51,10 +51,34 @@ const SubmitForm = ({onNewSubmission, user, submissions})=>{
         setScore(null);
         setError('');
         setGradleOutput('');
-        setDocFeedback('');
+        setVerificationFeedback('');
         try{
             console.log('-----Handle Submission--------');
-            //IF SUBMISSION ALREADY EXISTS, 
+            
+            //VERIFY USER OWNERSHIP FOR GOOGLE DOC 
+            if(submissionType === 'googledoc'){
+                //extract the document id from the url
+                const match = url.match(/\/document\/d\/([a-zA-Z0-9-_]+)/);
+                const documentId = match ? match[1] : null; 
+                if(!documentId){
+                    setError('invalid google doc url');
+                    return;
+                }
+
+                const verifyRes = await  axios.post(`${apiUrl}/verify-doc-ownership`,{
+                    documentId,
+                    userEmail: user.email
+                });
+
+                setVerificationFeedback(verifyRes.data.output);
+                //you don't need to send an error message 
+                if(!verifyRes.data.success){
+                    //do not update or create new submission, just return 
+                    return;
+                }
+            }
+
+            //CHECK FOR EXISTING SUBMISSION
             const existingSubmission = submissions.find(
                 sub=> String(sub.assignmentId) === String(assignmentId)
             );
@@ -159,8 +183,14 @@ const SubmitForm = ({onNewSubmission, user, submissions})=>{
                     }
                 </span>
             </form>
-{/* }
-            OUTPUT SCORE AFTER SUBMISSION */}
+
+            {/* SET VERIFICATION FEEDBACK */}
+            {verificationFeedback && (
+                <div style={{ marginTop: '15px', color: verificationFeedback.includes('not the owner') ? 'red' : 'green' }}>
+                    {verificationFeedback}
+                </div>
+            )}
+            {/*  OUTPUT SCORE AFTER SUBMISSION */}
             {score !== null && (
                 <p style={{ marginTop: '20px' }}>✅ Submission graded! Score: <strong>{score}</strong></p>
             )}

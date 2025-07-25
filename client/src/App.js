@@ -43,7 +43,7 @@ function App() {
   return (
     <div className="App">
       <h1>🗳️SUBMISSION PORTAL🗳️</h1>
-      {user && <h2>{user.section.name}</h2>}
+      {user && <h2>{user.section?.name}</h2>}
 
       {user && <LogoutButton onLogout ={handleLogout}/>}
 
