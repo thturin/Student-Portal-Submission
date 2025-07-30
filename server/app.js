@@ -6,6 +6,7 @@ const userRoutes = require('./routes/userRoutes');
 const authRoutes = require('./routes/auth');
 const sectionRoutes = require('./routes/sectionRoutes');
 const adminRoutes = require('./routes/adminRoutes');
+const pythonRoutes = require('./routes/pythonRoutes');
 const {PrismaClient} = require('@prisma/client');
 require('dotenv').config(); //load environment variables from .env
 
@@ -52,6 +53,7 @@ app.use('/api/assignments', assignmentRoutes); //call the router object in assig
 app.use('/api/',userRoutes);//two different endpoints /users and /login
 app.use('/api/sections',sectionRoutes);
 app.use('/api/admin',adminRoutes);
+app.use('/api/python',pythonRoutes);
 
 const PORT = process.env.PORT;
 app.listen(PORT, ()=>{

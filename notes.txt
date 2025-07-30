@@ -1,29 +1,16 @@
-/server
-├── app.js
-├── /routes
-│   └── submissionRoutes.js
-├── /controllers
-│   └── submissionController.js
-├── /services
-│   ├── gitService.js
-│   ├── languageService.js
-│   └── gradingService.js
-├── /autograders
-│   ├── pythonGrader.py
-│   └── javaGrader.sh
-├── /uploads
-├── .env
-└── prisma/schema.prisma
-
-nodemon app.js
-npm start
-
-npx prisma migrate dev --name init
-npx prisma generate
-
-
-npx prisma studio
-
+┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
+│   FRONTEND      │    │    BACKEND      │    │   SERVICES      │
+│   (React.js)    │◄──►│  (Node.js/API)  │◄──►│ (Python Flask)  │
+│                 │    │                 │    │ (Google APIs)   │
+│                 │    │                 │    │ (GitHub APIs)   │
+└─────────────────┘    └─────────────────┘    └─────────────────┘
+                              │
+                              ▼
+                    ┌─────────────────┐
+                    │   DATABASE      │
+                    │  (PostgreSQL)   │
+                    │   via Prisma    │
+                    └─────────────────┘
 
 HOW NODE WORKS 
 +---------+       +-----------+       +----------+
@@ -37,6 +24,34 @@ Node.js HTTP Server listens to request (using http.createServer()).
 Passes request to your handler function.
 You send back response.
 
+Student Submits → URL Validation → Type Detection → Platform-Specific Processing → Automated Grading → Database Storage → Results Display
+Doc URL → Extract Doc ID → Check Ownership → Verify Title Match → Check Completion → Grade → Store
+Repo URL → Clone Repository → Gradle Build → Run Tests → Compile Code → Grade → Store
+
+🎯 Core Components
+Frontend Layer (React.js)
+Authentication: OAuth GitHub integration
+Submission Forms: Multi-platform support (Google Docs, GitHub)
+Dashboard: Real-time feedback and results
+User Management: Role-based access (Students/Instructors)
+Backend Layer (Node.js/Express)
+RESTful API: CRUD operations for submissions, assignments, users
+Authentication Middleware: Passport.js with session management
+Controllers: Business logic for submissions, grading, user management
+Database ORM: Prisma for PostgreSQL interactions
+External Services Integration
+Python Flask Microservice: Document validation and processing
+Google APIs: Docs API for content analysis, Drive API for permissions
+GitHub API: Repository access and OAuth authentication
+Gradle Automation: Java project compilation and testing
+Database Schema (PostgreSQL)
+
+Users ──┐
+        ├─► Submissions ──► Assignments
+        │                      │
+Sections ┘                     ├─► Courses
+                               └─► Instructors
+
 
 SEND AN ENTRY TO PRISMA DB
 curl -X POST http://localhost:5000/api/submit -H "Content-Type: application/json" -d "{\"repoUrl\":\"https://github.com/thturin/test_autograder.git\",\"language\":\"java\",\"score\":95}"
@@ -46,10 +61,30 @@ curl -X POST http://localhost:5000/api/submit -H "Content-Type: application/json
 
 
 IN ORDER TO RUN SERVER, USE NPM RUN DEV
+
+HOW TO RUN
+----------
+cd server 
+nodemon app.js
+npx prisma studio
+
+cd client
+npm run dev or npm start
+
+cd scripts/google-docs
+python docs_api
+
 -------
 Agenda 
 -------
-when user pastes link into submission, it must match their username in the database (important for cheating) [] IMPORTANT 
+when user pastes github link into submission, 
+it must match their username in the database 
+(important for cheating) [] IMPORTANT 
+
+when user pastes google doc link into submission,
+it checks the title of the document to make sure it is the right 
+doc []
+
 Password feature [x]
 students can re-submit [x]
 fancier filtering option for admin []
@@ -57,8 +92,8 @@ create an assignment in admin [x]
 export scores to csv files [x]
 AUTHENTICATE USERS GITHUB [x]
 create option for github or google doc assignment for admin []
-you also need to verify user is pasting correct url for the right assignment [] 
-    for the google doc, user google Drive API. compare owner credentials to email 
+you also need to verify user is pasting correct url for the right assignment [x] 
+    for the google doc, user google Drive API. compare owner credentials to email [x]
     for github, compare url link and find github username., compare
 
 PRIORITY 

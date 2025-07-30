@@ -43,6 +43,37 @@ def extract_text(element):
     return text
 
 
+@app.route('/check-doc-title', methods=['GET'])
+def check_doc_title():
+    try:
+        document_id = request.args.get('documentId')
+        assignment_name = request.args.get('assignmentName')
+
+        if not document_id or not assignment_name:
+            return jsonify({'error': 'Document ID and assignment name are required'}), 400
+
+        creds = service_account.Credentials.from_service_account_file(
+            SERVICE_ACCOUNT_FILE, scopes=SCOPES
+        )
+        
+        docs_service = build('docs', 'v1', credentials=creds)
+        doc = docs_service.documents().get(documentId=document_id).execute()
+        doc_title = doc.get('title', '')
+        
+        def normalize_text(text):
+                return ''.join(text.lower().split()) #remove spaces
+        
+        print(normalize_text(doc_title.lower()))
+        doc_title = normalize_text(doc_title.lower())
+        assignment_name = normalize_text(assignment_name.lower())[:4]
+        is_correct_doc = assignment_name in doc_title
+        return jsonify({
+            'docTitle': doc_title,
+            'isCorrectDoc': is_correct_doc
+        })
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
     
 @app.route('/check-doc',methods=['POST'])
 def check_document():
@@ -50,6 +81,7 @@ def check_document():
         #GOOGLE DOC
         data = request.get_json()
         document_id = data.get('documentId')
+        assignment_name = data.get('assignmentName')
         
         if not document_id:
             return jsonify({'error':'Document ID is required'})
@@ -61,6 +93,10 @@ def check_document():
         docs_service = build('docs', 'v1', credentials=creds)
         doc = docs_service.documents().get(documentId=document_id).execute()
 
+
+
+
+        #DETERMINE IF DOCUMENT WAS FILLED 
         # Extract all text
         full_text = ""
         for element in doc.get('body', {}).get('content', []):

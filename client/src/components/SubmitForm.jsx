@@ -7,6 +7,7 @@ const SubmitForm = ({onNewSubmission, user, submissions})=>{
 
     const [url, setUrl] = useState('');
     const [assignmentId,setAssignmentId] = useState(''); //the current assignment
+    const [assignment, setAssignment] = useState(null);
     const [assignments, setAssignments] = useState([]); //assignment list 
     const [score, setScore] = useState(null); 
     const [error, setError] = useState('');
@@ -35,7 +36,7 @@ const SubmitForm = ({onNewSubmission, user, submissions})=>{
     //When assignment is selected, determine the assignment type
     useEffect(()=>{
         if(assignmentId){
-            const assignment = assignments.find(a=>String(a.id)===String(assignmentId));
+            setAssignment(assignments.find(a=>String(a.id)===String(assignmentId)));
             if(assignment){//if the assignment exists, set the submission type
                 setSubmissionType(assignment.type || 'error');
                 setUrl(''); //just in case
@@ -69,7 +70,6 @@ const SubmitForm = ({onNewSubmission, user, submissions})=>{
                     documentId,
                     userEmail: user.email
                 });
-
                 setVerificationFeedback(verifyRes.data.output);
                 //you don't need to send an error message 
                 if(!verifyRes.data.success){
@@ -91,7 +91,8 @@ const SubmitForm = ({onNewSubmission, user, submissions})=>{
                     url,
                     assignmentId,
                     userId: user.id,
-                    submissionType
+                    submissionType,
+                    assignmentTitle:assignment.title
                 });
                 setScore(res.data.score); //score is added to database and evaluated on backend
                 setGradleOutput(res.data.output);
@@ -102,11 +103,10 @@ const SubmitForm = ({onNewSubmission, user, submissions})=>{
                                 url,
                                 assignmentId,
                                 userId:user.id,
-                                submissionType //need this for scoreSubmission method in controller
+                                submissionType, //need this for scoreSubmission method in controller
+                                assignmentTitle: assignment.title 
                             };
                             const res = await axios.post(`${apiUrl}/submit`,data); 
-                            //receive score from 
-                            //console.log('look here->', res.data);
                             setScore(res.data.score);
                             setGradleOutput(res.data.output);
                             //if property was passed in by component call in parent component, send the res.data as the value of pproperty

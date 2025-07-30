@@ -9,12 +9,13 @@ const{authenticateGoogle, isUserOwnerOfDoc} = require('../services/googleService
 const {PrismaClient} = require('@prisma/client');
 const prisma = new PrismaClient();
 const axios = require('axios');
+require('dotenv').config();
 
 
 
 const verifyDocOwnership = async (req,res)=>{
     const {documentId, userEmail} = req.body;
-    const auth = await authenticateGoogle(); //should return an authenticasted Oauth2 client
+    const auth = await authenticateGoogle(); //should return an authenticasted Oauth2 email user
 
     try{
         const isOwner = await isUserOwnerOfDoc(documentId,userEmail,auth);
@@ -27,23 +28,39 @@ const verifyDocOwnership = async (req,res)=>{
     }
 };
 
-const scoreSubmission = async (url, path, submissionType)=>{ //clone student's repo pasted into submission portal
+const scoreSubmission = async (url, path, assignmentTitle, submissionType)=>{ //clone student's repo pasted into submission portal
         //confirm that both the submission type and url verify that it is a googledoc
         console.log('-----Score Submission---------');
+        //GOOGLE DOC SUBMISSION
+        //confirm the link is a google doc
         if(url.includes('docs.google.com') && submissionType === 'googledoc'){
-            const docIdMatch = url.match(/\/document\/d\/([a-zA-Z0-9-_]+)/);
+            const docIdMatch = url.match(/\/document\/d\/([a-zA-Z0-9-_]+)/); //extract the docId
             if (!docIdMatch) {
                 throw new Error('Invalid Google Docs URL format');
             }
             const documentId = docIdMatch[1];
             console.log('Checking Google Doc with ID:', documentId);
-            //CALL/POST TO PYTHON FLASK API -> send the documentId
-            const response = await axios.post('http://localhost:5001/check-doc',{
-                documentId: documentId
-            });
-            //console.log(response.data);
 
-            //RECEIVE FROM REQUEST 
+            //CALL/POST TO PYTHON FLASK API -> send the documentId
+            // const response = await axios.post('http://localhost:5001/check-doc',{
+            //     documentId: documentId
+            // });
+            //CALL PYTHON ROUTE /CHECK-DOC-TITLE 
+            const titleResponse = await axios.get(`${process.env.REACT_APP_API_URL}/python/check-doc-title?documentId=${documentId}&assignmentName=${encodeURIComponent(assignmentTitle)}`);
+            const {isCorrectDoc, docTitle} = titleResponse.data;
+            if(!isCorrectDoc){
+                return {
+                    score: 0,
+                    output: `❌ Document title "${docTitle}" does not match current assignment "${assignmentTitle.substring(0,4)}"`
+                }
+            }
+
+            //IF CORRECT, CALL PYTHON ROUTES /CHECK-DOC
+            const response = await axios.post(`${process.env.REACT_APP_API_URL}/python/check-doc`,{
+                documentId:documentId
+            });
+
+            //RECEIVE FROM REQUEST PYTHON ROUTE REQUEST
             const{filled, foundPlaceholders} = response.data;
             //const length = foundPlaceholders.length;
             const output = filled ? 'Document completed successfully! ✅':
@@ -52,6 +69,8 @@ const scoreSubmission = async (url, path, submissionType)=>{ //clone student's r
                 score: filled ? 100 : 0,
                 output: output
             };
+
+        //GITHUB SUBMISSION
         }else if(url.includes('github.com') && submissionType === 'github'){
             console.log('github assignment');
             try{
@@ -92,12 +111,11 @@ const handleSubmission = async (req,res)=>{
             }
         
         });
-        //res.status(201).json(newSub);
         //return both the submission data AND output
         res.json({
             ...newSub,
             output:result.output // add output to response
-        });//follows REST protocol
+        });
         //this res.json() will return something like this 
         //   assignmentI:8
         //   languageL"java"
@@ -112,12 +130,12 @@ const handleSubmission = async (req,res)=>{
 
 const updateSubmission = async(req,res)=>{
     const {id} = req.params; //ID pulled from the parameters 
-    const {url, assignmentId, userId, submissionType} = req.body
+    const {url, assignmentId, userId, submissionType, assignmentTitle} = req.body
     //console.log('Look here', id, req.body);
     const path = `./uploads/${Date.now()}`; //where repo will be cloned to locally
     let result = {score:-100, output:''}
-    result = await scoreSubmission(url,path,submissionType);
-    //console.log(result);
+    result = await scoreSubmission(url,path,assignmentTitle, submissionType);
+    console.log(result);
     try{
         const updated = await prisma.submission.update({
             where: {id:Number(id)},
@@ -172,6 +190,16 @@ const getAllSubmissions = async (req,res)=>{
 };
 
 
+module.exports = {
+    getAllSubmissions,
+    verifyDocOwnership,
+    handleSubmission,
+    getSubmission,
+    updateSubmission
+};
+
+
+
 
 
 // const createSubmission = (req,res)=>{
@@ -187,11 +215,3 @@ const getAllSubmissions = async (req,res)=>{
 //     //submissions.push(newSub);
 //     res.status(201).json(newSub);
 // };
-
-module.exports = {
-    getAllSubmissions,
-    verifyDocOwnership,
-    handleSubmission,
-    getSubmission,
-    updateSubmission
-};

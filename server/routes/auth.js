@@ -91,7 +91,7 @@ router.post('/unlink-github', async (req, res)=>{
     const {email} = req.body;
     if(!email) return res.status(400).json({error: 'Email is required'});
     try{
-        const user = prisma.user.findUnique({where: {email}});
+        const user = await prisma.user.findUnique({where: {email}});
         await prisma.user.update({
             where: {email},
             data: {githubId: null, githubUsername: null}
