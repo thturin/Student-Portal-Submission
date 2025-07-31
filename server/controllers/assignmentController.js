@@ -31,8 +31,16 @@ const createAssignment = async(req, res) =>{
 
 const getAllAssignments = async(req,res)=>{
     try{
-        const assignments = await prisma.assignment.findMany();
-        //console.log(assignments);
+        const assignments = await prisma.assignment.findMany({
+            select: {
+                id: true,
+                title: true,
+                dueDate: true,
+                type: true, // Include type in response
+                // Add submissions if you need them:
+                // submissions: true
+            }
+        });
         res.json(assignments);
     }catch(err){
         console.log(err);

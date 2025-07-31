@@ -2,6 +2,12 @@ import axios from 'axios'; //<-- how frontend will communicate with app.js serve
 import { useEffect, useState } from 'react';
 
 const apiUrl = process.env.REACT_APP_API_URL;
+//set global axios defaults
+
+//MAKE SURE AXIOS IS SEENDING SESSION COOKIES TO BACKEND
+axios.defaults.withCredentials = true;
+axios.defaults.baseURL = 'http://localhost:5000';
+
 
 const SubmitForm = ({onNewSubmission, user, submissions})=>{
 
@@ -36,14 +42,16 @@ const SubmitForm = ({onNewSubmission, user, submissions})=>{
     //When assignment is selected, determine the assignment type
     useEffect(()=>{
         if(assignmentId){
-            setAssignment(assignments.find(a=>String(a.id)===String(assignmentId)));
-            if(assignment){//if the assignment exists, set the submission type
-                setSubmissionType(assignment.type || 'error');
+            const selectedAssignment =assignments.find(a=>String(a.id)===String(assignmentId));
+            setAssignment(selectedAssignment);
+            if(selectedAssignment){//if the assignment exists, set the submission type
+                setSubmissionType(selectedAssignment.type || 'error');
                 setUrl(''); //just in case
             }
+                    //console.log(selectedAssignment.type);
         }
-    },[assignmentId, assignments]); // call when current assignment changes or assignments list gets updated
 
+    },[assignmentId, assignments]); // call when current assignment changes or assignments list gets updated
 
 
     const handleSubmit = async (e)=>{
@@ -77,6 +85,21 @@ const SubmitForm = ({onNewSubmission, user, submissions})=>{
                     return;
                 }
             }
+
+            //VERIFY USER OWNERSHIP FOR GITHUB 
+            if(submissionType=== 'github'){
+                const verifyRes = await axios.post(`${apiUrl}/verify-github-ownership`,{
+                    url:url
+                });
+
+                if(!verifyRes.data.success){
+                    setVerificationFeedback(verifyRes.data.output);
+                    return;
+                }else{
+                    setVerificationFeedback(verifyRes.data.output);
+                }
+            }
+
 
             //CHECK FOR EXISTING SUBMISSION
             const existingSubmission = submissions.find(

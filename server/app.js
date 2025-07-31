@@ -22,6 +22,7 @@ app.use(cors({
 app.use(express.json());
 
 console.log('-----------------------BEGIN------------------');
+
 //REQUIRED FOR GITHUB Oauth
 const session = require('express-session');//ceaet a session
 const passport = require('passport');//create a passport
@@ -43,11 +44,11 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 
-
-
 require('./auth/github'); // Registers the strategy github
-app.use('/api/auth', authRoutes);
 
+
+
+app.use('/api/auth', authRoutes);
 app.use('/api/', submissionRoutes); //call the router object in submissionRoutes (it is exported)
 app.use('/api/assignments', assignmentRoutes); //call the router object in assignmentRoutes
 app.use('/api/',userRoutes);//two different endpoints /users and /login
@@ -56,6 +57,7 @@ app.use('/api/admin',adminRoutes);
 app.use('/api/python',pythonRoutes);
 
 const PORT = process.env.PORT;
+
 app.listen(PORT, ()=>{
     console.log(`Server is running on ${PORT}`);
 });

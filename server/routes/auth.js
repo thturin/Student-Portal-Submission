@@ -5,9 +5,16 @@ const {PrismaClient} = require('@prisma/client');
 const prisma = new PrismaClient();
 
 
-//http://localhost:5000/api/auth[]
+//http://localhost:5000/api/auth/
 
 //start login http://localhost:5000/api/auth/github
+
+// 1. Server starts → require('./auth/github') → Strategy registered
+// 2. User clicks "Login with GitHub" → GET /api/auth/github
+// 3. Passport redirects to GitHub → User authorizes
+// 4. GitHub redirects back → GET /api/auth/github/callback  
+// 5. Your strategy function runs → Database lookup/update
+// 6. User is logged in → req.user available in controllers
 
 router.get('/github', (req, res, next)=>{ //AUTHENTICATION STEP 1
     //forward the state parameter if present
@@ -40,6 +47,11 @@ router.get('/github/callback', //AUTHENTICATION ST EP 2
 //get logged-in user
 router.get('/me', 
      async (req,res) =>{
+    //      console.log('Auth check - /me route:', {
+    //     isAuthenticated: req.isAuthenticated(),
+    //     user: req.user,
+    //     sessionID: req.sessionID
+    // });
         if(!req.user) return res.status(401).json({error: 'Not authenticated'});
         //  By default, req.user is set by Passport and typically contains only 
         //  the user fields fetched during authentication (often just from your 

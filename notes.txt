@@ -81,9 +81,12 @@ when user pastes github link into submission,
 it must match their username in the database 
 (important for cheating) [] IMPORTANT 
 
+use new gmail account for google drive and doc api. That means you will 
+have to change private keys []
+
 when user pastes google doc link into submission,
 it checks the title of the document to make sure it is the right 
-doc []
+doc [x]
 
 Password feature [x]
 students can re-submit [x]
@@ -94,7 +97,7 @@ AUTHENTICATE USERS GITHUB [x]
 create option for github or google doc assignment for admin []
 you also need to verify user is pasting correct url for the right assignment [x] 
     for the google doc, user google Drive API. compare owner credentials to email [x]
-    for github, compare url link and find github username., compare
+    for github, compare url link and find github username. []
 
 PRIORITY 
 1. export scores to csv [x]

@@ -12,6 +12,46 @@ const axios = require('axios');
 require('dotenv').config();
 
 
+const verifyGithubOwnership = async (req, res)=>{
+    try{
+        const {url} = req.body;
+        const githubUsername = req.user?.githubUsername
+        
+             if(!url){
+            return res.status(400).json({
+                error: 'GitHub URL is required'
+            });
+        }
+
+        if(!githubUsername){
+            return res.status(400).json({
+                success: false,
+                output: '❌ No GitHub account linked. Please link your GitHub account first.'
+            });
+        } // Extract username from GitHub URL
+        const githubUrlPattern = /github\.com\/([^\/]+)/;
+        const match = url.match(githubUrlPattern);
+        
+        if(!match){ //could not find a username in the url
+            return res.status(400).json({
+                success:false,
+                output: '❌ Invalid GitHub URL format'
+            });
+        }
+        const urlUsername = match[1];
+        const isOwner = githubUsername.toLowerCase() === urlUsername.toLowerCase();
+        res.json({
+            success:isOwner,
+            output: isOwner? `✅ You are the owner of this repository (${urlUsername})` : 
+                `❌ Repository belongs to ${urlUsername}, but you are ${githubUsername}`
+        });
+    }catch(err){
+        console.error('Error verifying github username',err);
+        res.status(500).json({
+            error:'Failed to verify Github ownership'
+        });
+    }
+};
 
 const verifyDocOwnership = async (req,res)=>{
     const {documentId, userEmail} = req.body;
@@ -191,6 +231,7 @@ const getAllSubmissions = async (req,res)=>{
 
 
 module.exports = {
+    verifyGithubOwnership,
     getAllSubmissions,
     verifyDocOwnership,
     handleSubmission,
