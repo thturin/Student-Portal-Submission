@@ -79,7 +79,7 @@ Agenda
 -------
 when user pastes github link into submission, 
 it must match their username in the database 
-(important for cheating) [] IMPORTANT 
+(important for cheating) [x] IMPORTANT 
 
 use new gmail account for google drive and doc api. That means you will 
 have to change private keys []

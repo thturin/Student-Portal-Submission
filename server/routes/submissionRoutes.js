@@ -5,7 +5,7 @@ const {verifyGithubOwnership,updateSubmission,handleSubmission, getAllSubmission
 
 // benefits of adding middleware
 // 1. security _ prevents unauthenticated users from submitting assignments
-// 2. can access req.user in all your controllers 
+// 2. can access req.user in all your controllers for github verification
 // 3. protection 
 
 //wasn't working initially because the frontend wasn't sending session cookies 

@@ -114,8 +114,16 @@ const scoreSubmission = async (url, path, assignmentTitle, submissionType)=>{ //
 
         //GITHUB SUBMISSION
         }else if(url.includes('github.com') && submissionType === 'github'){
-            console.log('github assignment');
             try{
+                ///DETEREMINE IF TITLE IN GITHUB URL MATCHES ASSIGNMENT NAME 
+                const assignmentPrefix = assignmentTitle ? assignmentTitle.substring(0, 4) : '';
+                const urlParts = url.split('/');
+                if(!url[urlParts.length-1].includes(assignmentPrefix)){
+                    return {
+                        score:0,
+                        output: `❌ Repository name ${urlParts[length-1]} does not match assignment prefix ${assignmentPrefix}`
+                    };
+                }
                 await cloneRepo(url,path); //returns a promise since cloneRepo is async function
             }catch(cloneError){
                 console.error("Error cloning repo:",cloneError);
