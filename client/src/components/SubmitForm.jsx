@@ -1,5 +1,6 @@
 import axios from 'axios'; //<-- how frontend will communicate with app.js server
 import { useEffect, useState } from 'react';
+import Spinner from './Spinner'
 
 const apiUrl = process.env.REACT_APP_API_URL;
 //set global axios defaults
@@ -21,7 +22,7 @@ const SubmitForm = ({onNewSubmission, user, submissions})=>{
     const [gradleOutput, setGradleOutput] = useState(''); //gradle test output
     const [submissionType, setSubmissionType] = useState(''); //github or googledoc
     const [verificationFeedback, setVerificationFeedback] = useState(''); //show googledoc feedback
-
+    const [isSubmitting,setIsSubmitting] = useState(false);
 
     //FETCH ASSIGNMENTES
     useEffect(()=>{ //useEffect() code to run after the component renders
@@ -61,6 +62,7 @@ const SubmitForm = ({onNewSubmission, user, submissions})=>{
         setError('');
         setGradleOutput('');
         setVerificationFeedback('');
+        setIsSubmitting(true);
         try{
             console.log('-----Handle Submission--------');
             
@@ -140,6 +142,8 @@ const SubmitForm = ({onNewSubmission, user, submissions})=>{
             //if err.response exists -> if error.response.data exists, check the .error message
             setError(err.response?.data?.error || 'Submission Failed');
             setGradleOutput(err.response?.data?.output || '');
+        }finally{
+            setIsSubmitting(false); //for spinner 
         }   
     };
 
@@ -198,14 +202,48 @@ const SubmitForm = ({onNewSubmission, user, submissions})=>{
                         //console.log(`LOOK HERE ->> ${e.target.value}`);    
                     }}
                     required style={{ width: '400px', padding: '8px' }}
-                />
-                <button type="submit" style={{ marginLeft: '10px' }}>Submit</button>
+                /> 
+
+                {/* SUBMIT BUTTON */}
+                <button type="submit"
+                         style={{marginLeft: '10px',
+                                opacity: isSubmitting ? 0.6 : 1,
+                                cursor: isSubmitting ? 'not-allowed' : 'pointer' }} 
+                        disabled={isSubmitting}
+                >
+                    {isSubmitting ? (
+                        <>
+                            <Spinner /> Running Tests...
+                        </>
+                    ) : (
+                        'Submit'
+                    )}
+                </button>
+
                 <span  style={{ color: 'green', marginLeft: '12px', verticalAlign: 'middle' }}>
                     {submissionExists ? "Resubmitted"
                     : (!error && "")
                     }
                 </span>
             </form>
+
+              {/* Loading indicator for gradle tests */}
+            {isSubmitting && submissionType === 'github' && (
+                <div style={{ 
+                    marginTop: '20px', 
+                    padding: '15px', 
+                    backgroundColor: '#f0f8ff', 
+                    border: '1px solid #b0d4f1', 
+                    borderRadius: '4px',
+                    textAlign: 'center'
+                }}>
+                    <Spinner /> 
+                    <strong>Running Gradle Tests...</strong>
+                    <div style={{ fontSize: '0.9em', color: '#666', marginTop: '5px' }}>
+                        This may take 30-60 seconds. Please wait...
+                    </div>
+                </div>
+            )}
 
             {/* SET VERIFICATION FEEDBACK */}
             {verificationFeedback && (

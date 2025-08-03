@@ -55,7 +55,7 @@ const LoginBar = ({onLogin}) =>{
                 }
 
             }catch(err){
-                setError('Could not post to /login');
+                setError('Wrong username or password');
             }
 
         }

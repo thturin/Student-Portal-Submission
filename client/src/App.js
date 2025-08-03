@@ -21,7 +21,6 @@ function App() {
     //the server state should use POST, not GET
     //also passport/express-session expects POST
     await axios.post(`${process.env.REACT_APP_API_URL}/auth/logout`,{},{withCredentials:true});
-    await axios.post(`${process.env.REACT_APP_API_URL}/auth/unlink-github`,{email:user.email},{withCredentials:true});
     setUser(null);
   }
 

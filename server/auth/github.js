@@ -52,8 +52,7 @@ passport.use(new GitHubStrategy({
                                         //make the session email the githubEmail
                                         githubEmail = req.session.oauthEmail.toLowerCase();
                                     };
-
-                                    console.log(`github username:${githubUsername}\ngithubId:${githubId}\ngithubEmail:${githubEmail}`);
+                                
                                     //console.log(`github username:${githubUsername}\ngithubId:${githubId}\ngithubEmail:${githubEmail}`);
 
                                     if(!githubEmail) return done(null, false, {message: 'No github email provided'});
@@ -64,6 +63,18 @@ passport.use(new GitHubStrategy({
                                     });
 
                                     if(approvedUser){
+                                        //for the session, add the github username and id to the database 
+                                        const updatedUser = await prisma.user.update({
+                                            where: {email:githubEmail},
+                                            data:{
+                                                githubUsername: githubUsername,
+                                                githubId:githubId
+                                            }
+                                        });
+
+                                        console.log(
+                                            `User updated: ${updatedUser.githubUsername} and ${updatedUser.githubId}`
+                                        );
 
                                     // THE FOLLOWING CODE CHECKS FOR USERS WITH THE SAME GITHUBid AND UPDATES
                                     //IT IS NOT NEEDED WITH THE CURRENT WORKFLOW THAT DELETES THE GITTHUBiD AND USERNAME ON LOGOUT
@@ -97,7 +108,7 @@ passport.use(new GitHubStrategy({
                                     //    }
 
                                     //    return done(null,updatedUser);
-                                       return done(null, approvedUser);
+                                       return done(null, updatedUser);
                                      }
                                         
                                    

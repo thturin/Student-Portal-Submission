@@ -10,7 +10,7 @@ const {verifyGithubOwnership,updateSubmission,handleSubmission, getAllSubmission
 
 //wasn't working initially because the frontend wasn't sending session cookies 
 const ensureAuthenticated = (req,res,next)=>{
-    console.log( 'Auth Check',{
+    console.log( 'AUTH CHECK',{
         isAuthenticated: req.isAuthenticated(),
         user:req.user,
         session: req.session
