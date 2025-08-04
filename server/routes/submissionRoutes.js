@@ -1,6 +1,6 @@
 const express = require('express');//load express
 const router = express.Router(); //create a new router object  (mini express app -> for handling routes)
-const {verifyGithubOwnership,updateSubmission,handleSubmission, getAllSubmissions, verifyDocOwnership,getSubmission} = require('../controllers/submissionController'); //call the handleSubmission function from submissionController 
+const {verifyGithubOwnership,updateSubmission,createSubmission, getAllSubmissions, verifyDocOwnership,getSubmission} = require('../controllers/submissionController'); //call the handleSubmission function from submissionController 
 
 
 // benefits of adding middleware
@@ -10,11 +10,11 @@ const {verifyGithubOwnership,updateSubmission,handleSubmission, getAllSubmission
 
 //wasn't working initially because the frontend wasn't sending session cookies 
 const ensureAuthenticated = (req,res,next)=>{
-    console.log( 'AUTH CHECK',{
-        isAuthenticated: req.isAuthenticated(),
-        user:req.user,
-        session: req.session
-    });
+    // console.log( 'AUTH CHECK',{
+    //     isAuthenticated: req.isAuthenticated(),
+    //     user:req.user,
+    //     session: req.session
+    // });
     if(req.isAuthenticated()){
         return next();
     }
@@ -29,7 +29,7 @@ router.get('/submissions/:id',ensureAuthenticated,getSubmission);
 router.put('/submissions/:id',ensureAuthenticated,updateSubmission);
 
 
-router.post('/submit',ensureAuthenticated,handleSubmission);
+router.post('/submit',ensureAuthenticated,createSubmission);
 router.post('/verify-doc-ownership',ensureAuthenticated,verifyDocOwnership);
 router.post('/verify-github-ownership', ensureAuthenticated,verifyGithubOwnership);
 

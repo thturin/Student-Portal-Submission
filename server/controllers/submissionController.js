@@ -117,8 +117,14 @@ const scoreSubmission = async (url, path, assignmentTitle, submissionType)=>{ //
             try{
                 ///DETEREMINE IF TITLE IN GITHUB URL MATCHES ASSIGNMENT NAME 
                 const assignmentPrefix = assignmentTitle ? assignmentTitle.substring(0, 4) : '';
+                if(assignmentPrefix ===''){
+                    return {
+                        score:0,
+                        output: `❌ Repository name  does not match assignment`
+                    }; 
+                } 
                 const urlParts = url.split('/');
-                if(!url[urlParts.length-1].includes(assignmentPrefix)){
+                if(!urlParts[urlParts.length-1].includes(assignmentPrefix)){
                     return {
                         score:0,
                         output: `❌ Repository name ${urlParts[length-1]} does not match assignment prefix ${assignmentPrefix}`
@@ -133,16 +139,16 @@ const scoreSubmission = async (url, path, assignmentTitle, submissionType)=>{ //
         }    
 };
 
-const handleSubmission = async (req,res)=>{
+const createSubmission = async (req,res)=>{
     try{
         let result = {score:-100, output:''};
        // console.log(`Request from handleSubmission -> ${req.body}`);
-        let {url, assignmentId,userId, submissionType} = req.body;
+        let {url, assignmentId,userId, assignmentTitle, submissionType} = req.body;
        const path = `./uploads/${Date.now()}`; //where repo will be cloned to locally
 
         //without await score returrns a promise
         //result will b
-        result = await scoreSubmission(url,path,submissionType);
+        result = await scoreSubmission(url,path,submissionType, assignmentTitle);
         //result =
         // {
         //     score:85,
@@ -244,7 +250,7 @@ module.exports = {
     verifyGithubOwnership,
     getAllSubmissions,
     verifyDocOwnership,
-    handleSubmission,
+    createSubmission,
     getSubmission,
     updateSubmission
 };

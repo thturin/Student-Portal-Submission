@@ -20,11 +20,12 @@ const LoginBar = ({onLogin}) =>{
         .then(res=>{
             setUserName(res.data.name);
             setSuccess(true);
-            if(onLogin) onLogin(res.data);
+            if(onLogin) onLogin(res.data); //send user data to parent
             }).catch(()=>{
                 //this happens the user logs out and the user is now null, it will try to GET /auth/me but the session has expired
                 setSuccess(false);
                 setUserName('');
+                //setPassword('');
             });
     },[onLogin]);
 

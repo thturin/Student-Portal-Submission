@@ -47,11 +47,11 @@ router.get('/github/callback', //AUTHENTICATION ST EP 2
 //get logged-in user
 router.get('/me', 
      async (req,res) =>{
-    //      console.log('Auth check - /me route:', {
-    //     isAuthenticated: req.isAuthenticated(),
-    //     user: req.user,
-    //     sessionID: req.sessionID
-    // });
+         console.log('Auth check - /me route:', {
+        isAuthenticated: req.isAuthenticated(),
+        user: req.user,
+        sessionID: req.sessionID
+    });
         if(!req.user) return res.status(401).json({error: '/me Not authenticated'});
         //  By default, req.user is set by Passport and typically contains only 
         //  the user fields fetched during authentication (often just from your 

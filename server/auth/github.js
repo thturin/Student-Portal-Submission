@@ -7,26 +7,65 @@ const prisma = new PrismaClient();
 
 // githubId -> "4356745" (a unique id that is sent via Oauth when user logins)
 
+// SERIALIZATION
+// / 1. User logs in via GitHub OAuth
+//  2. Strategy returns user object:
+// const user = {
+//     id: 123,
+//     email: "student@school.edu", 
+//     name: "John Doe",
+//     githubUsername: "john_doe"
+// };
+
+// 3. serializeUser called:
+// passport.serializeUser((user, done) => {
+//     done(null, user.id); // Only store ID (123) in session
+// });
+
+//  4. Session cookie contains: { passport: { user: 123 } }
+
+// DESERIALIZATION
+//  1. User makes request to /api/submissions
+//  2. Browser sends session cookie: { passport: { user: 123 } }
+//  3. deserializeUser called:
+//      passport.deserializeUser(async (id, done) => {
+//     const user = await prisma.user.findUnique({ where: { id: 123 } });
+//     done(null, user); // Full user object restored
+// });
+
+//  4. req.user now contains full user object in your route handlers
+
 
 
 //save user's ID into the session
+//passport calls serializeUser which takes full user object as input
+//stores only the user id in session cookies (to save space)
+//Session cookie contains: { passport: { user: 123 } }
 passport.serializeUser(
     (user,done)=>{
+            console.log('Serializing user', user.id, typeof user.id);
             done(null, user.id); //store user ID in session cookie
     }
 );
 
 //retrieve user details from the session ID
+//
 passport.deserializeUser( 
     async (id,done) =>{
-        const user = await prisma.user.findUnique(
-            {
-                where:{id}
-            }
-        );
-        done(null,user); //make user object available as req.user
+        try{
+            console.log('🔍 Deserializing user ID:', id, 'Type:', typeof id);
+            const user = await prisma.user.findUnique(
+                {where:{id}}
+            );
+            console.log('FOUND USER  /deserializeUser', user ? user: 'null');
+            done(null,user); //make user object available as req.user
+        }catch(err){
+            console.log('Deserialization error',err);
+            done(err,null)
+        }
     }   
 );
+
 
 //configure the github strategy
 passport.use(new GitHubStrategy({

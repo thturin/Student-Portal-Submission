@@ -33,6 +33,7 @@ app.use(session({
   secret: 'secret-key',
   resave: false,
   saveUninitialized: false,
+  rolling: true, //session refreshes after every request. 
   cookie:{ //COOKIE SETTINGS.  
     //how to set session timeout
     maxAge: 60*60*1000,//1 hour (in milliseconds)
@@ -41,10 +42,44 @@ app.use(session({
   }
 }));
 
+//middilewayre
+app.use((req, res, next) => {
+    if (req.session) {
+        const now = new Date();
+        const expires = new Date(req.session.cookie._expires);
+        const timeLeft = expires - now;
+        
+        console.log('🕐 Session Debug:', {
+            sessionID: req.sessionID,
+            timeLeftMinutes: Math.round(timeLeft / (1000 * 60)),
+            expires: expires.toLocaleTimeString(),
+            isAuthenticated: req.isAuthenticated ? req.isAuthenticated() : 'N/A',
+            user: req.user ? req.user.email : 'none'
+        });
+    }
+    next();
+});
+
 app.use(passport.initialize());
 app.use(passport.session());
 
 require('./auth/github'); // Registers the strategy github
+
+// ADD THIS DEBUG MIDDLEWARE:
+app.use((req, res, next) => {
+    console.log('🔍 Every Request Debug:', {
+        method: req.method,
+        url: req.url,
+        sessionID: req.sessionID,
+        hasSession: !!req.session,
+        sessionData: req.session,
+        hasCookies: !!req.headers.cookie,
+        isAuthenticated: req.isAuthenticated ? req.isAuthenticated() : 'N/A'
+    });
+    next();
+});
+
+
 
 
 

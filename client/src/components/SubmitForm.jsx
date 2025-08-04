@@ -24,6 +24,14 @@ const SubmitForm = ({onNewSubmission, user, submissions})=>{
     const [verificationFeedback, setVerificationFeedback] = useState(''); //show googledoc feedback
     const [isSubmitting,setIsSubmitting] = useState(false);
 
+    useEffect(()=>{
+        console.log('🔍 Axios Config Check:', {
+            withCredentials: axios.defaults.withCredentials,
+            baseURL: axios.defaults.baseURL,
+            globalDefaults: axios.defaults
+        });
+    },[]);
+
     //FETCH ASSIGNMENTES
     useEffect(()=>{ //useEffect() code to run after the component renders
         //useEffect let your perform actions (side effects) in your componenet, such as fetching api data
@@ -65,6 +73,18 @@ const SubmitForm = ({onNewSubmission, user, submissions})=>{
         setIsSubmitting(true);
         try{
             console.log('-----Handle Submission--------');
+
+            try{
+                console.log('Validating Session....');
+                await axios.get(`${apiUrl}/auth/me`);
+                console.log('✅ Session valid');
+            }catch(err){
+                setError('Session Expired. Please login again');
+                // setTimeout(() => { //send back to login page
+                //     window.location.href = `${apiUrl}/auth/github`;
+                // }, 2000);
+                return;
+            }
             
             //VERIFY USER OWNERSHIP FOR GOOGLE DOC 
             if(submissionType === 'googledoc'){
@@ -90,15 +110,21 @@ const SubmitForm = ({onNewSubmission, user, submissions})=>{
 
             //VERIFY USER OWNERSHIP FOR GITHUB 
             if(submissionType=== 'github'){
-                const verifyRes = await axios.post(`${apiUrl}/verify-github-ownership`,{
-                    url:url
-                });
+                try{
+                    const verifyRes = await axios.post(`${apiUrl}/verify-github-ownership`,{
+                        url:url
+                    });
 
-                if(!verifyRes.data.success){
-                    setVerificationFeedback(verifyRes.data.output);
+                    if(!verifyRes.data.success){
+                        setVerificationFeedback(verifyRes.data.output);
+                        return;
+                    }else{
+                        setVerificationFeedback(verifyRes.data.output);
+                    }
+                }catch(err){
+                    console.error('/verify-github-ownership failure', err);
+                    setError('Failed to verify github user')
                     return;
-                }else{
-                    setVerificationFeedback(verifyRes.data.output);
                 }
             }
 
@@ -110,34 +136,41 @@ const SubmitForm = ({onNewSubmission, user, submissions})=>{
      
             //---------UPDATE SUBMISSION------------
             if(existingSubmission){ //go to the ssubmission and update it
-                setSubmissionExists(true);
-                //USE PUT TO UPDATE THE SUBMISSION
-                const res = await axios.put(`${apiUrl}/submissions/${existingSubmission.id}`,{
-                    url,
-                    assignmentId,
-                    userId: user.id,
-                    submissionType,
-                    assignmentTitle:assignment.title
-                });
-                setScore(res.data.score); //score is added to database and evaluated on backend
-                setGradleOutput(res.data.output);
-                if(onNewSubmission) onNewSubmission(res.data);
+                try{
+                    setSubmissionExists(true);
+                    const res = await axios.put(`${apiUrl}/submissions/${existingSubmission.id}`,{
+                        url,
+                        assignmentId,
+                        userId: user.id,
+                        submissionType,
+                        assignmentTitle:assignment.title
+                    });
+                    setScore(res.data.score); //score is added to database and evaluated on backend
+                    setGradleOutput(res.data.output);
+                    if(onNewSubmission) onNewSubmission(res.data);
+                }catch(err){
+                    console.error('Error updating submissions',err);
+                }
+                
             }else{
-                //-=-----CREATE NEW SUBMISSION-------
-                const data = { //send to the backend
-                                url,
-                                assignmentId,
-                                userId:user.id,
-                                submissionType, //need this for scoreSubmission method in controller
-                                assignmentTitle: assignment.title 
-                            };
-                            const res = await axios.post(`${apiUrl}/submit`,data); 
-                            setScore(res.data.score);
-                            setGradleOutput(res.data.output);
-                            //if property was passed in by component call in parent component, send the res.data as the value of pproperty
-                            if(onNewSubmission) onNewSubmission(res.data);
-            }
-        }catch(err){
+                try{
+                    //-=-----CREATE NEW SUBMISSION-------
+                    const data = { //send to the backend
+                        url,
+                        assignmentId,
+                        userId:user.id,
+                        submissionType, //need this for scoreSubmission method in controller
+                        assignmentTitle: assignment.title 
+                    };
+                    const res = await axios.post(`${apiUrl}/submit`,data); 
+                    setScore(res.data.score);
+                    setGradleOutput(res.data.output);
+                    //if property was passed in by component call in parent component, send the res.data as the value of pproperty
+                    if(onNewSubmission) onNewSubmission(res.data);
+                }catch(err){
+                    console.error('Failed to create a new submission',err);
+                }
+        }}catch(err){
             console.error(err);
             //if err.response exists -> if error.response.data exists, check the .error message
             setError(err.response?.data?.error || 'Submission Failed');

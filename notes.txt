@@ -88,6 +88,13 @@ when user pastes google doc link into submission,
 it checks the title of the document to make sure it is the right 
 doc [x]
 
+admin view -> late assignments []
+late assignments -> 75%
+auto grading late assignnments []
+UPDATE -> check to see if the repository exists in the users profile. 
+YOU CAN DO THIS WITH PASSPORT STRATEGY 
+better than parsing through the url 
+
 Password feature [x]
 students can re-submit [x]
 fancier filtering option for admin []
@@ -97,7 +104,7 @@ AUTHENTICATE USERS GITHUB [x]
 create option for github or google doc assignment for admin []
 you also need to verify user is pasting correct url for the right assignment [x] 
     for the google doc, user google Drive API. compare owner credentials to email [x]
-    for github, compare url link and find github username. []
+    for github, compare url link and find github username. [x]
 
 PRIORITY 
 1. export scores to csv [x]
