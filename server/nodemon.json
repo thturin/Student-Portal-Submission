@@ -1,8 +1,11 @@
 {
+  "watch": ["."],
+  "ext": "js,json",
   "ignore": [
-    "uploads/",
-    "uploads/**/*"
+    "sessions/**",
+    "uploads/**",
+    "node_modules/**"
   ],
   "delay": 3000,
-  "verbose": true
+  "verbose": false
 }

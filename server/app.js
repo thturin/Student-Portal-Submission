@@ -21,19 +21,28 @@ app.use(cors({
 
 app.use(express.json());
 
-console.log('-----------------------BEGIN------------------');
+console.log('--------------------BEGIN----------------------');
 
 //REQUIRED FOR GITHUB Oauth
 const session = require('express-session');//ceaet a session
+const FileStore = require('session-file-store')(session);
 const passport = require('passport');//create a passport
 //passport attaches helper methods to the request object for every incoming request
 // these middleware add methods to req are req.logout, req.login
+
+
 
 app.use(session({
   secret: 'secret-key',
   resave: false,
   saveUninitialized: false,
   rolling: true, //session refreshes after every request. 
+  store: new FileStore({
+        path: './sessions',
+        ttl: 24 * 60 * 60, // 24 hours in seconds
+        retries: 5
+    }),
+    name: 'studentPortalSession',
   cookie:{ //COOKIE SETTINGS.  
     //how to set session timeout
     maxAge: 60*60*1000,//1 hour (in milliseconds)
