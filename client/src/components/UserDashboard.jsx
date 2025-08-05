@@ -1,7 +1,8 @@
-import React, {useEffect, useState} from 'react';
-import SubmitForm from './SubmitForm.jsx';
 import axios from 'axios';
+import { format, parseISO } from 'date-fns';
+import { useEffect, useState } from 'react';
 import LogoutButton from './LogoutButton';
+import SubmitForm from './SubmitForm.jsx';
 
 
 const UserDashboard = ({user, onLogout})=>{
@@ -25,7 +26,17 @@ const UserDashboard = ({user, onLogout})=>{
     //it tells react to run the effect
     //once when the component mounts 
     //again whenever user.id changes
- 
+    
+    const formatDate = (dateString) =>{
+        const date = parseISO(dateString);
+        return format(date, 'MMM dd, yyyy \'at\' h:mm a');
+    };
+
+    const isPastDue = (submissionDateString, assDueDateString) =>{
+        const submissionDate = parseISO(submissionDateString);
+        const assDueDate = parseISO(assDueDateString);
+        return submissionDate>assDueDate; //false if late 
+    }
 
     return(
         <div>
@@ -45,18 +56,50 @@ const UserDashboard = ({user, onLogout})=>{
             />
             <h3>Your Submissions</h3>
             <ul>
-                {submissions.length === 0 ? 
-                <li>No Submissions</li>:
-                    (submissions.map( 
-                        sub=> (
-                            <li key={sub.id}>
-                                {assignments.find(
-                                    ass=>String(ass.id)===String(sub.assignmentId))?.title || 'Unknown Assignment'
-                                } - Score: {sub.score}
-                            </li>
-                    ))
-                )}
-            </ul>
+    {submissions.length === 0 ? (
+        <li>No Submissions</li>
+    ) : (
+        submissions.map(sub => {
+            const assignment = assignments.find(
+                ass => String(ass.id) === String(sub.assignmentId)
+            );
+            
+            // Debug individual submission
+            if (!assignment) {
+                console.warn('⚠️ No assignment found for submission:', sub);
+            }
+            
+            return (
+                <li key={sub.id} style={{
+                    padding: '10px',
+                    margin: '5px 0',
+                    border: '1px solid #ddd',
+                    borderRadius: '4px'
+                }}>
+                    <div>
+                        <strong>{assignment?.title || `Unknown Assignment (ID: ${sub.assignmentId})`}</strong>
+                    </div>
+                    <div>Score: {sub.score}</div>
+                    <div>Submitted: {formatDate(sub.submittedAt)}</div>
+                    <div>
+                        Status: {assignment ? (
+                            isPastDue(sub.submittedAt, assignment.dueDate) ? 
+                                <span style={{color: 'red', fontWeight: 'bold'}}>LATE</span> : 
+                                <span style={{color: 'green', fontWeight: 'bold'}}>ON TIME</span>
+                        ) : (
+                            <span style={{color: 'orange'}}>UNKNOWN</span>
+                        )}
+                    </div>
+                    {assignment && (
+                        <div style={{fontSize: '0.8em', color: '#666'}}>
+                            Due: {formatDate(assignment.dueDate)}
+                        </div>
+                    )}
+                </li>
+            );
+        })
+    )}
+</ul>
         </div>
     )
 };

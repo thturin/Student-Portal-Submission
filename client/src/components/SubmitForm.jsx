@@ -1,6 +1,7 @@
 import axios from 'axios'; //<-- how frontend will communicate with app.js server
 import { useEffect, useState } from 'react';
-import Spinner from './Spinner'
+import Spinner from './Spinner';
+import {format, formatDistanceToNow, parseISO} from 'date-fns';
 
 const apiUrl = process.env.REACT_APP_API_URL;
 //set global axios defaults
@@ -71,6 +72,7 @@ const SubmitForm = ({onNewSubmission, user, submissions})=>{
         setGradleOutput('');
         setVerificationFeedback('');
         setIsSubmitting(true);
+
         try{
             console.log('-----Handle Submission--------');
 
@@ -187,6 +189,18 @@ const SubmitForm = ({onNewSubmission, user, submissions})=>{
     }else if (submissionType === 'googledoc'){
         placeholder = 'https://docs.google.com/document/d/your-document-id/edit';
     }
+    const formatDate = (dateString, option) =>{
+            const date = parseISO(dateString);
+
+            if(option === 1) return format(date, 'MMM dd, yyyy \'at\' h:mm a');
+            if(option === 2) return formatDistanceToNow(date, { addSuffix: true })
+        };
+
+    const isPastDue = (dueDateString) =>{
+        const dueDate = parseISO(dueDateString);
+        const now = new Date();
+        return now>dueDate; //false if late 
+    }
 
     return (
         <div className = "submit-form">
@@ -203,12 +217,17 @@ const SubmitForm = ({onNewSubmission, user, submissions})=>{
                         //prevents the number casting to turn Number("") not 0 but empty
                         onChange={e=> setAssignmentId(e.target.value === "" ? "" :Number(e.target.value))}
                         required 
-                        style = {{ width: '250px', padding: '8px', marginRight: '10px' }}
+                        style = {{ 
+                            width: '250px', padding: '8px', marginRight: '10px'}}
                     >
                         <option value=""> Select Assignment</option>
                         {assignments.map(ass=>( //print out each assignment that exists as option
-                            <option key={ass.id} value={ass.id}>
-                                {ass.title}
+                            <option 
+                                key={ass.id} 
+                                value={ass.id}
+                                style={{ color: isPastDue(ass.dueDate) ? 'red' : 'black' }}
+                            >
+                                {ass.title} - Due Date: {formatDate(ass.dueDate,1)} {formatDate(ass.dueDate,2)}
                             </option>
                         ))}
                     </select>
