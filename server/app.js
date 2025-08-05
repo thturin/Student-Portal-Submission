@@ -51,23 +51,23 @@ app.use(session({
   }
 }));
 
-//middilewayre
-app.use((req, res, next) => {
-    if (req.session) {
-        const now = new Date();
-        const expires = new Date(req.session.cookie._expires);
-        const timeLeft = expires - now;
+//middleware for debugging session
+// app.use((req, res, next) => {
+//     if (req.session) {
+//         const now = new Date();
+//         const expires = new Date(req.session.cookie._expires);
+//         const timeLeft = expires - now;
         
-        console.log('🕐 Session Debug:', {
-            sessionID: req.sessionID,
-            timeLeftMinutes: Math.round(timeLeft / (1000 * 60)),
-            expires: expires.toLocaleTimeString(),
-            isAuthenticated: req.isAuthenticated ? req.isAuthenticated() : 'N/A',
-            user: req.user ? req.user.email : 'none'
-        });
-    }
-    next();
-});
+//         console.log('🕐 Session Debug:', {
+//             sessionID: req.sessionID,
+//             timeLeftMinutes: Math.round(timeLeft / (1000 * 60)),
+//             expires: expires.toLocaleTimeString(),
+//             isAuthenticated: req.isAuthenticated ? req.isAuthenticated() : 'N/A',
+//             user: req.user ? req.user.email : 'none'
+//         });
+//     }
+//     next();
+// });
 
 app.use(passport.initialize());
 app.use(passport.session());

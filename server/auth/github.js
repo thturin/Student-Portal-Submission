@@ -43,7 +43,7 @@ const prisma = new PrismaClient();
 //Session cookie contains: { passport: { user: 123 } }
 passport.serializeUser(
     (user,done)=>{
-            console.log('Serializing user', user.id, typeof user.id);
+            //console.log('Serializing user', user.id, typeof user.id);
             done(null, user.id); //store user ID in session cookie
     }
 );
@@ -53,11 +53,11 @@ passport.serializeUser(
 passport.deserializeUser( 
     async (id,done) =>{
         try{
-            console.log('🔍 Deserializing user ID:', id, 'Type:', typeof id);
+            //console.log('🔍 Deserializing user ID:', id, 'Type:', typeof id);
             const user = await prisma.user.findUnique(
                 {where:{id}}
             );
-            console.log('FOUND USER  /deserializeUser', user ? user: 'null');
+            //console.log('FOUND USER  /deserializeUser', user ? user: 'null');
             done(null,user); //make user object available as req.user
         }catch(err){
             console.log('Deserialization error',err);
@@ -92,7 +92,7 @@ passport.use(new GitHubStrategy({
                                         githubEmail = req.session.oauthEmail.toLowerCase();
                                     };
                                 
-                                    //console.log(`github username:${githubUsername}\ngithubId:${githubId}\ngithubEmail:${githubEmail}`);
+                                    console.log(`github username:${githubUsername}\ngithubId:${githubId}\ngithubEmail:${githubEmail}`);
 
                                     if(!githubEmail) return done(null, false, {message: 'No github email provided'});
                                     
@@ -103,6 +103,7 @@ passport.use(new GitHubStrategy({
 
                                     if(approvedUser){
                                         //for the session, add the github username and id to the database 
+
                                         const updatedUser = await prisma.user.update({
                                             where: {email:githubEmail},
                                             data:{

@@ -97,7 +97,8 @@ router.post('/logout', async (req,res) =>{
                     githubUsername:null
                 }
             });
-        console.log('Session KILLED');
+
+            console.log('✅ Cleared GitHub data from database');
         }catch(err){
             console.error('Error on /logout ',err);
         }
@@ -106,7 +107,7 @@ router.post('/logout', async (req,res) =>{
 
     req.logout(()=>{ //passports logout method
         req.session.destroy(()=>{
-            res.clearCookie('connect.sid');
+            res.clearCookie('studentPortalSession');
             res.sendStatus(200); //responds with not content
         })
     });
