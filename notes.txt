@@ -89,8 +89,18 @@ it checks the title of the document to make sure it is the right
 doc [x]
 
 admin view -> late assignments []
+| Days Late     | Penalty             |
+| ------------- | ------------------- |
+| 0 (on time)   | No penalty          |
+| 1 day late    | -10%                |
+| 2–3 days late | -15%                |
+| 4–5 days late | -20%                |
+| 6+ days late  | -25% max (hard cap) |
+
 late assignments -> 75%
 auto grading late assignnments []
+admin abilities on front end-> change due date [] 
+                    
 UPDATE -> check to see if the repository exists in the users profile. 
 YOU CAN DO THIS WITH PASSPORT STRATEGY 
 better than parsing through the url 

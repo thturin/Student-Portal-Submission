@@ -1,7 +1,7 @@
 // exports.handleSubmission = (req,res) => {
 //     res.status(200).json({message:'Submission received successfully'});
 // }
-
+const { format, formatDistanceToNow, parseISO } = require('date-fns');
 const{cloneRepo} = require('../services/gitService');
 const{gradeJavaSubmission} = require('../services/gradingService');
 const{authenticateGoogle, isUserOwnerOfDoc} = require('../services/googleService');
@@ -10,6 +10,7 @@ const {PrismaClient} = require('@prisma/client');
 const prisma = new PrismaClient();
 const axios = require('axios');
 require('dotenv').config();
+
 
 
 const verifyGithubOwnership = async (req, res)=>{
@@ -70,7 +71,38 @@ const verifyDocOwnership = async (req,res)=>{
     }
 };
 
-const scoreSubmission = async (url, path, assignmentTitle, submissionType)=>{ //clone student's repo pasted into submission portal
+// | Days Late     | Penalty             |
+// | ------------- | ------------------- |
+// | 0 (on time)   | No penalty          |
+// | 1 day late    | -10%                |
+// | 2–3 days late | -15%                |
+// | 4–5 days late | -20%                |
+// | 6+ days late  | -25% max (hard cap) |
+
+    const calculateLateScore = (submissionDateString, assDueDateString, score)=>{
+        const submissionDate = parseISO(submissionDateString);
+        const dueDate = parseISO(assDueDateString);
+        const diffTime = submissionDate-dueDate;
+        const diffDays = Math.ceil(diffTime/(1000*60*60*24)); 
+        console.log(`DIFF DAYS ${diffDays}`);
+        console.log('SCORE SCOER ->',score);
+        if (score !== 0){
+            //1 day late 
+            if(diffDays===1){
+                return score * .9;
+            }else if(diffDays>=2 && diffDays<=3){
+                return score * .85
+            }else if(diffDays>=4 && diffDays<=5){
+                return score * .8;
+            }else{
+                return score * .75;
+            } 
+        }else{
+            return score;
+        } 
+    };
+
+const scoreSubmission = async (url, path, assignmentTitle, submissionType,submission,assignment)=>{ //clone student's repo pasted into submission portal
         //confirm that both the submission type and url verify that it is a googledoc
         console.log('-----Score Submission---------');
         //GOOGLE DOC SUBMISSION
@@ -104,11 +136,18 @@ const scoreSubmission = async (url, path, assignmentTitle, submissionType)=>{ //
 
             //RECEIVE FROM REQUEST PYTHON ROUTE REQUEST
             const{filled, foundPlaceholders} = response.data;
+            let score = 0;
             //const length = foundPlaceholders.length;
+
             const output = filled ? 'Document completed successfully! ✅':
                                     `Document incomplete.❌`;
+            if(filled){
+                score = 100; //automatic 100
+                score=calculateLateScore(submission.submittedAt, assignment.dueDate,score);
+                console.log('Google doc score is ->',score);
+            }
             return {
-                score: filled ? 100 : 0,
+                score: score,
                 output: output
             };
 
@@ -135,7 +174,15 @@ const scoreSubmission = async (url, path, assignmentTitle, submissionType)=>{ //
                 console.error("Error cloning repo:",cloneError);
                 throw cloneError;
             }
-            return await gradeJavaSubmission(path);
+            //returns the score and output 
+
+            let results = await gradeJavaSubmission(path);
+            let finalScore=calculateLateScore(submission.submittedAt, assignment.dueDate,results.score);
+            results = {
+                ...results, //keep original results (output)
+                score:finalScore
+            }
+            return results;
         }    
 };
 
@@ -143,17 +190,10 @@ const createSubmission = async (req,res)=>{
     try{
         let result = {score:-100, output:''};
        // console.log(`Request from handleSubmission -> ${req.body}`);
-        let {url, assignmentId,userId, assignmentTitle, submissionType} = req.body;
+        let {url, assignmentId,userId, assignmentTitle, submissionType, assignment, submission} = req.body;
        const path = `./uploads/${Date.now()}`; //where repo will be cloned to locally
 
-        //without await score returrns a promise
-        //result will b
-        result = await scoreSubmission(url,path,submissionType, assignmentTitle);
-        //result =
-        // {
-        //     score:85,
-        //     output:'...'
-        // }
+        result = await scoreSubmission(url,path,submissionType, assignmentTitle, assignment, submission);
 
         let language = submissionType === 'github'? 'java' : 'none';
 
@@ -186,16 +226,16 @@ const createSubmission = async (req,res)=>{
 
 const updateSubmission = async(req,res)=>{
     const {id} = req.params; //ID pulled from the parameters 
-    const {url, assignmentId, userId, submissionType, assignmentTitle} = req.body
+    const {url, assignmentId, userId, submissionType, assignmentTitle, submission, assignment} = req.body
     //console.log('Look here', id, req.body);
     const path = `./uploads/${Date.now()}`; //where repo will be cloned to locally
     let result = {score:-100, output:''}
-    result = await scoreSubmission(url,path,assignmentTitle, submissionType);
+    result = await scoreSubmission(url,path,assignmentTitle, submissionType, submission, assignment);
     console.log(result);
     try{
         const updated = await prisma.submission.update({
             where: {id:Number(id)},
-            data: {url, assignmentId, userId, score: result.score}
+            data: {url, assignmentId, userId, score: result.score, submittedAt: new Date()}
         });
         res.json({
             ...updated, //using ... so the object isn't returned but all of the contents within the object is returned 

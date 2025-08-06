@@ -28,7 +28,7 @@ router.get('/github', (req, res, next)=>{ //AUTHENTICATION STEP 1
 router.get('/github/callback', //AUTHENTICATION ST EP 2
     (req,res,next) =>{
         //save state to session
-        console.log('login user information /callback req.query',req.query);
+        //console.log('login user information /callback req.query',req.query);
         //SAVE THE EMAIL STATE PARAM AS THE SESSION EMAIL
         if(req.query.state){
             //we are passing the session not the state
@@ -59,21 +59,21 @@ router.get('/me',
         //if you want all user information to be sent to the main page in frontend,
         //you must send the data here 
          try {
-        const user = await prisma.user.findUnique({
-            where: { id: req.user.id },
-            select: {
-                id: true,
-                schoolId: true,
-                name: true,
-                email: true,
-                role: true,
-                githubUsername: true,
-                githubId: true,
-                section: {
-                    select: {
-                        name: true
+            const user = await prisma.user.findUnique({
+                where: { id: req.user.id },
+                select: {
+                    id: true,
+                    schoolId: true,
+                    name: true,
+                    email: true,
+                    role: true,
+                    githubUsername: true,
+                    githubId: true,
+                    section: {
+                        select: {
+                            name: true
+                        }
                     }
-                }
             }
         });
         if(!user) return res.status(404).json({error: 'User not found'});
@@ -101,12 +101,18 @@ router.post('/logout', async (req,res) =>{
             console.log('✅ Cleared GitHub data from database');
         }catch(err){
             console.error('Error on /logout ',err);
+            return res.status(500).json({ error: 'Failed to clear GitHub data' });
         }
     }
 
 
     req.logout(()=>{ //passports logout method
-        req.session.destroy(()=>{
+        req.session.destroy((destroyErr)=>{
+            if(destroyErr){
+                console.error('❌ Session destruction error:', destroyErr);
+                return res.status(500).json({ error: 'Session cleanup failed' });
+            }
+            console.log('✅ Session destroyed successfully');
             res.clearCookie('studentPortalSession');
             res.sendStatus(200); //responds with not content
         })

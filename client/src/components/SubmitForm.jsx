@@ -145,7 +145,11 @@ const SubmitForm = ({onNewSubmission, user, submissions})=>{
                         assignmentId,
                         userId: user.id,
                         submissionType,
-                        assignmentTitle:assignment.title
+                        assignmentTitle:assignment.title,
+                        submission: existingSubmission,
+                        assignment: assignment
+              
+
                     });
                     setScore(res.data.score); //score is added to database and evaluated on backend
                     setGradleOutput(res.data.output);
@@ -162,7 +166,9 @@ const SubmitForm = ({onNewSubmission, user, submissions})=>{
                         assignmentId,
                         userId:user.id,
                         submissionType, //need this for scoreSubmission method in controller
-                        assignmentTitle: assignment.title 
+                        assignmentTitle: assignment.title,
+                        submission: existingSubmission,
+                        assignment: assignment 
                     };
                     const res = await axios.post(`${apiUrl}/submit`,data); 
                     setScore(res.data.score);

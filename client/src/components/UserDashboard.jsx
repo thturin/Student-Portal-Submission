@@ -38,6 +38,8 @@ const UserDashboard = ({user, onLogout})=>{
         return submissionDate>assDueDate; //false if late 
     }
 
+
+
     return(
         <div>
             <h2> Welcome, {user.name}</h2>
@@ -79,7 +81,7 @@ const UserDashboard = ({user, onLogout})=>{
                     <div>
                         <strong>{assignment?.title || `Unknown Assignment (ID: ${sub.assignmentId})`}</strong>
                     </div>
-                    <div>Score: {sub.score}</div>
+                    <div>Score: {sub.score}%</div>
                     <div>Submitted: {formatDate(sub.submittedAt)}</div>
                     <div>
                         Status: {assignment ? (
