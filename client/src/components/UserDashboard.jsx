@@ -38,6 +38,14 @@ const UserDashboard = ({user, onLogout})=>{
         return submissionDate>assDueDate; //false if late 
     }
 
+    const calcDiffDays = (submissionDateString, assDueDateString)=>{
+        const submissionDate = parseISO(submissionDateString);
+        const dueDate = parseISO(assDueDateString);
+        const diffTime = submissionDate-dueDate;
+        const diffDays = Math.ceil(diffTime/(1000*60*60*24)); 
+        return diffDays;
+    }
+
 
 
     return(
@@ -86,7 +94,7 @@ const UserDashboard = ({user, onLogout})=>{
                     <div>
                         Status: {assignment ? (
                             isPastDue(sub.submittedAt, assignment.dueDate) ? 
-                                <span style={{color: 'red', fontWeight: 'bold'}}>LATE</span> : 
+                                <span style={{color: 'red', fontWeight: 'bold'}}>LATE [{calcDiffDays(sub.submittedAt,assignment.dueDate)} DAYS]</span> : 
                                 <span style={{color: 'green', fontWeight: 'bold'}}>ON TIME</span>
                         ) : (
                             <span style={{color: 'orange'}}>UNKNOWN</span>

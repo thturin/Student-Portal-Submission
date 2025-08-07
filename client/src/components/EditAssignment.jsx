@@ -1,36 +1,36 @@
 import axios from 'axios';
 import { useState } from 'react';
 
-const CreateAssignmentForm=({updateAssignments})=>{
+const EditAssignmentForm = ({assignment, updateAssignments})=>{
     const apiUrl = process.env.REACT_APP_API_URL;
-    const [title, setTitle] = useState('');
-    const [dueDate, setDueDate] = useState('');
-    const [type, setType] = useState('');
+    const [title, setTitle] = useState(assignment.title);
+    const [dueDate, setDueDate] = useState(assignment.dueDate);
+    const [type, setType] = useState(assignment.type);
+    const [success,setSuccess] = useState('');
     const [error, setError] = useState('');
-    const [success, setSuccess] = useState('');
 
-    const handleSubmit = async (e) =>{
+
+    const handleSubmit = async(e)=>{
         e.preventDefault();
         setError('');
         setSuccess('');
         try{
-            //make a request to post data to assignments api
-            const res = await axios.post(`${apiUrl}/assignments`,{
+            const res = await axios.put(`${apiUrl}/assignments/${assignment.id}`,{
                 title,
                 dueDate,
                 type
             });
-            setSuccess('Assignment Created');
-            setTitle('');//clear the title and due date after POST
-            setDueDate('');
-            setType('');
+            setTitle(assignment.title);
+            setDueDate(assignment.dueDate);
+            setType(assignment.type);
+            setSuccess('Assignment updated successfully!');
             if(updateAssignments) updateAssignments(res.data);
         }catch(err){
-            setError(err.response?.data?.error || 'Failed to create assignment');
+            setError(err.response?.data?.error || 'Failed to update Assignment');
         }
     };
 
-    return(
+    return (
         <div style={{
             maxWidth: '600px',
             margin: '20px auto',
@@ -39,10 +39,10 @@ const CreateAssignmentForm=({updateAssignments})=>{
             borderRadius: '8px',
             backgroundColor: '#f9f9f9'
         }}>
-            <h3 style={{ textAlign: 'center', marginTop: 0 }}>Create New Assignment</h3>
+            <h3 style={{ textAlign: 'center', marginTop: 0 }}>Edit Assignment {assignment.title}</h3>
             
             <form onSubmit={handleSubmit}>
-                {/* ✅ Title Field */}
+                {/* ✅ Title field */}
                 <div style={{ marginBottom: '15px' }}>
                     <label style={{ 
                         display: 'block', 
@@ -51,11 +51,12 @@ const CreateAssignmentForm=({updateAssignments})=>{
                     }}>
                         Assignment Title:
                     </label>
-                    <input 
+                    <input
                         type="text"
-                        placeholder="Enter assignment title (e.g., Java Basics)"
+                        name="title"
+                        placeholder={assignment.title}
                         value={title}
-                        onChange={e => setTitle(e.target.value)}
+                        onChange={e=>setTitle(e.target.value)}
                         required
                         style={{ 
                             width: '100%', 
@@ -67,7 +68,7 @@ const CreateAssignmentForm=({updateAssignments})=>{
                     />
                 </div>
 
-                {/* ✅ Due Date Field */}
+                {/* ✅ Due date field */}
                 <div style={{ marginBottom: '15px' }}>
                     <label style={{ 
                         display: 'block', 
@@ -76,11 +77,11 @@ const CreateAssignmentForm=({updateAssignments})=>{
                     }}>
                         Due Date:
                     </label>
-                    <input 
+                    <input
                         type="datetime-local"
+                        name="dueDate"
                         value={dueDate}
-                        onChange={e => setDueDate(e.target.value)}
-                        required
+                        onChange={e=>setDueDate(e.target.value)}
                         style={{ 
                             width: '100%', 
                             padding: '8px', 
@@ -91,7 +92,7 @@ const CreateAssignmentForm=({updateAssignments})=>{
                     />
                 </div>
 
-                {/* ✅ Submission Type Field */}
+                {/* ✅ Submission type field */}
                 <div style={{ marginBottom: '20px' }}>
                     <label style={{ 
                         display: 'block', 
@@ -103,7 +104,7 @@ const CreateAssignmentForm=({updateAssignments})=>{
                     <select
                         name="type"
                         value={type}
-                        onChange={e => setType(e.target.value)}
+                        onChange={e=>setType(e.target.value)}
                         required
                         style={{ 
                             width: '100%', 
@@ -129,15 +130,14 @@ const CreateAssignmentForm=({updateAssignments})=>{
                     borderRadius: '4px',
                     fontSize: '16px'
                 }}>
-                    Create
+                    Update
                 </button> 
    
                 {error && <div style={{ color: 'red', marginTop: 8 }}>{error}</div>}
                 {success && <div style={{ color: 'green', marginTop: 8 }}>{success}</div>}
-
             </form>
         </div>
     );
 };
 
-export default CreateAssignmentForm;
+export default EditAssignmentForm;

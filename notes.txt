@@ -98,8 +98,10 @@ admin view -> late assignments []
 | 6+ days late  | -25% max (hard cap) |
 
 late assignments -> 75%
-auto grading late assignnments []
+auto grading late assignnments [x]
 admin abilities on front end-> change due date [] 
+            -> edit assignment
+            -> delete assignment
                     
 UPDATE -> check to see if the repository exists in the users profile. 
 YOU CAN DO THIS WITH PASSPORT STRATEGY 

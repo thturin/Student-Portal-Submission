@@ -48,5 +48,38 @@ const getAllAssignments = async(req,res)=>{
     }
 };
 
+const getAssignment = async(req,res)=>{
+    const {id} = req.params;
+    try{
+        const assignment = await prisma.assignment.findUnique({
+            where:{id:Number(id)}
+        });
+        res.json(assignment);
 
-module.exports = {createAssignment, getAllAssignments};
+    }catch(err){
+        console.log('Cannot /get assignment ',err);
+    }
+}
+
+const updateAssignment = async(req,res)=>{
+    const {id} = req.params;
+    const {title, dueDate, type} = req.body;
+    try{
+        const updatedAssignment = await prisma.assignment.update({
+            where:{id:Number(id)},
+            data:{
+                title,
+                dueDate: new Date(dueDate),
+                type
+            }
+        });
+        
+        res.json(updatedAssignment);
+    }catch(err){
+        console.error('Update Assignment Error',err);
+        res.status(400).json({ error: 'Failed to update assignment' });
+    }
+};
+
+
+module.exports = {createAssignment, getAllAssignments, updateAssignment, getAssignment};

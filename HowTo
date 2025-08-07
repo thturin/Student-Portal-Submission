@@ -1,0 +1,182 @@
+# 📚 Student Tutorial: How to Submit a Google Doc Assignment (Google Classroom Copy)
+
+## **🎯 Overview**
+This tutorial will guide you through copying a Google Doc template from Google Classroom and submitting it properly in the Student Portal.
+
+---
+
+## **📋 Prerequisites**
+- ✅ You must be logged into the Student Portal
+- ✅ Access to the Google Classroom assignment
+- ✅ The assignment must be set up for Google Doc submissions
+
+---
+
+## **📝 Step-by-Step Instructions**
+
+### **Step 1: Get the Document from Google Classroom**
+
+1. **Go to your Google Classroom**
+2. **Find the assignment** 
+3. **Click on the assignment**
+4. **Click "Make a copy"** or **"Open"** (depending on how it was set up)
+   - If it says "Make a copy": Google will create your personal copy
+   - If it says "Open": You'll need to make a copy manually
+
+### **Step 2: Make Your Own Copy (if needed)**
+
+If the document opened as view-only:
+1. **Go to File** → **"Make a copy"**
+2. **Rename the copy** with the required format:
+   ```
+   Format: [Assignment Prefix]-[Title]-[your name (last, first)]
+   Example: U1T1-printlntvsprint-JohnsonSophia
+   ```
+3. **Click "Make a copy"**
+
+### **Step 3: CRITICAL - Add the Grading System Email**
+
+🔑 **MOST IMPORTANT STEP:** You must share your document with our automated grading system.
+
+1. **Click the "Share" button** (top-right corner of your Google Doc)
+2. **In the "Add people and groups" field, type exactly:**
+   ```
+   doc-reader@moonlit-balm-402019.iam.gserviceaccount.com
+   ```
+3. **Set permission to "Viewer"**
+4. **Uncheck "Notify people"** 
+5. **Click "Send"**
+
+⚠️ **WARNING:** If you forget this step, your submission will fail!
+
+### **Step 4: Complete Your Assignment**
+
+1. **Fill in all required sections** of the document
+2. **Follow the assignment requirements** provided by your instructor
+3. **Replace any placeholder text** (like [Your Name], [Your Answer Here], etc.)
+
+### **Step 5: Verify Document Title**
+
+1. **Check that your document title** starts with the assignment prefix
+2. **The title should match** what's shown in the Student Portal
+3. **Example:** If the portal shows "U1P1", your title should be "U1P1 - blah blah blah.."
+
+### **Step 6: Get Your Document Link**
+
+1. **With your document open, click "Share"** again
+2. **Click "Copy link"** button
+3. **Verify link sharing settings:**
+   - Should say "Anyone with the link can view"
+   - If it says "Restricted", click "Change" and select "Anyone with the link"
+4. **Copy the full URL** - it should look like:
+   ```
+   https://docs.google.com/document/d/1ABC123xyz.../edit?usp=sharing
+   ```
+
+### **Step 7: Submit Through the Student Portal**
+
+1. **Return to the Student Portal**
+2. **Go to your dashboard**
+3. **Find the correct assignment**
+4. **Select "Google Doc" as submission type**
+5. **Paste your document URL**
+6. **Click "Submit Assignment"**
+
+---
+
+## **✅ Pre-Submission Checklist**
+
+**BEFORE clicking submit, verify ALL of these:**
+
+- [ ] Made a personal copy of the classroom template
+- [ ] Document title includes the correct assignment prefix
+- [ ] Shared with: `doc-reader@moonlit-balm-402019.iam.gserviceaccount.com`
+- [ ] Grading system email has "Viewer" permissions
+- [ ] Link sharing is set to "Anyone with the link can view"
+- [ ] All assignment content is complete
+- [ ] All placeholder text has been replaced
+- [ ] URL is a valid Google Docs link
+
+---
+
+## **🚨 Common Issues & Solutions**
+
+### **❌ "Document title doesn't match assignment"**
+**Solution:** 
+1. Click on the document title at the top
+2. Rename it to start with the exact assignment prefix
+3. Example: Change "Copy of U10T1 - Recursion" to "U10T1 - John Smith"
+
+### **❌ "You are not the owner of this document"**
+**Solution:** 
+1. You're still working on the original classroom template
+2. Go to **File** → **"Make a copy"** to create your own version
+3. Work on YOUR copy, not the original
+
+### **❌ "Document not accessible"**
+**Solution:** 
+1. Verify you shared with `doc-reader@moonlit-balm-402019.iam.gserviceaccount.com`
+2. Check that permissions are "Viewer" (not "Editor" or "Commenter")
+3. Make sure link sharing is enabled
+
+### **❌ "Invalid Google Docs URL"**
+**Solution:** 
+1. Copy the link from the "Share" button, not the browser address bar
+2. Make sure it's your personal copy, not the classroom template
+3. Don't use shortened URLs
+
+---
+
+## **📧 Required Email Address**
+
+**ALWAYS share your document with this exact email:**
+```
+doc-reader@moonlit-balm-402019.iam.gserviceaccount.com
+```
+
+💡 **Pro tip:** Copy this email and save it somewhere - you'll need it for every Google Doc assignment!
+
+---
+
+## **🔄 Google Classroom vs Student Portal**
+
+| **Google Classroom** | **Student Portal** |
+|--------------------- |--------------------|
+| Where you get the template | Where you submit the final link |
+| Make your copy here | Paste your document URL here |
+| Complete the assignment | Get your grade and feedback |
+
+⚠️ **Remember:** Google Classroom is for getting/completing the assignment. Student Portal is for submitting and grading.
+
+---
+
+## **📱 Mobile Users**
+
+If using a phone/tablet:
+1. **Use the Google Docs app** for better editing
+2. **For sharing, switch to desktop browser** - mobile sharing can be tricky
+3. **Copy the link from desktop** before submitting
+
+---
+
+## **🎯 Quick Success Formula**
+
+1. **Copy from Classroom** ✓
+2. **Add grading email** ✓
+3. **Complete assignment** ✓
+4. **Fix title if needed** ✓
+5. **Get link** ✓
+6. **Submit to portal** ✓
+
+---
+
+## **📞 Still Need Help?**
+
+1. **Double-check the troubleshooting section** above
+2. **Ask a classmate** who has successfully submitted
+3. **Ask your teacher** 
+
+
+---
+
+**You've got this! 🚀 Follow each step carefully and you'll submit successfully.**

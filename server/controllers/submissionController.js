@@ -78,14 +78,13 @@ const verifyDocOwnership = async (req,res)=>{
 // | 2–3 days late | -15%                |
 // | 4–5 days late | -20%                |
 // | 6+ days late  | -25% max (hard cap) |
+// | 14+ days late | Please see me       |
 
     const calculateLateScore = (submissionDateString, assDueDateString, score)=>{
         const submissionDate = parseISO(submissionDateString);
         const dueDate = parseISO(assDueDateString);
         const diffTime = submissionDate-dueDate;
         const diffDays = Math.ceil(diffTime/(1000*60*60*24)); 
-        console.log(`DIFF DAYS ${diffDays}`);
-        console.log('SCORE SCOER ->',score);
         if (score !== 0){
             //1 day late 
             if(diffDays===1){
@@ -115,10 +114,6 @@ const scoreSubmission = async (url, path, assignmentTitle, submissionType,submis
             const documentId = docIdMatch[1];
             console.log('Checking Google Doc with ID:', documentId);
 
-            //CALL/POST TO PYTHON FLASK API -> send the documentId
-            // const response = await axios.post('http://localhost:5001/check-doc',{
-            //     documentId: documentId
-            // });
             //CALL PYTHON ROUTE /CHECK-DOC-TITLE 
             const titleResponse = await axios.get(`${process.env.REACT_APP_API_URL}/python/check-doc-title?documentId=${documentId}&assignmentName=${encodeURIComponent(assignmentTitle)}`);
             const {isCorrectDoc, docTitle} = titleResponse.data;
@@ -137,14 +132,13 @@ const scoreSubmission = async (url, path, assignmentTitle, submissionType,submis
             //RECEIVE FROM REQUEST PYTHON ROUTE REQUEST
             const{filled, foundPlaceholders} = response.data;
             let score = 0;
-            //const length = foundPlaceholders.length;
+
 
             const output = filled ? 'Document completed successfully! ✅':
                                     `Document incomplete.❌`;
             if(filled){
                 score = 100; //automatic 100
                 score=calculateLateScore(submission.submittedAt, assignment.dueDate,score);
-                console.log('Google doc score is ->',score);
             }
             return {
                 score: score,
@@ -191,7 +185,7 @@ const createSubmission = async (req,res)=>{
         let result = {score:-100, output:''};
        // console.log(`Request from handleSubmission -> ${req.body}`);
         let {url, assignmentId,userId, assignmentTitle, submissionType, assignment, submission} = req.body;
-       const path = `./uploads/${Date.now()}`; //where repo will be cloned to locally
+        const path = `./uploads/${Date.now()}`; //where repo will be cloned to locally
 
         result = await scoreSubmission(url,path,submissionType, assignmentTitle, assignment, submission);
 
@@ -231,7 +225,6 @@ const updateSubmission = async(req,res)=>{
     const path = `./uploads/${Date.now()}`; //where repo will be cloned to locally
     let result = {score:-100, output:''}
     result = await scoreSubmission(url,path,assignmentTitle, submissionType, submission, assignment);
-    console.log(result);
     try{
         const updated = await prisma.submission.update({
             where: {id:Number(id)},
@@ -242,7 +235,7 @@ const updateSubmission = async(req,res)=>{
             output:result.output //add output to response
         });
     }catch(err){
-        console.error('PUT /submission werror',err);
+        console.error('PUT /submission error',err);
         res.status(400).json({error: 'Failed to update submission'});
     }
 };
