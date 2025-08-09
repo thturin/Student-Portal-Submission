@@ -131,6 +131,31 @@ const AdminDashboard = ({user, onLogout}) =>{
                     JUPITER EXPORT 
                 </button>
             </div>
+            {/* DISPLAY SELECTED ASSIGNMENT (DUE DATE, TITLE, TYPE ) */}
+                {selectedAssignmentObj && (
+                    <div style={{
+                        maxWidth: '600px',
+                        margin: '20px auto',
+                        padding: '20px',
+                        border: '1px solid #ddd',
+                        borderRadius: '8px',
+                        backgroundColor: '#f9f9f9'
+                    }}>
+                        <h3 style={{ textAlign: 'center', marginTop: 0 }}>Assignment Details</h3>
+                        
+                        <div style={{ marginBottom: '10px' }}>
+                            <strong>Title:</strong> {selectedAssignmentObj.title}
+                        </div>
+                        
+                        <div style={{ marginBottom: '10px' }}>
+                            <strong>Due Date:</strong> {new Date(selectedAssignmentObj.dueDate).toLocaleDateString()}
+                        </div>
+                        
+                        <div style={{ marginBottom: '10px' }}>
+                            <strong>Submission Type:</strong> {selectedAssignmentObj.type || selectedAssignmentObj.submissionType}
+                        </div>
+                    </div>
+            )}
 
             {/* SUBMISSION LIST */}
             <div style={{
@@ -174,7 +199,18 @@ const AdminDashboard = ({user, onLogout}) =>{
                     </tbody>
                 </table>
             </div>
-            <EditAssignmentForm assignment={selectedAssignmentObj} onUpdate={console.log('updating assignment')} />
+
+
+            <EditAssignmentForm assignment={selectedAssignmentObj} updateAssignments={
+                updatedAssignment => { //function passed in child component
+                    setAssignments(
+                        oldAssignments=>
+                            oldAssignments.map(
+                                assignment=> assignment.id === updatedAssignment.id? updatedAssignment : assignment
+                            )
+                    )
+                }
+            } />
 
             {/* CREATE AND EDIT ASSIGNMENT FORMS - MOVED TO BOTTOM */}
             <CreateAssignmentForm updateAssignments={ 

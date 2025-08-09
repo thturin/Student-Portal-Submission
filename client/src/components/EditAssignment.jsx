@@ -1,15 +1,28 @@
 import axios from 'axios';
-import { useState } from 'react';
+import { useEffect,useState } from 'react';
+
 
 const EditAssignmentForm = ({assignment, updateAssignments})=>{
     const apiUrl = process.env.REACT_APP_API_URL;
-    const [title, setTitle] = useState(assignment.title);
-    const [dueDate, setDueDate] = useState(assignment.dueDate);
-    const [type, setType] = useState(assignment.type);
+    const [title, setTitle] = useState('');
+    const [dueDate, setDueDate] = useState('') ;
+    const [type, setType] = useState('');
     const [success,setSuccess] = useState('');
     const [error, setError] = useState('');
 
+//when a user first logs in, no assignment is selected 
+//component renders before the assignment is selected so you need to use useEffect()
+    useEffect(()=>{ //when there is an assignment 
+        if(assignment){
+            setTitle(assignment.title); //place the current values of title, dueDate, and type 
+            setDueDate(assignment.dueDate.split('T')[0]);
+            setType(assignment.type);
+        }
+    },[assignment]);
 
+    if(!assignment){ //if there is no assignment selected, return component empty
+        return null;
+    }
     const handleSubmit = async(e)=>{
         e.preventDefault();
         setError('');
@@ -20,9 +33,6 @@ const EditAssignmentForm = ({assignment, updateAssignments})=>{
                 dueDate,
                 type
             });
-            setTitle(assignment.title);
-            setDueDate(assignment.dueDate);
-            setType(assignment.type);
             setSuccess('Assignment updated successfully!');
             if(updateAssignments) updateAssignments(res.data);
         }catch(err){
