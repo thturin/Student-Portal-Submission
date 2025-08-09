@@ -91,9 +91,10 @@ passport.use(new GitHubStrategy({
                                         //make the session email the githubEmail
                                         githubEmail = req.session.oauthEmail.toLowerCase();
                                     };
-                                
+                                    
+                                    console.log('-------------------------');
                                     console.log(`github username:${githubUsername}\ngithubId:${githubId}\ngithubEmail:${githubEmail}`);
-
+                                    console.log('-------------------------');
                                     if(!githubEmail) return done(null, false, {message: 'No github email provided'});
                                     
                                     //searches for email in database
@@ -103,52 +104,39 @@ passport.use(new GitHubStrategy({
 
                                     if(approvedUser){
                                         //for the session, add the github username and id to the database 
+                                        try{
+                                            //EVEN THOUGHT WE ARE DESTORYING THE SESSION ON /LOGOUT, SOMETIMES PREVIOUS USER'S GITHUB 
+                                            //INFO GETS ADDED TO NEW USER LOGGING IN 
+                                            //DELET THIS GITHUB INFORMATION FROM THE WRONG USER
+                                            await prisma.user.updateMany({
+                                                where: {
+                                                    githubUsername: githubUsername,
+                                                    id: { not: approvedUser.id } // Don't clear from current user
+                                                },
+                                                data: {
+                                                    githubUsername: null,
+                                                    githubId: null
+                                                }
+                                            });
 
-                                        const updatedUser = await prisma.user.update({
-                                            where: {email:githubEmail},
-                                            data:{
-                                                githubUsername: githubUsername,
-                                                githubId:githubId
-                                            }
-                                        });
+                                            const updatedUser = await prisma.user.update({
+                                                where: {email:githubEmail},
+                                                data:{
+                                                    githubUsername: githubUsername,
+                                                    githubId:githubId
+                                                }
+                                            });
 
-                                        console.log(
-                                            `User updated: ${updatedUser.githubUsername} and ${updatedUser.githubId}`
-                                        );
+                                            console.log(
+                                                `User updated: ${updatedUser.githubUsername} and ${updatedUser.githubId}`
+                                            );
+                                            return done(null, updatedUser);
 
-                                    // THE FOLLOWING CODE CHECKS FOR USERS WITH THE SAME GITHUBid AND UPDATES
-                                    //IT IS NOT NEEDED WITH THE CURRENT WORKFLOW THAT DELETES THE GITTHUBiD AND USERNAME ON LOGOUT
-                                    //    //check if another user already has the github id
-                                    //    const userWithGithubId = await prisma.user.findUnique({
-                                    //     where: {githubId:githubId}
-                                    //    });
-
-                                    //    //if userWithGithubId exists and there are two users with the same githubId but different users
-                                    //    if(userWithGithubId && userWithGithubId.id!==approvedUser.id){ //CHECKING FOR GITHUB ID DUPES
-                                    //     return done(null,false,{message: 'Github account already linked to another user'});
-                                    //    }
-
-                                    //    ///prepare to update the data  
-                                    //    const updateData = {};
-                                    //    //if the approved user's githubId does not exist or needs to be updated
-                                    //    if(approvedUser.githubId === null || approvedUser.githubId!==githubId){
-                                    //     updateData.githubId=githubId;
-                                    //    }
-
-                                    //    if(approvedUser.githubUsername === null || approvedUser.githubUsername!==githubUsername){
-                                    //     updateData.githubUsername=githubUsername;
-                                    //    }
-
-                                    //    let updatedUser = approvedUser; //set to approved user if nothing is changed, original will get returned
-                                    //    if(Object.keys(updateData).length > 0){
-                                    //     updatedUser = await prisma.user.update({
-                                    //         where: {id: approvedUser.id},
-                                    //         data:updateData
-                                    //     });
-                                    //    }
-
-                                    //    return done(null,updatedUser);
-                                       return done(null, updatedUser);
+                                        }catch(err){
+                                            console.error('Error github.js updating approved user',err);
+                                        }
+                                    
+                                       
                                      }
                                         
                                    

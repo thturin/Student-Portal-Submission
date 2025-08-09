@@ -1,12 +1,10 @@
-import logo from './logo.svg';
-import './App.css';
-import React, {useState, useEffect} from 'react';
-import SubmitForm from './components/SubmitForm.jsx';
-import LoginBar from './components/LoginBar.jsx';
-import AdminDashboard from './components/AdminDashboard.jsx';
-import UserDashboard  from './components/UserDashboard.jsx';
-import LogoutButton from './components/LogoutButton';
 import axios from 'axios';
+import { useEffect, useState } from 'react';
+import './App.css';
+import AdminDashboard from './components/AdminDashboard.jsx';
+import LoginBar from './components/LoginBar.jsx';
+import LogoutButton from './components/LogoutButton';
+import UserDashboard from './components/UserDashboard.jsx';
 
 function App() {
   //set the current user in Parent compontnet (this app.js)

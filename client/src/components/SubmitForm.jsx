@@ -1,15 +1,13 @@
 import axios from 'axios'; //<-- how frontend will communicate with app.js server
+import { format, formatDistanceToNow, parseISO } from 'date-fns';
 import { useEffect, useState } from 'react';
 import Spinner from './Spinner';
-import {format, formatDistanceToNow, parseISO} from 'date-fns';
 
 const apiUrl = process.env.REACT_APP_API_URL;
 //set global axios defaults
 
 //MAKE SURE AXIOS IS SEENDING SESSION COOKIES TO BACKEND
 axios.defaults.withCredentials = true;
-axios.defaults.baseURL = 'http://localhost:5000';
-
 
 const SubmitForm = ({onNewSubmission, user, submissions})=>{
 
