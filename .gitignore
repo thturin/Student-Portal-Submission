@@ -7,13 +7,10 @@ sessions/
 node_modules/
 **/node_modules/
 
-# Build outputs
-build/
+# Build outputs (keep local dev builds out, but allow CI/CD to build)
 dist/
-**/build/
 **/dist/
-client/build/
-server/build/
+
 
 # Environment variables and configuration
 .env
