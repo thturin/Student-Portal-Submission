@@ -33,7 +33,7 @@ const passport = require('passport');//create a passport
 
 
 app.use(session({
-  secret: 'secret-key',
+  secret: process.env.SESSION_SECRET,
   resave: false,
   saveUninitialized: false,
   rolling: true, //session refreshes after every request. 
