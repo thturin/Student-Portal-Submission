@@ -3,7 +3,7 @@ const passport = require('passport');
 const GitHubStrategy = require('passport-github2').Strategy;
 const {PrismaClient} = require('@prisma/client');
 const prisma = new PrismaClient();
-
+require('dotenv').config(); //load environment variables from .env
 
 // githubId -> "4356745" (a unique id that is sent via Oauth when user logins)
 
@@ -71,9 +71,11 @@ passport.deserializeUser(
 passport.use(new GitHubStrategy({
                             clientID: process.env.GITHUB_CLIENT_ID,
                             clientSecret: process.env.GITHUB_CLIENT_SECRET,
-                            callbackURL:'http://localhost:5000/api/auth/github/callback',
+                            //callbackURL:`${process.env.SERVER_URL}/auth/github/callback`,
+                            callbackURL:process.env.NODE_ENV === 'production' 
+                                            ? `${process.env.RAILWAY_STATIC_URL}/api/auth/github/callback`
+                                            :`${process.env.SERVER_URL}/auth/github/callback`,
                             passReqToCallback:true //allows you to access the original request(state parameter) inside strategy callback
-                            //callbackURL:`${process.env.REACT_APP_API_URL}/auth/github/callback`
                             },
                             async(req,accessToken, refreshToken, profile, done) =>{
                                 //github send you user info in `profile`   

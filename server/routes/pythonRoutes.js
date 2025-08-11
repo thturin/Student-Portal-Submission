@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const axios = require('axios');
-
+require('dotenv').config(); //load environment variables from .env
 
 
 //ROOT LOCALHOST:5000/api/python
@@ -14,7 +14,7 @@ router.get('/check-doc-title', async(req,res)=>{
             }
         
             //call python flask API
-            const response = await fetch (`http://localhost:5001/check-doc-title?documentId=${documentId}&assignmentName=${assignmentName}`,{
+            const response = await fetch (`${process.env.FLASK_API_URL}/check-doc-title?documentId=${documentId}&assignmentName=${assignmentName}`,{
                 method:'GET',
                 headers: {
                     'Content-Type': 'application/json',
@@ -47,7 +47,7 @@ router.post('/check-doc', async(req,res)=>{
 
         //call python flask API
         //request a response from python flask api, you are sending the api the documentID
-        const response = await fetch('http://localhost:5001/check-doc',{
+        const response = await fetch(`${process.env.FLASK_API_URL}/check-doc`,{
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

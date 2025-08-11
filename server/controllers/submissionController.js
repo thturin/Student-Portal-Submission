@@ -115,7 +115,7 @@ const scoreSubmission = async (url, path, assignmentTitle, submissionType,submis
             console.log('Checking Google Doc with ID:', documentId);
 
             //CALL PYTHON ROUTE /CHECK-DOC-TITLE 
-            const titleResponse = await axios.get(`${process.env.REACT_APP_API_URL}/python/check-doc-title?documentId=${documentId}&assignmentName=${encodeURIComponent(assignmentTitle)}`);
+            const titleResponse = await axios.get(`${process.env.SERVER_URL}/python/check-doc-title?documentId=${documentId}&assignmentName=${encodeURIComponent(assignmentTitle)}`);
             const {isCorrectDoc, docTitle} = titleResponse.data;
             if(!isCorrectDoc){
                 return {
@@ -125,7 +125,7 @@ const scoreSubmission = async (url, path, assignmentTitle, submissionType,submis
             }
 
             //IF CORRECT, CALL PYTHON ROUTES /CHECK-DOC
-            const response = await axios.post(`${process.env.REACT_APP_API_URL}/python/check-doc`,{
+            const response = await axios.post(`${process.env.SERVER_URL}/python/check-doc`,{
                 documentId:documentId
             });
 

@@ -15,8 +15,10 @@ const app = express();
 const prisma = new PrismaClient();
 
 app.use(cors({
-  origin:'http://localhost:3000',
-  credentials:true
+  origin:process.env.CLIENT_URL || 'http://localhost:3000', //use the or if you don't have a .env in development mode
+  credentials:true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
 app.use(express.json());
@@ -47,7 +49,8 @@ app.use(session({
     //how to set session timeout
     maxAge: 60*60*1000,//1 hour (in milliseconds)
     sameSite:'lax', //or 'none' if using https,
-    secure:false // true if using https
+    secure:process.env.NODE_ENV === 'production',// true if using https
+    httpOnly: true //for security purposes
   }
 }));
 
@@ -89,7 +92,19 @@ require('./auth/github'); // Registers the strategy github
 // });
 
 
+app.get('/', (req, res)=>{
+    res.send('Backend is running!');
+    console.log(req);
+});
 
+//add route for railway health checks
+app.get('/health', (req,res)=>{
+  res.json({
+    status:'healthy',
+    timestamp: new Date().toISOString(),
+    environment: process.env.NODE_ENV || 'development'
+  });
+});
 
 
 app.use('/api/auth', authRoutes);
@@ -100,14 +115,11 @@ app.use('/api/sections',sectionRoutes);
 app.use('/api/admin',adminRoutes);
 app.use('/api/python',pythonRoutes);
 
-const PORT = process.env.PORT;
+const PORT = process.env.PORT || 5000;
 
-app.listen(PORT, ()=>{
-    console.log(`Server is running on ${PORT}`);
+app.listen(PORT, '0.0.0.0', () => {
+    console.log(`Server running on port ${PORT}`);
+    console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
 });
 
 
-app.get('/', (req, res)=>{
-    res.send('Backend is running!');
-    console.log(req);
-});

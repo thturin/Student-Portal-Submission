@@ -1,11 +1,17 @@
 {
   "name": "server",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "app.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "nodemon app.js",
+    "start": "node app.js",  
+    "build": "npx prisma generate",  
+    "postinstall": "npx prisma generate", 
     "seed": "node prisma/seed.js"
+  },
+   "engines": {  
+    "node": ">=16.0.0"
   },
   "keywords": [],
   "author": "",
