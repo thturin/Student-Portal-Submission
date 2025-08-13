@@ -4,8 +4,23 @@ const key = require('../../credentials/doc_reader_service_account.json');
 
 
 function authenticateGoogle(){
+    let credentials;
+    //try environment variable first from railway
+    const serviceAccountJson = process.env.GOOGLE_SERVICE_ACCOUNT_JSON;
+    if(serviceAccountJson){
+        console.log('Using credentials from railway');
+        try{
+            credentials= JSON.parse(serviceAccountJson);
+        }catch(err){
+            console.error('Error parsing google services in authenticateGoogle()',err);
+            throw new Error('Invalid Google Service Account JSON in environment variable');
+        }
+    }else{
+        //development use the actual file
+        credentials = require('../../credentials/doc_reader_service_account.json');
+    }
     const auth = new google.auth.GoogleAuth({
-        credentials:key,
+        credentials:credentials,
         scopes: ['https://www.googleapis.com/auth/drive.readonly']
     });
     return auth.getClient();
