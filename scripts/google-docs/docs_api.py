@@ -1,3 +1,4 @@
+import json
 from flask import Flask, request, jsonify
 from google.oauth2 import service_account
 from googleapiclient.discovery import build
@@ -14,6 +15,41 @@ SERVICE_ACCOUNT_FILE = os.getenv('SERVICE_ACCOUNT_FILE', '../../credentials/doc_
 GOOGLE_SCOPES = [os.getenv('GOOGLE_SCOPES', 'https://www.googleapis.com/auth/documents.readonly')]
 
 print("Looking for service account file at:", os.path.abspath(SERVICE_ACCOUNT_FILE))
+
+#railway (backend deployment) will try to read credentials file but it is not pushed to github
+#the envrionment variable was added to railway
+#you need to tell railway to either look at its environment variable and if you are coding 
+#locally tell computer to look at credentials folder 
+def get_google_credentials():   
+    #try to extract railway environment variable first 
+    service_account_json = os.getenv('GOOGLE_SERVICE_ACCOUNT_JSON')
+    if service_account_json: #if it exists 
+        print("Using google credentials from environment variable PRODUCTION")
+        try:
+            service_account_info = json.loads(service_account_json)
+            return service_account.Credentials.from_service_account_info(service_account_info, scopes=GOOGLE_SCOPES)
+        except json.JSONDecodeError as e:
+            print(f"Error parsing Google credentials JSON: {e}")
+            raise
+    else:
+        print("Using google crednetials from file (development)")
+        SERVICE_ACCOUNT_FILE=os.getenv('SERVICE_ACCOUNT_FILE', '../../credentials/doc_reader_service_account.json')
+        if not os.path.exists(SERVICE_ACCOUNT_FILE):
+            raise FileNotFoundError(f"Service account file not found: {SERVICE_ACCOUNT_FILE}")
+        return service_account.Credentials.from_service_account_file(
+            SERVICE_ACCOUNT_FILE,
+            scopes=GOOGLE_SCOPES
+        )
+            
+def get_docs_service():
+    try:
+        creds = get_google_credentials()
+        return build('docs','v1', credentials=creds)
+    except Exception as e:
+        print(f"Error creating Google Docs service: {e}")
+        
+            
+        
 
 # Test route
 @app.route('/test', methods=['GET'])
@@ -50,11 +86,8 @@ def check_doc_title():
         if not document_id or not assignment_name:
             return jsonify({'error': 'Document ID and assignment name are required'}), 400
 
-        creds = service_account.Credentials.from_service_account_file(
-            SERVICE_ACCOUNT_FILE, scopes=GOOGLE_SCOPES
-        )
-        
-        docs_service = build('docs', 'v1', credentials=creds)
+
+        docs_service = get_docs_service()
         doc = docs_service.documents().get(documentId=document_id).execute()
         doc_title = doc.get('title', '')
         
@@ -129,6 +162,10 @@ def check_document():
 if __name__ == '__main__':
     port = int(os.getenv('FLASK_PORT', 5001))
     debug = os.getenv('FLASK_DEBUG', 'True').lower() == 'true'
+    
+    print(f"Starting Flask app on port {port}")
+    print(f"Debug mode: {debug}")
+    print(f"Environment: {os.environ.get('FLASK_ENV', 'development')}")
     
     app.run(
         debug=debug,
