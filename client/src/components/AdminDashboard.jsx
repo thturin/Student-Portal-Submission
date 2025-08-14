@@ -5,7 +5,6 @@ import EditAssignmentForm from './EditAssignment';
 import LogoutButton from './LogoutButton';
 
 const AdminDashboard = ({user, onLogout}) =>{
-    const apiUrl = process.env.REACT_APP_API_URL;
     const [assignments, setAssignments] = useState([]);
     const [submissions, setSubmissions] = useState([]);
     const [selectedAssignmentId, setSelectedAssignmentId] = useState('');
@@ -14,9 +13,9 @@ const AdminDashboard = ({user, onLogout}) =>{
 
 
     useEffect(()=>{
-        axios.get(`${apiUrl}/assignments`).then(res=>setAssignments(res.data));
-        axios.get(`${apiUrl}/submissions`).then(res=> setSubmissions(res.data));
-        axios.get(`${apiUrl}/sections`).then(res=>setSections(res.data));
+        axios.get(`${process.env.REACT_APP_API_URL}/assignments`).then(res=>setAssignments(res.data));
+        axios.get(`${process.env.REACT_APP_API_URL}/submissions`).then(res=> setSubmissions(res.data));
+        axios.get(`${process.env.REACT_APP_API_URL}/sections`).then(res=>setSections(res.data));
     },[]);
 
     const filteredSubs = submissions.filter(
@@ -112,7 +111,7 @@ const AdminDashboard = ({user, onLogout}) =>{
                 <button 
                     disabled={!selectedAssignmentId || filteredSubs.length===0 || !selectedSection}
                     onClick={async()=>{
-                        window.location.href = `${apiUrl}/admin/exportAssignment?assignmentId=${selectedAssignmentId}${selectedSection? `&sectionId=${selectedSection}`:''}`;       
+                        window.location.href = `${process.env.REACT_APP_API_URL}/admin/exportAssignment?assignmentId=${selectedAssignmentId}${selectedSection? `&sectionId=${selectedSection}`:''}`;       
                     }}
                     style={{
                         width: '100%',

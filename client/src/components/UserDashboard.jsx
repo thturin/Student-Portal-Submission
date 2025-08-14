@@ -6,18 +6,17 @@ import SubmitForm from './SubmitForm.jsx';
 
 
 const UserDashboard = ({user, onLogout})=>{
-    const apiUrl = process.env.REACT_APP_API_URL;
     const[submissions,setSubmissions] = useState([]);
     const [assignments, setAssignments] = useState([]);
     useEffect(()=>{
-        axios.get(`${apiUrl}/submissions`).then(res =>{
+        axios.get(`${process.env.REACT_APP_API_URL}/submissions`).then(res =>{
                 //filter submissions by userId
                 const userSubs = res.data.filter(sub => sub.userId===user.id);
                 setSubmissions(userSubs); //set the current subs as userSubs
         });
 
         //get assignments to list names 
-        axios.get(`${apiUrl}/assignments`).then(res=>{
+        axios.get(`${process.env.REACT_APP_API_URL}/assignments`).then(res=>{
             setAssignments(res.data);  
         });
 
