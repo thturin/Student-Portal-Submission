@@ -56,8 +56,12 @@ const verifyGithubOwnership = async (req, res)=>{
     }
 };
 
+//1. VERIFY APP PERMISSION TO ACCESS GOOGLE DRIVE AND DOCS
+//2. VERIFY STUDENT USER IS OWNER OF DOC
 const verifyDocOwnership = async (req,res)=>{
     const {documentId, userEmail} = req.body;
+    // first must verify YOUR service account so gives your app permission
+    // to read google drive/docs 
     const auth = await authenticateGoogle(); //should return an authenticasted Oauth2 email user
 
     try{

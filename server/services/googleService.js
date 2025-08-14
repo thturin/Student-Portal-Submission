@@ -1,8 +1,9 @@
 const {google} = require('googleapis');
-const key = require('../../credentials/doc_reader_service_account.json');
 
 
 
+    // first must verify YOUR service account so gives your app permission
+    // to read google drive/docs 
 function authenticateGoogle(){
     let credentials;
     //try environment variable first from railway
