@@ -2,10 +2,6 @@ import axios from 'axios';
 import { useEffect, useState } from 'react';
 
 
-const apiUrl = process.env.REACT_APP_API_URL+'/login';
-
-
-
 const LoginBar = ({onLogin}) =>{
     const [email, setEmail] = useState('');
     const [error, setError] = useState('');

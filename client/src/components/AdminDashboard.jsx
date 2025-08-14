@@ -11,7 +11,7 @@ const AdminDashboard = ({user, onLogout}) =>{
     const [selectedAssignmentId, setSelectedAssignmentId] = useState('');
     const [sections,setSections] = useState([]);
     const [selectedSection,setSelectedSection] = useState('');
-    const [exportSuccess, setExportSuccess] = useState(null);
+
 
     useEffect(()=>{
         axios.get(`${apiUrl}/assignments`).then(res=>setAssignments(res.data));
@@ -33,10 +33,6 @@ const AdminDashboard = ({user, onLogout}) =>{
     const selectedAssignmentObj = assignments.find(
         ass=>ass.id === Number(selectedAssignmentId)
     );
-    
-    const handleExport = async()=>{
-        setExportSuccess(false);
-    }
 
     return(
         <div>

@@ -45,7 +45,7 @@ const SubmitForm = ({onNewSubmission, user, submissions})=>{
             }
         }
         fetchAssignments();
-    },[apiUrl]); //happens on the mount [] are the dependencies which means the function will run only when those dependencies change
+    },[]); //happens on the mount [] are the dependencies which means the function will run only when those dependencies change
 
     //When assignment is selected, determine the assignment type
     useEffect(()=>{
