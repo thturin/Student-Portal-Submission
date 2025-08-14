@@ -117,40 +117,45 @@ GOOGLE_SCOPES=https://www.googleapis.com/auth/documents.readonly
 ## 🚀 Running the Application
 
 ### Development Mode
+### Installation (Linux)
 
-**Terminal 1 - Backend:**
-```bash
-cd server
-npm run dev
-```
+# Install Node.js and npm
+curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
+sudo apt-get install -y nodejs
 
-**Terminal 2 - Frontend:**
-```bash
-cd client
-npm start
-```
+# Install Python and pip
+sudo apt update
+sudo apt install python3 python3-pip
 
-**Terminal 3 - Flask API:**
-```bash
-cd scripts/google-docs
-python docs_api.py
-```
+# Install Git (if not installed)
+sudo apt install git
+
+# Verify installations
+node --version
+npm --version
+python3 --version
+pip3 --version
+
+## Database Setup
+# Option 1: PostgreSQL locally
+sudo apt install postgresql postgresql-contrib
+sudo systemctl start postgresql
+sudo systemctl enable postgresql
+
+# Create database user and database
+sudo -u postgres psql
+CREATE USER postgres WITH PASSWORD '1234';
+CREATE DATABASE autograder OWNER postgres;
+GRANT ALL PRIVILEGES ON DATABASE autograder TO postgres;
+\q
+
+# Option 2: Use Docker for PostgreSQL
+docker run --name postgres-dev -e POSTGRES_PASSWORD=1234 -e POSTGRES_DB=autograder -p 5433:5432 -d postgres:13
+
+## On linux, run ./start.sh and windows start.bat
+
 
 ### Production Build
-
-```bash
-# Build frontend
-cd client
-npm run build
-
-# Start backend
-cd server
-npm start
-
-# Start Flask API
-cd scripts/google-docs
-gunicorn docs_api:app --bind 0.0.0.0:5001
-```
 
 ## 🌐 Application URLs
 
@@ -222,6 +227,8 @@ npm test
 cd scripts/google-docs
 curl http://localhost:5001/test
 ```
+## 📄 Setup
+
 
 ## 🚀 Deployment
 
@@ -235,7 +242,7 @@ curl http://localhost:5001/test
 1. Create production GitHub OAuth app
 2. Set production environment variables
 3. Upload Google Service Account to deployment platforms
-4. Update CORS origins and callback URLs
+4. Update callback URLs
 
 ## 🔒 Security Notes
 
