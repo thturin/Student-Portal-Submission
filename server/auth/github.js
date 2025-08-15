@@ -66,6 +66,7 @@ passport.deserializeUser(
     }   
 );
 
+//ADDED FOR PRODUCTION
 //add this check before strategy to confirm railway is using environment variable for client id and secret
 if (!process.env.GITHUB_CLIENT_ID || !process.env.GITHUB_CLIENT_SECRET) {
     console.error('Missing GitHub OAuth credentials!');
@@ -80,6 +81,7 @@ passport.use(new GitHubStrategy({
                             clientID: process.env.GITHUB_CLIENT_ID,
                             clientSecret: process.env.GITHUB_CLIENT_SECRET,
                             //callbackURL:`${process.env.SERVER_URL}/auth/github/callback`,
+                            //UPDATED FOR PRODUCTION
                             callbackURL:process.env.NODE_ENV === 'production' 
                                             ? `${process.env.RAILWAY_STATIC_URL}/api/auth/github/callback`
                                             :`${process.env.SERVER_URL}/auth/github/callback`,

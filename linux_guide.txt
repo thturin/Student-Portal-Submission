@@ -1,0 +1,279 @@
+# =============================================================================
+# COMPLETE LINUX SETUP GUIDE FOR STUDENT PORTAL
+# =============================================================================
+
+# 1. UPDATE SYSTEM AND INSTALL PREREQUISITES
+# -----------------------------------------------------------------------------
+
+# Update system
+sudo apt update
+
+# Install Node.js and npm
+curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
+sudo apt-get install -y nodejs
+
+# Install Python and pip
+sudo apt install python3 python3-pip
+
+# Install PostgreSQL
+sudo apt install postgresql postgresql-contrib
+
+# Install Git (if not installed)
+sudo apt install git
+
+# Verify installations
+node --version
+npm --version
+python3 --version
+psql --version
+
+# 2. CLONE PROJECT AND INSTALL DEPENDENCIES
+# -----------------------------------------------------------------------------
+
+# Clone the repository
+git clone https://github.com/thturin/Student-Portal-Submission.git
+cd Student-Portal-Submission
+
+# Install Node.js dependencies
+npm install 2>/dev/null || echo "No root package.json found"
+cd server && npm install && cd ..
+cd client && npm install && cd ..
+
+# Install Python dependencies
+cd scripts/google-docs && pip3 install -r requirements.txt && cd ../..
+
+# 3. SETUP POSTGRESQL DATABASE
+# -----------------------------------------------------------------------------
+
+# Start PostgreSQL service
+sudo systemctl start postgresql
+sudo systemctl enable postgresql
+
+# Create database and user
+sudo -u postgres psql << EOF
+CREATE USER postgres WITH PASSWORD '1234';
+CREATE DATABASE autograder OWNER postgres;
+GRANT ALL PRIVILEGES ON DATABASE autograder TO postgres;
+ALTER USER postgres CREATEDB;
+\q
+EOF
+
+# 4. CREATE ENVIRONMENT FILES
+# -----------------------------------------------------------------------------
+
+# Create server/.env
+cat > server/.env << 'EOF'
+DATABASE_URL="postgresql://postgres:1234@localhost:5432/autograder?schema=public"
+PORT=5000
+SESSION_SECRET="2f1675a8d2ba367fede9a8f1805c4f27100471791c3a1c8c1436b465b97ea6a8"
+SERVER_URL=http://localhost:5000/api
+CLIENT_URL=http://localhost:3000
+FLASK_API_URL=http://localhost:5001
+GITHUB_CLIENT_ID=Ov23liVEq0B0c2ctvNVH
+GITHUB_CLIENT_SECRET=be110f9ffc3e71dc7016bbf011c5d9ac93b505da
+NODE_ENV=development
+EOF
+
+# Create client/.env
+cat > client/.env << 'EOF'
+GENERATE_SOURCEMAP=false
+ESLINT_NO_DEV_ERRORS=true
+REACT_APP_API_URL=http://localhost:5000/api
+EOF
+
+# Create scripts/google-docs/.env
+cat > scripts/google-docs/.env << 'EOF'
+FLASK_ENV=development
+FLASK_DEBUG=True
+GOOGLE_SCOPES=https://www.googleapis.com/auth/documents.readonly
+EOF
+
+# 5. SETUP PRISMA DATABASE SCHEMA
+# -----------------------------------------------------------------------------
+
+# Navigate to server directory
+cd server
+
+# Generate Prisma client
+npx prisma generate
+
+# Push database schema
+npx prisma db push
+
+# Return to project root
+cd ..
+
+# 6. CREATE CREDENTIALS DIRECTORY
+# -----------------------------------------------------------------------------
+
+# Create credentials directory for Google Service Account
+mkdir -p credentials
+
+# Create README for credentials
+cat > credentials/README.md << 'EOF'
+# Credentials Directory
+
+## Google Service Account
+Place your Google Service Account JSON file here as:
+`doc_reader_service_account.json`
+
+To get this file:
+1. Go to Google Cloud Console
+2. Create a Service Account
+3. Download the JSON key file
+4. Rename it to `doc_reader_service_account.json`
+5. Place it in this directory
+EOF
+
+# 7. CREATE STARTUP SCRIPT
+# -----------------------------------------------------------------------------
+
+# Create development startup script
+cat > start-dev.sh << 'EOF'
+#!/bin/bash
+# Start all Student Portal services
+
+echo "🚀 Starting Student Portal..."
+echo "=============================="
+
+# Function to cleanup on exit
+cleanup() {
+    echo ""
+    echo "🛑 Stopping all services..."
+    kill $BACKEND_PID $FRONTEND_PID $FLASK_PID 2>/dev/null
+    exit 0
+}
+
+# Trap Ctrl+C
+trap cleanup INT
+
+# Start backend
+echo "🌐 Starting backend server..."
+cd server && npm run dev &
+BACKEND_PID=$!
+cd ..
+
+# Wait for backend to start
+sleep 3
+
+# Start frontend
+echo "⚛️ Starting frontend server..."
+cd client && npm start &
+FRONTEND_PID=$!
+cd ..
+
+# Start Flask API
+echo "🐍 Starting Flask API..."
+cd scripts/google-docs && python3 docs_api.py &
+FLASK_PID=$!
+cd ../..
+
+echo ""
+echo "✅ All services started!"
+echo "================================"
+echo "📱 Frontend:  http://localhost:3000"
+echo "🌐 Backend:   http://localhost:5000/api"
+echo "🐍 Flask API: http://localhost:5001"
+echo "================================"
+echo "Press Ctrl+C to stop all services"
+
+# Wait for processes
+wait
+EOF
+
+# Make startup script executable
+chmod +x start-dev.sh
+
+# 8. CREATE INDIVIDUAL SERVICE SCRIPTS
+# -----------------------------------------------------------------------------
+
+# Backend only script
+cat > start-backend.sh << 'EOF'
+#!/bin/bash
+echo "🌐 Starting backend server..."
+cd server && npm run dev
+EOF
+chmod +x start-backend.sh
+
+# Frontend only script
+cat > start-frontend.sh << 'EOF'
+#!/bin/bash
+echo "⚛️ Starting frontend server..."
+cd client && npm start
+EOF
+chmod +x start-frontend.sh
+
+# Flask API only script
+cat > start-flask.sh << 'EOF'
+#!/bin/bash
+echo "🐍 Starting Flask API..."
+cd scripts/google-docs && python3 docs_api.py
+EOF
+chmod +x start-flask.sh
+
+# 9. TEST DATABASE CONNECTION
+# -----------------------------------------------------------------------------
+
+# Test PostgreSQL connection
+psql -h localhost -p 5432 -U postgres -d autograder -c "SELECT version();"
+
+# 10. SETUP COMPLETE MESSAGE
+# -----------------------------------------------------------------------------
+
+echo ""
+echo "🎉 SETUP COMPLETE!"
+echo "=================="
+echo ""
+echo "📋 Next Steps:"
+echo "1. Add Google Service Account JSON to credentials/ directory"
+echo "2. Run: ./start-dev.sh to start all services"
+echo "3. Visit http://localhost:3000 to access the application"
+echo ""
+echo "🔧 Available Commands:"
+echo "• Start all services:    ./start-dev.sh"
+echo "• Start backend only:    ./start-backend.sh"
+echo "• Start frontend only:   ./start-frontend.sh" 
+echo "• Start Flask API only:  ./start-flask.sh"
+echo ""
+echo "🗄️ Database Details:"
+echo "• Host: localhost"
+echo "• Port: 5432" 
+echo "• Database: autograder"
+echo "• User: postgres"
+echo "• Password: 1234"
+echo ""
+echo "🌐 Service URLs:"
+echo "• Frontend:  http://localhost:3000"
+echo "• Backend:   http://localhost:5000/api"
+echo "• Flask API: http://localhost:5001"
+echo ""
+echo "Happy coding! 🚀"
+
+# =============================================================================
+# TROUBLESHOOTING COMMANDS
+# =============================================================================
+
+# Check if PostgreSQL is running
+# sudo systemctl status postgresql
+
+# Restart PostgreSQL if needed
+# sudo systemctl restart postgresql
+
+# Check if services are running on ports
+# sudo netstat -tlnp | grep :3000    # Frontend
+# sudo netstat -tlnp | grep :5000    # Backend
+# sudo netstat -tlnp | grep :5001    # Flask API
+
+# View service logs
+# cd server && npm run dev           # Backend logs
+# cd client && npm start             # Frontend logs  
+# cd scripts/google-docs && python3 docs_api.py  # Flask logs
+
+# Reset database if needed
+# sudo -u postgres psql -c "DROP DATABASE autograder;"
+# sudo -u postgres psql -c "CREATE DATABASE autograder OWNER postgres;"
+# cd server && npx prisma db push
+
+# =============================================================================
+# END OF SETUP GUIDE
+# =============================================================================

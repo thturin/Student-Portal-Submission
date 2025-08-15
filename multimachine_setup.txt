@@ -1,0 +1,203 @@
+# =============================================================================
+# MULTI-MACHINE DEVELOPMENT WORKFLOW FOR STUDENT PORTAL
+# =============================================================================
+
+# 1. 🌿 FEATURE BRANCH WORKFLOW (Best Practice)
+# -----------------------------------------------------------------------------
+
+# On any machine, start a new feature:
+git checkout -b feature/new-functionality
+git push -u origin feature/new-functionality
+
+# Work on your feature
+git add .
+git commit -m "Add new functionality"
+git push
+
+# When done, merge via GitHub PR
+# Then delete local branch
+git checkout main
+git pull origin main
+git branch -d feature/new-functionality
+
+# 2. 🔄 DAILY SYNC ROUTINE
+# -----------------------------------------------------------------------------
+
+# Before starting work (on any machine):
+git checkout main
+git pull origin main
+git checkout -b feature/todays-work
+
+# After finishing work:
+git add .
+git commit -m "Descriptive commit message"
+git push origin feature/todays-work
+
+# 3. 🖥️ INITIAL SETUP ON EACH MACHINE
+# -----------------------------------------------------------------------------
+
+# Clone the repository
+git clone https://github.com/thturin/Student-Portal-Submission.git
+cd Student-Portal-Submission
+
+# Set up environment
+# Linux:
+./setup.sh
+
+# Windows:
+start.bat
+
+# Configure Git (same on both machines)
+git config --global user.name "Your Name"
+git config --global user.email "your.email@example.com"
+
+# 4. 📁 MACHINE-SPECIFIC ENVIRONMENT FILES (NOT TRACKED)
+# -----------------------------------------------------------------------------
+
+# Linux machine - server/.env
+DATABASE_URL=postgresql://postgres:1234@localhost:5433/autograder
+GITHUB_CLIENT_ID=your-dev-client-id
+GITHUB_CLIENT_SECRET=your-dev-client-secret
+CLIENT_URL=http://localhost:3000
+SERVER_URL=http://localhost:5000/api
+FLASK_API_URL=http://localhost:5001
+
+# Windows machine - server/.env  
+DATABASE_URL=postgresql://postgres:password@localhost:5432/autograder
+GITHUB_CLIENT_ID=your-dev-client-id
+GITHUB_CLIENT_SECRET=your-dev-client-secret
+CLIENT_URL=http://localhost:3000
+SERVER_URL=http://localhost:5000/api
+FLASK_API_URL=http://localhost:5001
+
+# 5. 🔧 SAFE PUSH/PULL WORKFLOW
+# -----------------------------------------------------------------------------
+
+# Before switching machines:
+git status                     # Check what's changed
+git add .                      # Stage changes
+git commit -m "WIP: description of current work"
+git push origin feature-branch
+
+# When starting on another machine:
+git fetch origin              # Get latest from remote
+git checkout feature-branch   # Switch to your branch
+git pull origin feature-branch # Get your latest work
+
+# 6. 🚨 HANDLE MERGE CONFLICTS
+# -----------------------------------------------------------------------------
+
+# If you get conflicts:
+git pull origin main           # This might show conflicts
+
+# Fix conflicts in your editor, then:
+git add .
+git commit -m "Resolve merge conflicts"
+git push
+
+# 7. 📋 RECOMMENDED DAILY WORKFLOW
+# -----------------------------------------------------------------------------
+
+# Morning routine (any machine):
+git checkout main
+git pull origin main
+git checkout -b feature/today-$(date +%Y%m%d)
+
+# Evening routine:
+git add .
+git commit -m "End of day: [description]"
+git push origin feature/today-$(date +%Y%m%d)
+
+# 8. 🔄 BRANCH MANAGEMENT
+# -----------------------------------------------------------------------------
+
+# List all branches
+git branch -a
+
+# Clean up old branches (after they're merged)
+git checkout main
+git pull origin main
+git branch --merged | grep -v main | xargs git branch -d
+
+# Delete remote branches that no longer exist
+git remote prune origin
+
+# 9. 🎯 PRODUCTION DEPLOYMENT STRATEGY
+# -----------------------------------------------------------------------------
+
+# Only deploy from main branch
+git checkout main
+git pull origin main
+# This automatically triggers:
+# - Netlify redeploy (frontend)
+# - Railway redeploy (backend + Flask API)
+
+# 10. 📱 QUICK COMMANDS CHEAT SHEET
+# -----------------------------------------------------------------------------
+
+# Quick status check
+git status
+git log --oneline -5
+
+# Quick sync
+git pull
+
+# Quick save
+git add . && git commit -m "Quick save" && git push
+
+# Switch machine safety
+git stash          # Save uncommitted work
+git pull           # Get latest
+git stash pop      # Restore your work
+
+# 11. 🚨 EMERGENCY RECOVERY
+# -----------------------------------------------------------------------------
+
+# If you mess up locally:
+git reset --hard origin/main   # Nuclear option - lose all local changes
+git pull origin main           # Start fresh
+
+# If you accidentally committed secrets:
+git filter-branch --force --index-filter \
+  'git rm --cached --ignore-unmatch path/to/secret/file' \
+  --prune-empty --tag-name-filter cat -- --all
+
+# =============================================================================
+# PRO TIPS
+# =============================================================================
+
+# 1. Never work directly on `main` - always use feature branches
+# 2. Pull before you push - always sync first
+# 3. Commit often - small, frequent commits are better
+# 4. Use descriptive commit messages
+# 5. Create separate `.env` files for each machine
+# 6. Test on both machines before pushing to production
+
+# =============================================================================
+# SETUP SCRIPT FOR NEW MACHINE
+# =============================================================================
+
+#!/bin/bash
+# save as setup-new-machine.sh
+
+echo "🚀 Setting up Student Portal on new machine..."
+
+# Install dependencies
+npm install 2>/dev/null || echo "No root package.json found"
+cd server && npm install && cd ..
+cd client && npm install && cd ..
+cd scripts/google-docs && pip3 install -r requirements.txt && cd ../..
+
+# Create environment files
+echo "📝 Creating environment files..."
+echo "Create your .env files in:"
+echo "  - server/.env"
+echo "  - client/.env" 
+echo "  - scripts/google-docs/.env"
+
+echo "✅ Setup complete! Don't forget to:"
+echo "1. Configure your .env files"
+echo "2. Start your database"
+echo "3. Run git pull to get latest code"
+
+# =============================================================================
