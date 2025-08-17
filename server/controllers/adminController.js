@@ -163,7 +163,7 @@ const addSampleData = async (req, res) => {
             where: { email: 'tatiana.turin@gmail.com' },
             update: {},
             create: {
-                email: 'tturin@schools.nyc.gov',
+                email: 'tatiana.turin@gmail.com',
                 name: 'Admin TEST',
                 role: 'ADMIN',
             },
