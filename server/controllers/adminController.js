@@ -122,4 +122,106 @@ function formatDateMMDDYYYY(date) { //copied and pasted
     return `${mm}/${dd}/${yyyy}`;
 }
 
-module.exports = exportAssignmentsCsv;
+const addSampleData = async (req, res) => {
+    try {
+        console.log('🌱 Adding sample data...');
+
+        // Create sections first
+        const section1 = await prisma.section.upsert({
+            where: { sectionId: 'AP Comp 81' },
+            update: {},
+            create: {
+                name: 'AP Computer Science A',
+                sectionId: '81',
+            },
+        });
+
+        const section2 = await prisma.section.upsert({
+            where: { sectionId: 'AP Comp 83' },
+            update: {},
+            create: {
+                name: 'AP Computer Science A',
+                sectionId: '83',
+            },
+        });
+
+        // Create users
+
+        const user1 = await prisma.user.upsert({
+            where: { email: 'tturin@schools.nyc.gov' },
+            update: {},
+            create: {
+                schoolId: '18457689',
+                email: 'tturin@schools.nyc.gov',
+                name: 'Student TEST',
+                role: 'STUDENT',
+                sectionId: section2.id,
+            },
+        });
+
+        const admin = await prisma.user.upsert({
+            where: { email: 'tatiana.turin@gmail.com' },
+            update: {},
+            create: {
+                email: 'tturin@schools.nyc.gov',
+                name: 'Admin TEST',
+                role: 'ADMIN',
+            },
+        });
+
+        // Create assignments
+        const assignment1 = await prisma.assignment.create({
+            data: {
+                title: 'U1T1-println vs print',
+                dueDate: new Date('2025-08-03'),
+                type: 'googledoc',
+            },
+        });
+
+        const assignment2 = await prisma.assignment.create({
+            data: {
+                title: 'U1T3-Mathematical Operators',
+                dueDate: new Date('2025-09-30'),
+                type: 'googledoc',
+            },
+        });
+
+        const assignment3 = await prisma.assignment.create({
+            data: {
+                title: 'U1P1-Calculator',
+                dueDate: new Date('2025-09-01'),
+                type: 'github',
+            },
+        });
+
+      
+
+        // Get final counts
+        const stats = {
+            users: await prisma.user.count(),
+            sections: await prisma.section.count(),
+            assignments: await prisma.assignment.count(),
+            submissions: await prisma.submission.count(),
+        };
+
+        res.json({
+            success: true,
+            message: 'Sample data added successfully!',
+            stats,
+            timestamp: new Date().toISOString()
+        });
+
+    } catch (error) {
+        console.error('Error adding sample data:', error);
+        res.status(500).json({
+            success: false,
+            error: error.message
+        });
+    }
+};
+
+
+
+
+module.exports = {exportAssignmentsCsv,
+                    addSampleData};
