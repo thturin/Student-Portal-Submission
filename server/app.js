@@ -15,9 +15,7 @@ const app = express();
 const prisma = new PrismaClient();
 
 app.use(cors({
-  origin: process.env.NODE_ENV === 'production' ?
-      ['https://apcsa-portal.netlify.app', process.env.CLIENT_URL]
-      : ['http://localhost:3000', 'http://127.0.0.1:3000'] ,
+  origin: process.env.CLIENT_URL,
   credentials:true,
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization']
