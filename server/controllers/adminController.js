@@ -156,6 +156,7 @@ const addSampleData = async (req, res) => {
                 name: 'Student TEST',
                 role: 'STUDENT',
                 sectionId: section2.id,
+                password: '123'
             },
         });
 
@@ -166,6 +167,7 @@ const addSampleData = async (req, res) => {
                 email: 'tatiana.turin@gmail.com',
                 name: 'Admin TEST',
                 role: 'ADMIN',
+                password:'123'
             },
         });
 
