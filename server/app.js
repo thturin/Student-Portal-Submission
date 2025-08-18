@@ -17,7 +17,7 @@ const prisma = new PrismaClient();
 
 //you are already using an authentication method so you ca * origin accept any 
 app.use(cors({
-  origin: "*", //there was no origin header
+  origin: process.env.CLIENT_URL, //there was no origin header
   credentials:true,
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization']
