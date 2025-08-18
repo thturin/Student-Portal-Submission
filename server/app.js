@@ -14,6 +14,16 @@ require('dotenv').config(); //load environment variables from .env
 const app = express();
 const prisma = new PrismaClient();
 
+app.use((req,res,next)=>{
+  console.log('CORS DEBUG:',{
+    CLIENT_URL: process.env.CLIENT_URL,
+    origin: req.headers.origin,
+    method:req.method,
+    url:req.url
+  });
+  next();
+});
+
 app.use(cors({
   origin: process.env.CLIENT_URL,
   credentials:true,
@@ -39,7 +49,7 @@ app.use(session({
   resave: false,
   saveUninitialized: false,
   rolling: true, //session refreshes after every request. 
-  store: new FileStore({
+  store: new FileStore({ //store the session
         path: './sessions',
         ttl: 24 * 60 * 60, // 24 hours in seconds
         retries: 5
