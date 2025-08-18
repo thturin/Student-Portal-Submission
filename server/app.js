@@ -14,18 +14,28 @@ require('dotenv').config(); //load environment variables from .env
 const app = express();
 const prisma = new PrismaClient();
 
-app.use((req,res,next)=>{
-  console.log('CORS DEBUG:',{
-    CLIENT_URL: process.env.CLIENT_URL,
-    origin: req.headers.origin,
-    method:req.method,
-    url:req.url
-  });
-  next();
-});
+
+const origin_function = (origin, callback)=>{
+  const allowedOrigin = process.env.CLIENT_URL;
+  console.log('🎯 CORS Check:', {
+      incomingOrigin: origin || 'NO_ORIGIN',
+      expectedOrigin: allowedOrigin,
+      matches: origin === allowedOrigin
+    });
+
+    if(!origin){
+      return callback(null,true);
+    }
+
+    if(origin === allowedOrigin){
+      return callback(null,true);
+    }
+
+  callback(new Error(`CORS: Origin ${origin} not allowed`));
+}
 
 app.use(cors({
-  origin: process.env.CLIENT_URL,
+  origin: origin_function, //there was no origin header
   credentials:true,
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization']
@@ -135,7 +145,7 @@ app.get('/health-debug', (req, res) => {
             },
             cors: {
                 expectedOrigin: process.env.CLIENT_URL,
-                actualOrigin: req.headers.origin,
+                actualOrigin: req.headers.origin || 'NULL',
                 matches: req.headers.origin === process.env.CLIENT_URL
             },
             timestamp: new Date().toISOString()
