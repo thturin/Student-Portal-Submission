@@ -117,7 +117,7 @@ app.get('/health', (req,res)=>{
 });
 
 // Add this route to see environment variables via HTTP
-router.get('/health-debug', (req, res) => {
+app.get('/health-debug', (req, res) => {
     try {
         res.json({
             status: 'Railway Backend Running',
