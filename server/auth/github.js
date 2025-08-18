@@ -80,11 +80,11 @@ if (!process.env.GITHUB_CLIENT_ID || !process.env.GITHUB_CLIENT_SECRET) {
 passport.use(new GitHubStrategy({
                             clientID: process.env.GITHUB_CLIENT_ID,
                             clientSecret: process.env.GITHUB_CLIENT_SECRET,
-                            //callbackURL:`${process.env.SERVER_URL}/auth/github/callback`,
+                            callbackURL:`${process.env.SERVER_URL}/auth/github/callback`,
                             //UPDATED FOR PRODUCTION
-                            callbackURL:process.env.NODE_ENV === 'production' 
-                                            ? `${process.env.RAILWAY_STATIC_URL}/api/auth/github/callback`
-                                            :`${process.env.SERVER_URL}/auth/github/callback`,
+                            // callbackURL:process.env.NODE_ENV === 'production' 
+                            //                 ? `${process.env.RAILWAY_STATIC_URL}/api/auth/github/callback`
+                            //                 :`${process.env.SERVER_URL}/auth/github/callback`,
                             passReqToCallback:true //allows you to access the original request(state parameter) inside strategy callback
                             },
                             async(req,accessToken, refreshToken, profile, done) =>{
