@@ -97,20 +97,6 @@ app.use(passport.session());
 
 require('./auth/github'); // Registers the strategy github
 
-// ADD THIS DEBUG MIDDLEWARE:
-// app.use((req, res, next) => {
-//     console.log('🔍 Every Request Debug:', {
-//         method: req.method,
-//         url: req.url,
-//         sessionID: req.sessionID,
-//         hasSession: !!req.session,
-//         sessionData: req.session,
-//         hasCookies: !!req.headers.cookie,
-//         isAuthenticated: req.isAuthenticated ? req.isAuthenticated() : 'N/A'
-//     });
-//     next();
-// });
-
 
 app.get('/', (req, res)=>{
     res.send('Backend is running!');
