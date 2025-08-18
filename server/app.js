@@ -15,27 +15,9 @@ const app = express();
 const prisma = new PrismaClient();
 
 
-const origin_function = (origin, callback)=>{
-  const allowedOrigin = process.env.CLIENT_URL;
-  console.log('🎯 CORS Check:', {
-      incomingOrigin: origin || 'NO_ORIGIN',
-      expectedOrigin: allowedOrigin,
-      matches: origin === allowedOrigin
-    });
-
-    if(!origin){
-      return callback(null,true);
-    }
-
-    if(origin === allowedOrigin){
-      return callback(null,true);
-    }
-
-  callback(new Error(`CORS: Origin ${origin} not allowed`));
-}
-
+//you are already using an authentication method so you ca * origin accept any 
 app.use(cors({
-  origin: origin_function, //there was no origin header
+  origin: "*", //there was no origin header
   credentials:true,
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization']
