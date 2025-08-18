@@ -116,6 +116,38 @@ app.get('/health', (req,res)=>{
   });
 });
 
+// Add this route to see environment variables via HTTP
+router.get('/health-debug', (req, res) => {
+    try {
+        res.json({
+            status: 'Railway Backend Running',
+            environment: {
+                CLIENT_URL: process.env.CLIENT_URL,
+                NODE_ENV: process.env.NODE_ENV,
+                PORT: process.env.PORT,
+                SESSION_SECRET: process.env.SESSION_SECRET ? 'SET' : 'MISSING',
+                DATABASE_URL: process.env.DATABASE_URL ? 'SET' : 'MISSING'
+            },
+            request: {
+                origin: req.headers.origin,
+                host: req.headers.host,
+                userAgent: req.headers['user-agent']
+            },
+            cors: {
+                expectedOrigin: process.env.CLIENT_URL,
+                actualOrigin: req.headers.origin,
+                matches: req.headers.origin === process.env.CLIENT_URL
+            },
+            timestamp: new Date().toISOString()
+        });
+    } catch (error) {
+        res.status(500).json({
+            error: error.message,
+            stack: error.stack
+        });
+    }
+});
+
 
 app.use('/api/auth', authRoutes);
 app.use('/api/', submissionRoutes); //call the router object in submissionRoutes (it is exported)
