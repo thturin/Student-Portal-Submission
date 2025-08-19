@@ -3,7 +3,7 @@ const router = express.Router();
 const passport = require('passport');
 const {PrismaClient} = require('@prisma/client');
 const prisma = new PrismaClient();
-
+require('dotenv').config(); //load environment variables from .env
 
 //http://localhost:5000/api/auth/
 
@@ -40,7 +40,7 @@ router.get('/github/callback', //AUTHENTICATION ST EP 2
     passport.authenticate('github',{failureRedirect:`${process.env.CLIENT_URL}/login?error=oauth`}),
     (req,res)=>{ //if authentication successful...REDIRECT TO HOMEPAGE
         console.log('Github /callback hit, user: ', req.user);
-        res.redirect(process.env.CLIENT_UR); //where the front end lands
+        res.redirect(process.env.CLIENT_URL); //where the front end lands
     }
 );
 
