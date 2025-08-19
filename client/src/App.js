@@ -23,6 +23,8 @@ function App() {
   }
 
   useEffect(()=>{ //everytime the user changes, useEffect() is called
+    console.log('Frontend API URL:', process.env.REACT_APP_API_URL);
+    console.log('All env vars:', process.env);
     if(user){
       console.log('current user is ',user.name);
     }else{
