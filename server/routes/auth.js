@@ -37,10 +37,10 @@ router.get('/github/callback', //AUTHENTICATION ST EP 2
         next();
     },
     //if authenticationg fails, you will be redirected below
-    passport.authenticate('github',{failureRedirect:'http://localhost:3000/login?error=oauth'}),
+    passport.authenticate('github',{failureRedirect:`${process.env.CLIENT_URL}/login?error=oauth`}),
     (req,res)=>{ //if authentication successful...REDIRECT TO HOMEPAGE
         console.log('Github /callback hit, user: ', req.user);
-        res.redirect('http://localhost:3000/'); //where the front end lands
+        res.redirect(process.env.CLIENT_UR); //where the front end lands
     }
 );
 
