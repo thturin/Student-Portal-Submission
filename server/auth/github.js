@@ -57,7 +57,7 @@ passport.deserializeUser(
             const user = await prisma.user.findUnique(
                 {where:{id}}
             );
-            //console.log('FOUND USER  /deserializeUser', user ? user: 'null');
+            console.log('FOUND USER  /deserializeUser', user ? user: 'null');
             done(null,user); //make user object available as req.user
         }catch(err){
             console.log('Deserialization error',err);
@@ -81,10 +81,6 @@ passport.use(new GitHubStrategy({
                             clientID: process.env.GITHUB_CLIENT_ID,
                             clientSecret: process.env.GITHUB_CLIENT_SECRET,
                             callbackURL:`${process.env.SERVER_URL}/auth/github/callback`,
-                            //UPDATED FOR PRODUCTION
-                            // callbackURL:process.env.NODE_ENV === 'production' 
-                            //                 ? `${process.env.RAILWAY_STATIC_URL}/api/auth/github/callback`
-                            //                 :`${process.env.SERVER_URL}/auth/github/callback`,
                             passReqToCallback:true //allows you to access the original request(state parameter) inside strategy callback
                             },
                             async(req,accessToken, refreshToken, profile, done) =>{

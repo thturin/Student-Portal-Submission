@@ -50,7 +50,7 @@ app.use(session({
   cookie:{ //COOKIE SETTINGS.  
     //how to set session timeout
     maxAge: 60*60*1000,//1 hour (in milliseconds)
-    sameSite:'lax', //or 'none' if using https,
+    sameSite:process.env.NODE_ENV === 'production' ? 'none': 'lax', //or 'none' if using https,
     secure:process.env.NODE_ENV === 'production',// true if using https
     httpOnly: true //for security purposes
   }
