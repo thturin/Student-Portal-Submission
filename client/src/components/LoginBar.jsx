@@ -12,7 +12,11 @@ const LoginBar = ({onLogin}) =>{
 
     //WHEN THE USER LOGS OUT, YOU SHOULD NOT PERFORM THE GET METHOD BELOW `
     useEffect(()=>{
-        axios.get(`${process.env.REACT_APP_API_URL}/auth/me`, {withCredentials:true})
+console.log('🔍 Axios defaults:', {
+    withCredentials: axios.defaults.withCredentials
+});
+
+        axios.get(`${process.env.REACT_APP_API_URL}/auth/me`)
         .then(res=>{
             setUserName(res.data.name);
             setSuccess(true);
