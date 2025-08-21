@@ -22,8 +22,8 @@ const createAssignment = async(req, res) =>{
 
         const assignment = await prisma.assignment.create({data});
 
-        res.status(201).json(assignment);
-        //res.json(assignment);
+        //res.status(201).json(assignment);
+        res.json(assignment);
     }catch(err){
         console.error('Error creating assignment: ',err);
         res.status(500).json({ error: 'Failed to create assignment.' });

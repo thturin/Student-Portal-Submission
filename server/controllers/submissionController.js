@@ -108,104 +108,113 @@ const verifyDocOwnership = async (req,res)=>{
 const scoreSubmission = async (url, path, assignmentTitle, submissionType,submission,assignment)=>{ //clone student's repo pasted into submission portal
         //confirm that both the submission type and url verify that it is a googledoc
         console.log('-----Score Submission---------');
-        //GOOGLE DOC SUBMISSION
-        //confirm the link is a google doc
-        if(url.includes('docs.google.com') && submissionType === 'googledoc'){
-            const docIdMatch = url.match(/\/document\/d\/([a-zA-Z0-9-_]+)/); //extract the docId
-            if (!docIdMatch) {
-                throw new Error('Invalid Google Docs URL format');
-            }
-            const documentId = docIdMatch[1];
-            console.log('Checking Google Doc with ID:', documentId);
+        try{
+                        //GOOGLE DOC SUBMISSION
+            //confirm the link is a google doc
+            if(url.includes('docs.google.com') && submissionType === 'googledoc'){
+              
+                const docIdMatch = url.match(/\/document\/d\/([a-zA-Z0-9-_]+)/); //extract the docId
+                if (!docIdMatch) {
+                    throw new Error('Invalid Google Docs URL format');
+                }
+                const documentId = docIdMatch[1];
+                console.log('Checking Google Doc with ID:', documentId);
 
-            //CALL PYTHON ROUTE /CHECK-DOC-TITLE 
-            try{
-                const titleResponse = await axios.get(`${process.env.SERVER_URL}/python/check-doc-title?documentId=${documentId}&assignmentName=${encodeURIComponent(assignmentTitle)}`);
-                const {isCorrectDoc, docTitle} = titleResponse.data;
-                if(!isCorrectDoc){
+                //CALL PYTHON ROUTE /CHECK-DOC-TITLE 
+                try{
+                    const titleResponse = await axios.get(`${process.env.SERVER_URL}/python/check-doc-title?documentId=${documentId}&assignmentName=${encodeURIComponent(assignmentTitle)}`);
+                    const {isCorrectDoc, docTitle} = titleResponse.data;
+                    if(!isCorrectDoc){
+                        return {
+                            score: 0,
+                            output: `❌ Document title "${docTitle}" does not match current assignment "${assignmentTitle.substring(0,4)}"`
+                        }
+                    }
+
+                    //IF CORRECT, CALL PYTHON ROUTES /CHECK-DOC
+                    const response = await axios.post(`${process.env.SERVER_URL}/python/check-doc`,{
+                        documentId:documentId
+                    });
+
+                    //RECEIVE FROM REQUEST PYTHON ROUTE REQUEST
+                    const{filled, foundPlaceholders} = response.data;
+                    let score = 0;
+
+                    const output = filled ? 'Document completed successfully! ✅':
+                                            `Document incomplete.❌`;
+                    if(filled){
+                        score = 100; //automatic 100
+                        score=calculateLateScore(submission.submittedAt, assignment.dueDate,score);
+                    }
+                    console.log('score googledoc',score);
                     return {
-                        score: 0,
-                        output: `❌ Document title "${docTitle}" does not match current assignment "${assignmentTitle.substring(0,4)}"`
+                        score: score,
+                        output: output
+                    };
+                }catch(err){
+                    console.error('General error in ScoreSubmission googledoc',err);
+                    return {
+                        score:0,
+                        output: `❌ Unexpected error: ${err.message}`
                     }
                 }
+                
 
-                //IF CORRECT, CALL PYTHON ROUTES /CHECK-DOC
-                const response = await axios.post(`${process.env.SERVER_URL}/python/check-doc`,{
-                    documentId:documentId
-                });
-
-                //RECEIVE FROM REQUEST PYTHON ROUTE REQUEST
-                const{filled, foundPlaceholders} = response.data;
-                let score = 0;
-
-                const output = filled ? 'Document completed successfully! ✅':
-                                        `Document incomplete.❌`;
-                if(filled){
-                    score = 100; //automatic 100
-                    score=calculateLateScore(submission.submittedAt, assignment.dueDate,score);
+            //GITHUB SUBMISSION
+            }else if(url.includes('github.com') && submissionType === 'github'){
+                try{
+                    ///DETEREMINE IF TITLE IN GITHUB URL MATCHES ASSIGNMENT NAME 
+                    //Example : U1T1-printlnVsPrint --> [U1T1]
+                    const assignmentPrefix = assignmentTitle ? assignmentTitle.substring(0, 4) : '';
+                    if(assignmentPrefix ===''){
+                        return {
+                            score:0,
+                            output: `❌ Repository name  does not match assignment`
+                        }; 
+                    } 
+                    const urlParts = url.split('/');
+                    if(!urlParts[urlParts.length-1].includes(assignmentPrefix)){
+                        return {
+                            score:0,
+                            output: `❌ Repository name ${urlParts[urlParts.length-1]} does not match assignment prefix ${assignmentPrefix}`
+                        };
+                    }
+                    await cloneRepo(url,path); //returns a promise since cloneRepo is async function
+                }catch(cloneError){
+                    console.error("Error cloning repo:",cloneError);
+                    throw cloneError;
                 }
-                console.log('score googledoc',score);
-                return {
-                    score: score,
-                    output: output
-                };
-            }catch(err){
-                console.error('General error in ScoreSubmission googledoc',err);
-                return {
-                    score:0,
-                    output: `❌ Unexpected error: ${error.message}`
-                }
-            }
-            
-
-        //GITHUB SUBMISSION
-        }else if(url.includes('github.com') && submissionType === 'github'){
-            try{
-                ///DETEREMINE IF TITLE IN GITHUB URL MATCHES ASSIGNMENT NAME 
-                const assignmentPrefix = assignmentTitle ? assignmentTitle.substring(0, 4) : '';
-                if(assignmentPrefix ===''){
+                //returns the score and output 
+                try{
+                    let results = await gradeJavaSubmission(path);
+                    let finalScore=calculateLateScore(submission.submittedAt, assignment.dueDate,results.score);
+                    results = {
+                        ...results, //keep original results (output)
+                        score:finalScore
+                    }
+                    return results;
+                }catch(err){
+                    console.error("Error grading submission:", err);
                     return {
-                        score:0,
-                        output: `❌ Repository name  does not match assignment`
-                    }; 
-                } 
-                const urlParts = url.split('/');
-                if(!urlParts[urlParts.length-1].includes(assignmentPrefix)){
-                    return {
-                        score:0,
-                        output: `❌ Repository name ${urlParts[length-1]} does not match assignment prefix ${assignmentPrefix}`
+                        score: 0,
+                        output: `❌ Failed to grade submission: ${err.message}`
                     };
                 }
-                await cloneRepo(url,path); //returns a promise since cloneRepo is async function
-            }catch(cloneError){
-                console.error("Error cloning repo:",cloneError);
-                throw cloneError;
-            }
-            //returns the score and output 
-            try{
-                let results = await gradeJavaSubmission(path);
-                let finalScore=calculateLateScore(submission.submittedAt, assignment.dueDate,results.score);
-                results = {
-                    ...results, //keep original results (output)
-                    score:finalScore
-                }
-            }catch(err){
-                console.error("Error grading submission:", gradingError);
+            }else{
+                //wasn't github or googledoc
                 return {
-                    score: 0,
-                    output: `❌ Failed to grade submission: ${gradingError.message}`
+                    score:0,
+                    output:`❌ Invalid submission type or URL format`
                 };
-            }
-            
-         
-            return results;
-        }else{
-            //wasn't github or googledoc
+            }    
+        }catch(err){
+            console.error('Unexpected error in scoreSubmission:', error);
             return {
-                score:0,
-                output:`❌ Invalid submission type or URL format`
+                score: 0,
+                output: `❌ System error: ${error.message}`
             };
-        }    
+        }
+
 };
 
 const createSubmission = async (req,res)=>{
@@ -215,7 +224,7 @@ const createSubmission = async (req,res)=>{
         let {url, assignmentId,userId, assignmentTitle, submissionType, assignment, submission} = req.body;
         const path = `./uploads/${Date.now()}`; //where repo will be cloned to locally
   
-        result = await scoreSubmission(url,path,submissionType, assignmentTitle, assignment, submission);
+        result = await scoreSubmission(url,path,assignmentTitle, submissionType, submission, assignment);
         console.log(`look here -->>> ${result.score}`);
 
         let language = submissionType === 'github'? 'java' : 'none';
@@ -243,30 +252,42 @@ const createSubmission = async (req,res)=>{
 
     }catch(err){
         console.error(err);
-        res.status(500).json({ error: 'Failed to insert submission' });
+        res.status(500).json({ error: 'Failed to create submission' });
     }
 };
 
 const updateSubmission = async(req,res)=>{
-    const {id} = req.params; //ID pulled from the parameters 
-    const {url, assignmentId, userId, submissionType, assignmentTitle, submission, assignment} = req.body
-    //console.log('Look here', id, req.body);
-    const path = `./uploads/${Date.now()}`; //where repo will be cloned to locally
-    let result = {score:-100, output:''}
-    result = await scoreSubmission(url,path,assignmentTitle, submissionType, submission, assignment);
     try{
+        const {id} = req.params; //ID pulled from the parameters 
+        const {url, assignmentId, userId, submissionType, assignmentTitle, submission, assignment} = req.body
+        //console.log('Look here', id, req.body);
+        const path = `./uploads/${Date.now()}`; //where repo will be cloned to locally
+        let result = {score:-100, output:''};
+
+        try{
+            result = await scoreSubmission(url,path,assignmentTitle, submissionType, submission, assignment);
+        }catch(err){
+            result = {
+                score: 0,
+                output: `❌ Scoring failed: ${err.message}`
+            }
+        }
         const updated = await prisma.submission.update({
             where: {id:Number(id)},
             data: {url, assignmentId, userId, score: result.score, submittedAt: new Date()}
         });
+
         res.json({
             ...updated, //using ... so the object isn't returned but all of the contents within the object is returned 
             output:result.output //add output to response
         });
+        
+        
     }catch(err){
         console.error('PUT /submission error',err);
         res.status(400).json({error: 'Failed to update submission'});
     }
+    
 };
 
 
