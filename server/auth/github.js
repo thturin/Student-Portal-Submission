@@ -66,14 +66,6 @@ passport.deserializeUser(
     }   
 );
 
-//ADDED FOR PRODUCTION
-//add this check before strategy to confirm railway is using environment variable for client id and secret
-if (!process.env.GITHUB_CLIENT_ID || !process.env.GITHUB_CLIENT_SECRET) {
-    console.error('Missing GitHub OAuth credentials!');
-    console.error('GITHUB_CLIENT_ID:', process.env.GITHUB_CLIENT_ID ? 'Set' : 'Missing');
-    console.error('GITHUB_CLIENT_SECRET:', process.env.GITHUB_CLIENT_SECRET ? 'Set' : 'Missing');
-    throw new Error('GitHub OAuth credentials not configured');
-}
 
 
 //configure the github strategy

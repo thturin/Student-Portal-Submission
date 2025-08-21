@@ -6,13 +6,15 @@ const prisma = new PrismaClient();
 const createAssignment = async(req, res) =>{
     try{
 
-        const {title, dueDate, submissions} = req.body;
-        console.log(req.body);
-        if(!title  || !dueDate ) return res.status(400).json({error: 'Missing required field'});
+        const {title, dueDate, submissions, type} = req.body;
+        //console.log(req.body);
+        if(!title ) return res.status(400).json({error: 'Missing title field'});
+
 
         const data = {
             title,
-            dueDate: new Date(dueDate)
+            dueDate: dueDate? new Date(dueDate) : null,
+            type: type || null
         };
         if(submissions){
             data.submissions=submissions

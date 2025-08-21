@@ -36,6 +36,13 @@ const passport = require('passport');//create a passport
 
 
 //CREATE A SESSION FOR USER COOKIES 
+//Railway uses a reverse proxy/load balancer
+// Internet → Railway Load Balancer (HTTPS) → Your App (HTTP)
+//            ↑ Sets X-Forwarded-Proto: https
+//vs local environment (doesn't require proxy headers)
+//Browser ←→ Direct Connection ←→ Your Express App (localhost:5000)
+
+
 app.set('trust proxy',1); // trust 
 
 app.use(session({
@@ -128,6 +135,8 @@ app.get('/health', (req,res)=>{
     environment: process.env.NODE_ENV || 'development'
   });
 });
+
+
 
 // Add this route to see environment variables via HTTP
 app.get('/health-debug', (req, res) => {
