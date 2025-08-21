@@ -235,7 +235,8 @@ const createSubmission = async (req,res)=>{
                 language,
                 score: result.score,
                 assignmentId,
-                userId
+                userId,
+                submittedAt:new Date()
             }
         
         });
