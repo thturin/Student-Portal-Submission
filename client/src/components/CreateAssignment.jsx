@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 const CreateAssignmentForm=({updateAssignments})=>{
     const apiUrl = process.env.REACT_APP_API_URL;
@@ -8,6 +8,12 @@ const CreateAssignmentForm=({updateAssignments})=>{
     const [type, setType] = useState('');
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
+
+    useEffect(()=>{
+        console.log(`look here! ${type}`);
+    },[type]);
+
+    
 
     const handleSubmit = async (e) =>{
         e.preventDefault();
@@ -23,7 +29,7 @@ const CreateAssignmentForm=({updateAssignments})=>{
             setSuccess('Assignment Created');
             setTitle('');//clear the title and due date after POST
             setDueDate('');
-            setType('');
+            //setType('');
             if(updateAssignments) updateAssignments(res.data);
         }catch(err){
             setError(err.response?.data?.error || 'Failed to create assignment');

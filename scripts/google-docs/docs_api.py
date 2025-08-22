@@ -47,9 +47,7 @@ def get_docs_service():
         return build('docs','v1', credentials=creds)
     except Exception as e:
         print(f"Error creating Google Docs service: {e}")
-        
-            
-        
+        raise
 
 # Test route
 @app.route('/test', methods=['GET'])
@@ -86,7 +84,6 @@ def check_doc_title():
         if not document_id or not assignment_name:
             return jsonify({'error': 'Document ID and assignment name are required'}), 400
 
-
         docs_service = get_docs_service()
         doc = docs_service.documents().get(documentId=document_id).execute()
         doc_title = doc.get('title', '')
@@ -105,25 +102,18 @@ def check_doc_title():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
-@app.route('/check-doc',methods=['POST'])
+@app.route('/check-doc', methods=['POST'])
 def check_document():
     try:
-        #GOOGLE DOC
         data = request.get_json()
         document_id = data.get('documentId')
-        assignment_name = data.get('assignmentName')
         
         if not document_id:
-            return jsonify({'error':'Document ID is required'})
+            return jsonify({'error': 'Document ID is required'}), 400
         
-        creds = service_account.Credentials.from_service_account_file(
-            SERVICE_ACCOUNT_FILE, scopes=GOOGLE_SCOPES
-        )
-
-        docs_service = build('docs', 'v1', credentials=creds)
+        docs_service = get_docs_service()
         doc = docs_service.documents().get(documentId=document_id).execute()
 
-        #DETERMINE IF DOCUMENT WAS FILLED 
         # Extract all text
         full_text = ""
         for element in doc.get('body', {}).get('content', []):
@@ -132,22 +122,18 @@ def check_document():
         # Define placeholders
         placeholders = [
             "[Your Answer Here]",
-            "[Enter your response]",
+            "[Enter your response]", 
             "[Paste your code here]",
             "[Your Name Here]",
         ]
 
-        # Simple check: if any placeholder exists in the full text
+        # Check if any placeholder exists
         filled = not any(placeholder in full_text for placeholder in placeholders)
+        found_placeholders = [p for p in placeholders if p in full_text] if not filled else []
 
-        print("Filled" if filled else "Not Filled")
-        
-        # Initialize found_placeholders
-        found_placeholders = []
-        # Optional: Show which placeholders were found
-        if not filled:
-            found_placeholders = [p for p in placeholders if p in full_text]
-            print(f"Found placeholders: {found_placeholders}")
+        print("Document Analysis:")
+        print(f"  Filled: {filled}")
+        print(f"  Found placeholders: {found_placeholders}")
         
         return jsonify({
             'filled': filled,
@@ -157,7 +143,8 @@ def check_document():
         })
         
     except Exception as e:
-        return jsonify({'error':str(e)}), 500
+        print(f"Error checking document: {e}")
+        return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':
     port = int(os.getenv('FLASK_PORT', 5001))

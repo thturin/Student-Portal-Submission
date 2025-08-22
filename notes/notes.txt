@@ -88,7 +88,7 @@ when user pastes google doc link into submission,
 it checks the title of the document to make sure it is the right 
 doc [x]
 
-admin view -> late assignments []
+admin view -> late assignments [x]
 | Days Late     | Penalty             |
 | ------------- | ------------------- |
 | 0 (on time)   | No penalty          |
@@ -102,6 +102,8 @@ auto grading late assignnments [x]
 admin abilities on front end-> change due date [] 
             -> edit assignment [x]
             -> delete assignment []
+
+
                     
 UPDATE -> check to see if the repository exists in the users profile. 
 YOU CAN DO THIS WITH PASSPORT STRATEGY 

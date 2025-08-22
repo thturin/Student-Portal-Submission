@@ -1,0 +1,354 @@
+sequenceDiagram
+    participant U as User Browser
+    participant N as Netlify Frontend
+    participant R as Railway Backend
+    participant G as GitHub OAuth
+    participant FS as FileStore Sessions
+
+    Note over U,FS: 1. INITIAL LOGIN ATTEMPT
+    U->>N: Clicks "Login with GitHub"
+    N->>N: axios.post('/login') with email
+    N->>R: POST /api/auth/login (with email)
+    R->>R: Creates OAuth state with email
+    R->>N: Returns GitHub OAuth URL
+    N->>U: window.location.href = githubURL
+
+    Note over U,FS: 2. GITHUB OAUTH REDIRECT
+    U->>G: Redirects to GitHub OAuth
+    G->>U: User authorizes app
+    G->>R: GET /api/auth/github/callback?code=...&state=email
+
+    Note over U,FS: 3. BACKEND PROCESSING
+    R->>R: passport.authenticate('github')
+    R->>G: Exchange code for access token
+    G->>R: Returns user profile
+    R->>R: Find/create user in database
+    R->>R: Update user with GitHub info
+    R->>FS: req.login() - Save user to session
+    FS->>FS: Creates session file: ./sessions/{sessionID}.json
+    R->>U: Set-Cookie: studentPortalSession={sessionID}
+    R->>N: res.redirect(CLIENT_URL)
+
+    Note over U,FS: 4. FRONTEND AUTH CHECK (FAILING)
+    N->>R: GET /api/auth/me (should include cookie)
+    R->>FS: Look up session by sessionID
+    FS->>R: Session exists but user undefined
+    R->>N: 401 Not authenticated
+
+    =============================================================
+GITHUB OAUTH + SESSION CONFIGURATION FOR RAILWAY DEPLOYMENT
+=============================================================
+
+PROBLEM: Cross-domain authentication between Netlify frontend and Railway backend
+SOLUTION: Proper session configuration with trust proxy for Railway's reverse proxy
+
+=============================================================
+1. ENVIRONMENT VARIABLES SETUP
+=============================================================
+
+LOCAL DEVELOPMENT (.env):
+-------------------------
+CLIENT_URL=http://localhost:3000
+SERVER_URL=http://localhost:5000/api
+NODE_ENV=development
+SESSION_SECRET=your_session_secret_here
+GITHUB_CLIENT_ID=your_dev_github_client_id
+GITHUB_CLIENT_SECRET=your_dev_github_secret
+
+RAILWAY PRODUCTION:
+-------------------
+CLIENT_URL=https://apcsa-portal.netlify.app
+SERVER_URL=https://student-portal-submission-production.up.railway.app/api
+NODE_ENV=production
+SESSION_SECRET=your_session_secret_here
+GITHUB_CLIENT_ID=your_prod_github_client_id
+GITHUB_CLIENT_SECRET=your_prod_github_secret
+
+NETLIFY FRONTEND:
+-----------------
+REACT_APP_API_URL=https://student-portal-submission-production.up.railway.app/api
+
+=============================================================
+2. GITHUB OAUTH APPS SETUP
+=============================================================
+
+DEVELOPMENT OAUTH APP:
+----------------------
+Application name: Student Portal - Development
+Homepage URL: http://localhost:3000
+Authorization callback URL: http://localhost:5000/api/auth/github/callback
+
+PRODUCTION OAUTH APP:
+---------------------
+Application name: Student Portal - Production
+Homepage URL: https://apcsa-portal.netlify.app
+Authorization callback URL: https://student-portal-submission-production.up.railway.app/api/auth/github/callback
+
+=============================================================
+3. EXPRESS SERVER CONFIGURATION (app.js)
+=============================================================
+
+const express = require('express');
+const cors = require('cors');
+const session = require('express-session');
+const FileStore = require('session-file-store')(session);
+const passport = require('passport');
+require('dotenv').config();
+
+const app = express();
+
+// CRITICAL: Trust Railway's reverse proxy
+app.set('trust proxy', 1);
+
+// CORS Configuration for cross-domain requests
+app.use(cors({
+  origin: process.env.CLIENT_URL,
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
+
+app.use(express.json());
+
+// Session Configuration
+app.use(session({
+  secret: process.env.SESSION_SECRET,
+  resave: false,
+  saveUninitialized: false,
+  rolling: true,
+  store: new FileStore({
+    path: './sessions',
+    ttl: 24 * 60 * 60,
+    retries: 5
+  }),
+  name: 'studentPortalSession',
+  cookie: {
+    maxAge: 60*60*1000,                                              // 1 hour
+    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax', // Cross-domain in prod
+    secure: process.env.NODE_ENV === 'production',                   // HTTPS only in prod
+    httpOnly: true,                                                  // Security
+    domain: undefined                                                // Auto-detect domain
+  }
+}));
+
+// Initialize Passport
+app.use(passport.initialize());
+app.use(passport.session());
+
+// Load GitHub strategy
+require('./auth/github');
+
+=============================================================
+4. GITHUB PASSPORT STRATEGY (auth/github.js)
+=============================================================
+
+const passport = require('passport');
+const GitHubStrategy = require('passport-github2').Strategy;
+const { PrismaClient } = require('@prisma/client');
+const prisma = new PrismaClient();
+
+// Serialize user (store user ID in session)
+passport.serializeUser((user, done) => {
+    console.log('🔧 Serializing user:', user.id);
+    done(null, user.id);
+});
+
+// Deserialize user (retrieve full user from database)
+passport.deserializeUser(async (id, done) => {
+    try {
+        console.log('🔧 Deserializing user ID:', id);
+        const user = await prisma.user.findUnique({
+            where: { id: parseInt(id) }
+        });
+        console.log('🔧 Deserialized user:', user ? 'Found' : 'Not found');
+        done(null, user);
+    } catch (error) {
+        console.error('❌ Deserialization error:', error);
+        done(error, null);
+    }
+});
+
+// GitHub OAuth Strategy
+passport.use(new GitHubStrategy({
+    clientID: process.env.GITHUB_CLIENT_ID,
+    clientSecret: process.env.GITHUB_CLIENT_SECRET,
+    callbackURL: `${process.env.SERVER_URL}/auth/github/callback`,
+}, async (accessToken, refreshToken, profile, done) => {
+    try {
+        // Implementation for finding/creating user
+        // Return user object to be serialized
+        return done(null, user);
+    } catch (error) {
+        return done(error, null);
+    }
+}));
+
+=============================================================
+5. AUTH ROUTES (routes/auth.js)
+=============================================================
+
+const express = require('express');
+const passport = require('passport');
+const router = express.Router();
+
+// GitHub OAuth login
+router.get('/github', (req, res, next) => {
+    const email = req.query.email;
+    passport.authenticate('github', {
+        scope: ['user:email'],
+        state: email
+    })(req, res, next);
+});
+
+// GitHub OAuth callback
+router.get('/github/callback',
+    (req, res, next) => {
+        if(req.query.state){
+            req.session.oauthEmail = req.query.state;
+        }
+        next();
+    },
+    passport.authenticate('github', {
+        failureRedirect: `${process.env.CLIENT_URL}/login?error=oauth`
+    }),
+    (req, res) => {
+        console.log('✅ Github /callback hit, user:', req.user);
+        res.redirect(process.env.CLIENT_URL);
+    }
+);
+
+// Check authentication status
+router.get('/me', async (req, res) => {
+    console.log('Auth check - /me route:', {
+        isAuthenticated: req.isAuthenticated(),
+        user: req.user ? req.user.email : undefined,
+        sessionID: req.sessionID
+    });
+    
+    if (!req.user) {
+        return res.status(401).json({error: 'Not authenticated'});
+    }
+    
+    res.json(req.user);
+});
+
+// Logout
+router.post('/logout', (req, res) => {
+    req.logout((err) => {
+        if (err) {
+            return res.status(500).json({error: 'Logout failed'});
+        }
+        req.session.destroy((err) => {
+            if (err) {
+                return res.status(500).json({error: 'Session destruction failed'});
+            }
+            res.clearCookie('studentPortalSession');
+            res.json({message: 'Logged out successfully'});
+        });
+    });
+});
+
+module.exports = router;
+
+=============================================================
+6. FRONTEND CONFIGURATION (React)
+=============================================================
+
+// axios configuration for credentials
+import axios from 'axios';
+axios.defaults.withCredentials = true;
+
+// Or create API client
+const apiClient = axios.create({
+    baseURL: process.env.REACT_APP_API_URL,
+    withCredentials: true
+});
+
+// Login component
+const handleGitHubLogin = async () => {
+    try {
+        const response = await apiClient.post('/auth/login', {email});
+        if (response.data.url) {
+            window.location.href = response.data.url;
+        }
+    } catch (error) {
+        console.error('Login error:', error);
+    }
+};
+
+// Check auth status
+useEffect(() => {
+    apiClient.get('/auth/me')
+        .then(res => {
+            setUser(res.data);
+            setIsAuthenticated(true);
+        })
+        .catch(() => {
+            setIsAuthenticated(false);
+        });
+}, []);
+
+=============================================================
+7. KEY DEBUGGING POINTS
+=============================================================
+
+RAILWAY LOGS TO WATCH:
+- ✅ "Github /callback hit, user: {...}"
+- ✅ "Serializing user: [id]"
+- ✅ "Deserialized user: Found"
+- ❌ "Auth check - /me route: {isAuthenticated: false}"
+
+BROWSER DEVTOOLS:
+- Application > Cookies > Look for 'studentPortalSession'
+- Network > Request Headers > Look for 'Cookie: studentPortalSession=...'
+
+COMMON ISSUES:
+- Missing 'trust proxy' setting for Railway
+- Wrong sameSite/secure settings for cross-domain
+- FileStore sessions lost on Railway restarts
+- CORS not allowing credentials
+- Wrong GitHub OAuth callback URLs
+
+=============================================================
+8. WHY THIS CONFIGURATION WORKS
+=============================================================
+
+LOCAL DEVELOPMENT:
+- Direct connection (no proxy)
+- Same domain (localhost)
+- HTTP cookies work with secure: false
+- sameSite: 'lax' sufficient
+
+PRODUCTION (RAILWAY):
+- Reverse proxy requires 'trust proxy'
+- Cross-domain (netlify.app <-> railway.app)
+- HTTPS cookies require secure: true
+- sameSite: 'none' required for cross-domain
+- Railway proxy sets X-Forwarded-Proto headers
+
+=============================================================
+9. TROUBLESHOOTING CHECKLIST
+=============================================================
+
+□ app.set('trust proxy', 1) is set
+□ CORS origin set to CLIENT_URL with credentials: true
+□ Session cookie sameSite: 'none' in production
+□ Session cookie secure: true in production
+□ GitHub OAuth apps configured with correct callback URLs
+□ Environment variables properly set in Railway
+□ Frontend axios.defaults.withCredentials = true
+□ Passport serialization/deserialization implemented
+□ Session store configured (FileStore or MemoryStore)
+
+=============================================================
+FINAL NOTES
+=============================================================
+
+This configuration enables secure cross-domain authentication between:
+- Frontend: Netlify (https://your-app.netlify.app)
+- Backend: Railway (https://your-app.railway.app)
+
+The 'trust proxy' setting is CRITICAL for Railway deployments as it enables
+Express to properly detect HTTPS connections through Railway's load balancer.
+
+Without it, secure cookies fail and sessions don't persist
