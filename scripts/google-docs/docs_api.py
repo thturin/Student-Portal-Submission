@@ -147,16 +147,18 @@ def check_document():
         return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':
+    from waitress import serve 
+    
     port = int(os.getenv('FLASK_PORT', 5001))
     debug = os.getenv('FLASK_DEBUG', 'True').lower() == 'true'
     
-    print(f"Starting Flask app on port {port}")
+    print(f"Starting Flask app with waitress on port {port}")
     print(f"Debug mode: {debug}")
     print(f"Environment: {os.environ.get('FLASK_ENV', 'development')}")
     
-    app.run(
-        debug=debug,
-        port=port,
-        host='0.0.0.0'  # Allow external connections for deployment
-    )
+    # app.run(
+    #     debug=debug,
+    #     port=port,
+    #     host='0.0.0.0'  # Allow external connections for deployment
+    # )
 
