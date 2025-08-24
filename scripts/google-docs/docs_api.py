@@ -146,15 +146,15 @@ def check_document():
         print(f"Error checking document: {e}")
         return jsonify({'error': str(e)}), 500
 
-if __name__ == '__main__':
-    from waitress import serve 
+# if __name__ == '__main__':
+#     from waitress import serve 
     
-    port = int(os.getenv('FLASK_PORT', 5001))
-    debug = os.getenv('FLASK_DEBUG', 'True').lower() == 'true'
+#     port = int(os.getenv('FLASK_PORT', 5001))
+#     debug = os.getenv('FLASK_DEBUG', 'True').lower() == 'true'
     
-    print(f"Starting Flask app with waitress on port {port}")
-    print(f"Debug mode: {debug}")
-    print(f"Environment: {os.environ.get('FLASK_ENV', 'development')}")
+#     print(f"Starting Flask app with waitress on port {port}")
+#     print(f"Debug mode: {debug}")
+#     print(f"Environment: {os.environ.get('FLASK_ENV', 'development')}")
     
     # app.run(
     #     debug=debug,
