@@ -14,7 +14,7 @@ app = Flask(__name__)
 SERVICE_ACCOUNT_FILE = os.getenv('SERVICE_ACCOUNT_FILE', '../../credentials/doc_reader_service_account.json')
 GOOGLE_SCOPES = [os.getenv('GOOGLE_SCOPES', 'https://www.googleapis.com/auth/documents.readonly')]
 
-print("Looking for service account file at:", os.path.abspath(SERVICE_ACCOUNT_FILE))
+#print("Looking for service account file at:", os.path.abspath(SERVICE_ACCOUNT_FILE))
 
 #railway (backend deployment) will try to read credentials file but it is not pushed to github
 #the envrionment variable was added to railway
