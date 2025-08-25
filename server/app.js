@@ -29,7 +29,7 @@ console.log('--------------------BEGIN----------------------');
 
 //REQUIRED FOR GITHUB Oauth
 const session = require('express-session');//ceaet a session
-const FileStore = require('session-file-store')(session);
+//const FileStore = require('session-file-store')(session);
 const passport = require('passport');//create a passport
 //passport attaches helper methods to the request object for every incoming request
 // these middleware add methods to req are req.logout, req.login
@@ -45,76 +45,103 @@ const passport = require('passport');//create a passport
 
 app.set('trust proxy',1); // trust 
 
-app.use(session({
-  secret: process.env.SESSION_SECRET,
-  resave: false,
-  saveUninitialized: false,
-  rolling: true, //session refreshes after every request. 
-  store: new FileStore({ //store the session
-        path: './sessions',
-        ttl: 24 * 60 * 60, // 24 hours in seconds
-        retries: 5
-    }),
+const sessionOptions = {
+    secret: process.env.SESSION_SECRET,
+    resave: false,
+    saveUninitialized: false,
+    rolling: true,
     name: 'studentPortalSession',
-  cookie:{ //COOKIE SETTINGS.  
-    //how to set session timeout
-    maxAge: 60*60*1000,//1 hour (in milliseconds)
-    sameSite:process.env.NODE_ENV === 'production' ? 'none': 'lax', //or 'none' if using https,
-    secure:process.env.NODE_ENV === 'production',// true if using https
-    httpOnly: true, //for security purposes
-    domain:undefined
+    cookie: {
+        maxAge: 60*60*1000,
+        sameSite: process.env.NODE_ENV === 'production' ? 'none': 'lax',
+        secure: process.env.NODE_ENV === 'production',
+        httpOnly: true,
+        domain: undefined
   }
-}));
+};
+
+if(process.env.NODE_ENV!=='production'){
+    const FileStore = require('session-file-store')(session);
+    sessionOptions.store = new FileStore({
+        path: './sessions',
+        ttl: 24 * 60 * 60,
+        retries: 5
+    });
+}
+
+//app.use required middleware function session()
+app.use(session(sessionOptions));
+
+// app.use(session({
+//   secret: process.env.SESSION_SECRET,
+//   resave: false,
+//   saveUninitialized: false,
+//   rolling: true, //session refreshes after every request. 
+//   store: new FileStore({ //store the session
+//         path: './sessions',
+//         ttl: 24 * 60 * 60, // 24 hours in seconds
+//         retries: 5
+//     }),
+//     name: 'studentPortalSession',
+//   cookie:{ //COOKIE SETTINGS.  
+//     //how to set session timeout
+//     maxAge: 60*60*1000,//1 hour (in milliseconds)
+//     sameSite:process.env.NODE_ENV === 'production' ? 'none': 'lax', //or 'none' if using https,
+//     secure:process.env.NODE_ENV === 'production',// true if using https
+//     httpOnly: true, //for security purposes
+//     domain:undefined
+//   }
+// }));
 
 
-app.use((req, res, next) => {
-    // Only log for auth-related routes to avoid spam
-    if (req.url.includes('/auth/') || req.url.includes('/me')|| req.url.includes('/callback')) {
-        console.log('🔧 COMPREHENSIVE DEBUG:');
-        console.log('-------- ENVIRONMENT VARIABLES --------');
-        console.log('NODE_ENV:', process.env.NODE_ENV);
-        console.log('CLIENT_URL:', process.env.CLIENT_URL);
-        console.log('SERVER_URL:', process.env.SERVER_URL);
-        console.log('SESSION_SECRET:', process.env.SESSION_SECRET ? 'SET' : 'MISSING');
-        console.log('GITHUB_CLIENT_ID:', process.env.GITHUB_CLIENT_ID);
-        console.log('GITHUB_CLIENT_SECRET:', process.env.GITHUB_CLIENT_SECRET ? 'SET' : 'MISSING');
+// app.use((req, res, next) => {
+//     // Only log for auth-related routes to avoid spam
+//     if (req.url.includes('/auth/') || req.url.includes('/me')|| req.url.includes('/callback')) {
+//         console.log('🔧 COMPREHENSIVE DEBUG:');
+//         console.log('-------- ENVIRONMENT VARIABLES --------');
+//         console.log('NODE_ENV:', process.env.NODE_ENV);
+//         console.log('CLIENT_URL:', process.env.CLIENT_URL);
+//         console.log('SERVER_URL:', process.env.SERVER_URL);
+//         console.log('SESSION_SECRET:', process.env.SESSION_SECRET ? 'SET' : 'MISSING');
+//         console.log('GITHUB_CLIENT_ID:', process.env.GITHUB_CLIENT_ID);
+//         console.log('GITHUB_CLIENT_SECRET:', process.env.GITHUB_CLIENT_SECRET ? 'SET' : 'MISSING');
         
-        console.log('-------- REQUEST INFO --------');
-        console.log('Method:', req.method);
-        console.log('URL:', req.url);
-        console.log('Origin Header:', req.headers.origin || 'NO_ORIGIN');
-        console.log('Host Header:', req.headers.host);
-        console.log('Cookie Header:', req.headers.cookie || 'NO_COOKIES');
-        console.log('User-Agent:', req.headers['user-agent']?.substring(0, 50));
+//         console.log('-------- REQUEST INFO --------');
+//         console.log('Method:', req.method);
+//         console.log('URL:', req.url);
+//         console.log('Origin Header:', req.headers.origin || 'NO_ORIGIN');
+//         console.log('Host Header:', req.headers.host);
+//         console.log('Cookie Header:', req.headers.cookie || 'NO_COOKIES');
+//         console.log('User-Agent:', req.headers['user-agent']?.substring(0, 50));
         
-        console.log('-------- SESSION INFO --------');
-        console.log('Session ID:', req.sessionID);
-        console.log('Session exists:', !!req.session);
-        if (req.session) {
-            console.log('Session data:', JSON.stringify(req.session, null, 2));
-            console.log('Session cookie settings:', req.session.cookie);
-            console.log('Passport session:', req.session.passport);
-        }
+//         console.log('-------- SESSION INFO --------');
+//         console.log('Session ID:', req.sessionID);
+//         console.log('Session exists:', !!req.session);
+//         if (req.session) {
+//             console.log('Session data:', JSON.stringify(req.session, null, 2));
+//             console.log('Session cookie settings:', req.session.cookie);
+//             console.log('Passport session:', req.session.passport);
+//         }
         
-        console.log('-------- AUTHENTICATION INFO --------');
-        console.log('isAuthenticated method exists:', typeof req.isAuthenticated);
-        console.log('isAuthenticated():', req.isAuthenticated ? req.isAuthenticated() : 'N/A');
-        console.log('req.user:', req.user ? JSON.stringify(req.user, null, 2) : 'undefined');
+//         console.log('-------- AUTHENTICATION INFO --------');
+//         console.log('isAuthenticated method exists:', typeof req.isAuthenticated);
+//         console.log('isAuthenticated():', req.isAuthenticated ? req.isAuthenticated() : 'N/A');
+//         console.log('req.user:', req.user ? JSON.stringify(req.user, null, 2) : 'undefined');
         
-        console.log('-------- COOKIE SETTINGS --------');
-        if (req.session && req.session.cookie) {
-            console.log('Cookie maxAge:', req.session.cookie.maxAge);
-            console.log('Cookie sameSite:', req.session.cookie.sameSite);
-            console.log('Cookie secure:', req.session.cookie.secure);
-            console.log('Cookie httpOnly:', req.session.cookie.httpOnly);
-            console.log('Cookie domain:', req.session.cookie.domain);
-            console.log('Cookie expires:', req.session.cookie._expires);
-        }
+//         console.log('-------- COOKIE SETTINGS --------');
+//         if (req.session && req.session.cookie) {
+//             console.log('Cookie maxAge:', req.session.cookie.maxAge);
+//             console.log('Cookie sameSite:', req.session.cookie.sameSite);
+//             console.log('Cookie secure:', req.session.cookie.secure);
+//             console.log('Cookie httpOnly:', req.session.cookie.httpOnly);
+//             console.log('Cookie domain:', req.session.cookie.domain);
+//             console.log('Cookie expires:', req.session.cookie._expires);
+//         }
         
-        console.log('=====================================');
-    }
-    next();
-});
+//         console.log('=====================================');
+//     }
+//     next();
+// });
 
 app.use(passport.initialize());
 app.use(passport.session());

@@ -86,6 +86,7 @@ router.get('/me',
 
 //logout
 router.post('/logout', async (req,res) =>{
+    console.log('HELLO HELLO LOOK HERE', req);
     if(req.user){
         try{
             await prisma.user.update({
@@ -117,6 +118,7 @@ router.post('/logout', async (req,res) =>{
             res.sendStatus(200); //responds with not content
         })
     });
+
 });
 
 
