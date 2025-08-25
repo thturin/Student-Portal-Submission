@@ -11,15 +11,13 @@ load_dotenv()
 app = Flask(__name__)
 
 # Environment variables
-SERVICE_ACCOUNT_FILE = os.getenv('SERVICE_ACCOUNT_FILE', '../../credentials/doc_reader_service_account.json')
-GOOGLE_SCOPES = [os.getenv('GOOGLE_SCOPES', 'https://www.googleapis.com/auth/documents.readonly')]
+#SERVICE_ACCOUNT_FILE = os.getenv('SERVICE_ACCOUNT_FILE', '../../credentials/doc_reader_service_account.json')
+GOOGLE_SCOPES = [os.getenv('GOOGLE_SCOPES')]
 
 #print("Looking for service account file at:", os.path.abspath(SERVICE_ACCOUNT_FILE))
 
-#railway (backend deployment) will try to read credentials file but it is not pushed to github
-#the envrionment variable was added to railway
-#you need to tell railway to either look at its environment variable and if you are coding 
-#locally tell computer to look at credentials folder 
+#GOOGLE_SERVICE_ACCOUNT_JSON -> VARIABLE ON RAILWAY
+#SERVICE_ACCOUNT_JSON -> LOCAL ENVIRONMENT VARIABLE
 def get_google_credentials():   
     #try to extract railway environment variable first 
     service_account_json = os.getenv('GOOGLE_SERVICE_ACCOUNT_JSON')
@@ -33,7 +31,7 @@ def get_google_credentials():
             raise
     else:
         print("Using google crednetials from file (development)")
-        SERVICE_ACCOUNT_FILE=os.getenv('SERVICE_ACCOUNT_FILE', '../../credentials/doc_reader_service_account.json')
+        SERVICE_ACCOUNT_FILE=os.getenv('SERVICE_ACCOUNT_FILE')
         if not os.path.exists(SERVICE_ACCOUNT_FILE):
             raise FileNotFoundError(f"Service account file not found: {SERVICE_ACCOUNT_FILE}")
         return service_account.Credentials.from_service_account_file(
@@ -146,19 +144,19 @@ def check_document():
         print(f"Error checking document: {e}")
         return jsonify({'error': str(e)}), 500
 
-# if __name__ == '__main__':
-#     from waitress import serve 
-    
-#     port = int(os.getenv('FLASK_PORT', 5001))
-#     debug = os.getenv('FLASK_DEBUG', 'True').lower() == 'true'
-    
-#     print(f"Starting Flask app with waitress on port {port}")
-#     print(f"Debug mode: {debug}")
-#     print(f"Environment: {os.environ.get('FLASK_ENV', 'development')}")
-    
-    # app.run(
-    #     debug=debug,
-    #     port=port,
-    #     host='0.0.0.0'  # Allow external connections for deployment
-    # )
+if os.getenv('FLASK_ENV')=='development':
+    if __name__ == '__main__':
+        
+        port = int(os.getenv('FLASK_PORT', 5001))
+        debug = os.getenv('FLASK_DEBUG', 'True').lower() == 'true'
+        
+        print(f"Starting Flask app with waitress on port {port}")
+        print(f"Debug mode: {debug}")
+        print(f"Environment: {os.environ.get('FLASK_ENV', 'development')}")
+        
+        app.run(
+            debug=debug,
+            port=port,
+            host='0.0.0.0'  # Allow external connections for deployment
+        )
 

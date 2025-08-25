@@ -17,7 +17,7 @@ const verifyGithubOwnership = async (req, res)=>{
     try{
         const {url} = req.body;
 
-        // console.log('LOOK HERE', req.user);
+        console.log('LOOK HERE', req.user);
         const githubUsername = req.user?.githubUsername
         
              if(!url){
@@ -85,11 +85,13 @@ const verifyDocOwnership = async (req,res)=>{
 // | 14+ days late | Please see me       |
 
     const calculateLateScore = (submissionDateString, assDueDateString, score)=>{
+        console.log(`Submission date  :${submissionDateString}`);
         const submissionDate = parseISO(submissionDateString);
         const dueDate = parseISO(assDueDateString);
         const diffTime = submissionDate-dueDate;
         const diffDays = Math.ceil(diffTime/(1000*60*60*24)); 
-        if (score !== 0){
+        console.log(`Diff days -> ${diffDays}`);
+        if (diffDays > 0 && score!==0){ //if submission is late and not a 0 
             //1 day late 
             if(diffDays===1){
                 return score * .9;
@@ -97,10 +99,11 @@ const verifyDocOwnership = async (req,res)=>{
                 return score * .85
             }else if(diffDays>=4 && diffDays<=5){
                 return score * .8;
-            }else{
+            }else if(diffDays>5){
                 return score * .75;
-            } 
-        }else{
+            }
+        }else{ // negative difference, submission is on time/early
+            //this will return on time 100% and submissions that are 0's 
             return score;
         } 
     };

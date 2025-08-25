@@ -53,26 +53,6 @@ Sections ┘                     ├─► Courses
                                └─► Instructors
 
 
-SEND AN ENTRY TO PRISMA DB
-curl -X POST http://localhost:5000/api/submit -H "Content-Type: application/json" -d "{\"repoUrl\":\"https://github.com/thturin/test_autograder.git\",\"language\":\"java\",\"score\":95}"
-curl -X POST http://localhost:5000/api/submit -H "Content-Type: application/json" -d "{}"
-
-
-
-
-IN ORDER TO RUN SERVER, USE NPM RUN DEV
-
-HOW TO RUN
-----------
-cd server 
-nodemon app.js
-npx prisma studio
-
-cd client
-npm run dev or npm start
-
-cd scripts/google-docs
-python docs_api
 
 -------
 Agenda 
@@ -99,7 +79,7 @@ admin view -> late assignments [x]
 
 late assignments -> 75%
 auto grading late assignnments [x]
-admin abilities on front end-> change due date [] 
+admin abilities on front end-> change due date [x] 
             -> edit assignment [x]
             -> delete assignment []
 
@@ -109,6 +89,8 @@ UPDATE -> check to see if the repository exists in the users profile.
 YOU CAN DO THIS WITH PASSPORT STRATEGY 
 better than parsing through the url 
 
+
+allow students to see the most recent output message on dashboard []
 Password feature [x]
 students can re-submit [x]
 fancier filtering option for admin []
@@ -127,21 +109,16 @@ PRIORITY
 4. password [x]
 
 NEXT-LEVEL FEATURES 
-1. inline feedback comments (per submission)
+1. inline feedback comments (per submission) []
 2. submission history (track multiple submissions over time, show timestamps and scores )
 3. plagarism flag
 4. instructor comment broadcast 
 5. support file uploads for labs
 6. email notification on submission (nodemailer)
 
-BONUS
-1. admin data analytics dashbaord 
-2. student profile page
-3. run tests inside docker 
-    containerize the java gradingService
 
 
-integrate gradle tests [x]
+
 
 -------
 Issues
