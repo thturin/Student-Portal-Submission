@@ -103,7 +103,6 @@ passport.use(new GitHubStrategy({
                                     });
 
                                     if(approvedUser){
-                                        console.log('USER APPROVED LOOK HERE');
                                         //for the session, add the github username and id to the database 
                                         try{
                                             //EVEN THOUGHT WE ARE DESTORYING THE SESSION ON /LOGOUT, SOMETIMES PREVIOUS USER'S GITHUB 

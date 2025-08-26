@@ -15,10 +15,10 @@ require('dotenv').config();
 
 const verifyGithubOwnership = async (req, res)=>{
     try{
-        const {url} = req.body;
 
-        console.log('LOOK HERE', req.user);
-        const githubUsername = req.user?.githubUsername
+        const {url,githubUsername} = req.body;
+        //DEACTIVATED
+        //const githubUsername = req.user?.githubUsername
         
              if(!url){
             return res.status(400).json({

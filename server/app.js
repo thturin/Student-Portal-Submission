@@ -30,7 +30,9 @@ console.log('--------------------BEGIN----------------------');
 //REQUIRED FOR GITHUB Oauth
 const session = require('express-session');//ceaet a session
 //const FileStore = require('session-file-store')(session);
-const passport = require('passport');//create a passport
+
+//DEACTIVATED
+//const passport = require('passport');//create a passport
 //passport attaches helper methods to the request object for every incoming request
 // these middleware add methods to req are req.logout, req.login
 
@@ -143,10 +145,14 @@ app.use(session(sessionOptions));
 //     next();
 // });
 
-app.use(passport.initialize());
-app.use(passport.session());
+//DEACTIVATED
+//app.use(passport.initialize());
 
-require('./auth/github'); // Registers the strategy github
+//DEACTIVATED
+//app.use(passport.session());
+
+//DEACTIVATEDD
+//require('./auth/github'); // Registers the strategy github
 
 
 app.get('/', (req, res)=>{
@@ -199,9 +205,13 @@ app.get('/health-debug', (req, res) => {
 
 
 app.use('/api/auth', authRoutes);
+
 app.use('/api/', submissionRoutes); //call the router object in submissionRoutes (it is exported)
+
 app.use('/api/assignments', assignmentRoutes); //call the router object in assignmentRoutes
+
 app.use('/api/',userRoutes);//two different endpoints /users and /login
+
 app.use('/api/sections',sectionRoutes);
 app.use('/api/admin',adminRoutes);
 app.use('/api/python',pythonRoutes);

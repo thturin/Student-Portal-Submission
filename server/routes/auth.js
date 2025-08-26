@@ -86,29 +86,40 @@ router.get('/me',
 
 //logout
 router.post('/logout', async (req,res) =>{
-    console.log('HELLO HELLO LOOK HERE', req);
-    if(req.user){
-        try{
-            await prisma.user.update({
-                where:{ id: req.user.id},
-                //setting id and username to null after session, 
-                //secure and clean approach
-                data: {
-                    githubId:null,
-                    githubUsername:null
-                }
-            });
 
-            console.log('✅ Cleared GitHub data from database');
-        }catch(err){
-            console.error('Error on /logout ',err);
-            return res.status(500).json({ error: 'Failed to clear GitHub data' });
-        }
-    }
+        //GITHUB FEAUTRE DEACTIVATED
+    // if(req.user){
+    //     try{
+    //         await prisma.user.update({
+    //             where:{ id: req.user.id},
+    //             //setting id and username to null after session, 
+    //             //secure and clean approach
+    //             data: {
+    //                 githubId:null,
+    //                 githubUsername:null
+    //             }
+    //         });
+
+    //         console.log('✅ Cleared GitHub data from database');
+    //     }catch(err){
+    //         console.error('Error on /logout ',err);
+    //         return res.status(500).json({ error: 'Failed to clear GitHub data' });
+    //     }
+    // }
 
 
-    req.logout(()=>{ //passports logout method
-        req.session.destroy((destroyErr)=>{
+    // req.logout(()=>{ //passports logout method
+    //     req.session.destroy((destroyErr)=>{
+    //         if(destroyErr){
+    //             console.error('❌ Session destruction error:', destroyErr);
+    //             return res.status(500).json({ error: 'Session cleanup failed' });
+    //         }
+    //         console.log('✅ Session destroyed successfully');
+    //         res.clearCookie('studentPortalSession');
+    //         res.sendStatus(200); //responds with not content
+    //     })
+    // });
+    req.session.destroy((destroyErr)=>{
             if(destroyErr){
                 console.error('❌ Session destruction error:', destroyErr);
                 return res.status(500).json({ error: 'Session cleanup failed' });
@@ -117,7 +128,6 @@ router.post('/logout', async (req,res) =>{
             res.clearCookie('studentPortalSession');
             res.sendStatus(200); //responds with not content
         })
-    });
 
 });
 

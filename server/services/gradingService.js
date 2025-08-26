@@ -14,8 +14,10 @@ async function gradeJavaSubmission(clonePath){
         const hasGradlew = fs.existsSync(gradlewPath);
         
         // Add test-specific flags and timeout to prevent hanging
-        const gradleCommand = hasGradlew ? 
-            './gradlew test' : 
+        const isWin = process.platform === 'win32';
+        console.log(process.platform);
+        const gradleCommand = hasGradlew ? isWin? 'gradlew.bat' :'./gradlew test' 
+            : 
             'gradle test';
         console.log('Running command:', gradleCommand);
         

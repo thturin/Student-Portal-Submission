@@ -12,26 +12,25 @@ const {verifyGithubOwnership,updateSubmission,createSubmission, getAllSubmission
 const ensureAuthenticated = (req,res,next)=>{
     // console.log( 'AUTH CHECK',{
     //     isAuthenticated: req.isAuthenticated(),
-    //     user:req.user,
-    //     session: req.session
+    //     user:req.u
     // });
-    if(req.isAuthenticated()){
-        return next();
-    }
-    res.status(401).json({error:'Authentication is required'});
+    // if(req.isAuthenticated()){
+    //     return next();
+    // }
+    // res.status(401).json({error:'Authentication is required'});
 }
-
+//router.get('/submissions', ensureAuthenticated, getAllSubmissions); // 
 
 //ROOT / ISS LOCALHOST:5000/API
-router.get('/submissions',ensureAuthenticated, getAllSubmissions); //this pathway is relative to the base path set in app.js (api/submit)
+router.get('/submissions', getAllSubmissions); //this pathway is relative to the base path set in app.js (api/submit)
 // router.post('/',createSubmission);
-router.get('/submissions/:id',ensureAuthenticated,getSubmission);
-router.put('/submissions/:id',ensureAuthenticated,updateSubmission);
+router.get('/submissions/:id',getSubmission);
+router.put('/submissions/:id',updateSubmission);
 
 
-router.post('/submit',ensureAuthenticated,createSubmission);
-router.post('/verify-doc-ownership',ensureAuthenticated,verifyDocOwnership);
-router.post('/verify-github-ownership', ensureAuthenticated,verifyGithubOwnership);
+router.post('/submit',createSubmission);
+router.post('/verify-doc-ownership',verifyDocOwnership);
+router.post('/verify-github-ownership',verifyGithubOwnership);
 
 
 module.exports = router; //export router object so your main server file can use it

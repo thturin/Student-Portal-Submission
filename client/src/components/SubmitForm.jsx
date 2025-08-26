@@ -29,6 +29,7 @@ const SubmitForm = ({onNewSubmission, user, submissions})=>{
             baseURL: axios.defaults.baseURL,
             globalDefaults: axios.defaults
         });
+
     },[]);
 
     //FETCH ASSIGNMENTES
@@ -37,7 +38,6 @@ const SubmitForm = ({onNewSubmission, user, submissions})=>{
         async function fetchAssignments(){
             console.log('-------FETCHING ASSIGNMENTS----------');
             try{
-                //console.log(`LOOK HERE -->${apiUrl}/assignments`);
                 const res = await axios.get(`${apiUrl}/assignments`);
                 setAssignments(res.data);
             }catch(err){
@@ -74,17 +74,18 @@ const SubmitForm = ({onNewSubmission, user, submissions})=>{
         try{
             console.log('-----Handle Submission--------');
 
-            try{
-                console.log('Validating Session....');
-                await axios.get(`${apiUrl}/auth/me`);
-                console.log('✅ Session valid');
-            }catch(err){
-                setError('Session Expired. Please login again');
-                // setTimeout(() => { //send back to login page
-                //     window.location.href = `${apiUrl}/auth/github`;
-                // }, 2000);
-                return;
-            }
+            //FEATURE DEACTIVATED
+            // try{
+            //     console.log('Validating Session....');
+            //     await axios.get(`${apiUrl}/auth/me`);
+            //     console.log('✅ Session valid');
+            // }catch(err){
+            //     setError('Session Expired. Please login again');
+            //     // setTimeout(() => { //send back to login page
+            //     //     window.location.href = `${apiUrl}/auth/github`;
+            //     // }, 2000);
+            //     return;
+            // }
             
             //VERIFY USER OWNERSHIP FOR GOOGLE DOC 
             if(submissionType === 'googledoc'){
@@ -110,9 +111,11 @@ const SubmitForm = ({onNewSubmission, user, submissions})=>{
 
             //VERIFY USER OWNERSHIP FOR GITHUB 
             if(submissionType=== 'github'){
+                console.log(url);
                 try{
                     const verifyRes = await axios.post(`${apiUrl}/verify-github-ownership`,{
-                        url:url
+                        url:url,
+                        githubUsername: user.githubUsername
                     });
 
                     if(!verifyRes.data.success){
