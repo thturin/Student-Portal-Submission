@@ -204,7 +204,7 @@ app.get('/health-debug', (req, res) => {
 });
 
 
-app.use('/api/auth', authRoutes);
+//app.use('/api/auth', authRoutes);
 
 app.use('/api/', submissionRoutes); //call the router object in submissionRoutes (it is exported)
 
