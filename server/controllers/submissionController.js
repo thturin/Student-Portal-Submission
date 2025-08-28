@@ -84,9 +84,10 @@ const verifyDocOwnership = async (req,res)=>{
 // | 6+ days late  | -25% max (hard cap) |
 // | 14+ days late | Please see me       |
 
-    const calculateLateScore = (submissionDate, dueDate, score)=>{
+    const calculateLateScore = (submissionDateObj, dueDateObj, score)=>{
         //const submissionDate = parseISO(submissionDateString);
-        console.log(`submissionDate ${new Date(submissionDate)} dueDate${dueDate}`);
+        const submissionDate = new Date(submissionDateObj);
+        const dueDate = new Date(dueDateObj);
         const diffTime = submissionDate-dueDate;
         console.log(diffTime);
         const diffDays = Math.ceil(diffTime/(1000*60*60*24)); 
