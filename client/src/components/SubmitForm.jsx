@@ -141,7 +141,7 @@ const SubmitForm = ({onNewSubmission, user, submissions})=>{
             if(existingSubmission){ //go to the ssubmission and update it
                 try{
                     setSubmissionExists(true);
-                    const res = await axios.put(`${apiUrl}/submissions/${existingSubmission.id}`,{
+                    const data = {
                         url,
                         assignmentId,
                         userId: user.id,
@@ -149,7 +149,8 @@ const SubmitForm = ({onNewSubmission, user, submissions})=>{
                         assignmentTitle:assignment.title,
                         submission: existingSubmission,
                         assignment: assignment
-                    });
+                    };
+                    const res = await axios.put(`${apiUrl}/submissions/${existingSubmission.id}`,data);
                     setScore(res.data.score); //score is added to database and evaluated on backend
                     setGradleOutput(res.data.output);
                     if(onNewSubmission) onNewSubmission(res.data);
@@ -166,9 +167,9 @@ const SubmitForm = ({onNewSubmission, user, submissions})=>{
                         userId:user.id,
                         submissionType, //need this for scoreSubmission method in controller
                         assignmentTitle: assignment.title,
-                        submission: existingSubmission,
-                        assignment: assignment
+                        dueDate: assignment.dueDate
                     };
+    
                     const res = await axios.post(`${apiUrl}/submit`,data); 
                     setScore(res.data.score);
                     setGradleOutput(res.data.output);

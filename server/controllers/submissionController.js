@@ -84,10 +84,8 @@ const verifyDocOwnership = async (req,res)=>{
 // | 6+ days late  | -25% max (hard cap) |
 // | 14+ days late | Please see me       |
 
-    const calculateLateScore = (submissionDateString, assDueDateString, score)=>{
-        console.log(`Submission date  :${submissionDateString}`);
-        const submissionDate = parseISO(submissionDateString);
-        const dueDate = parseISO(assDueDateString);
+    const calculateLateScore = (submissionDate, dueDate, score)=>{
+        //const submissionDate = parseISO(submissionDateString);
         const diffTime = submissionDate-dueDate;
         const diffDays = Math.ceil(diffTime/(1000*60*60*24)); 
         console.log(`Diff days -> ${diffDays}`);
@@ -108,7 +106,7 @@ const verifyDocOwnership = async (req,res)=>{
         } 
     };
 
-const scoreSubmission = async (url, path, assignmentTitle, submissionType,submission,assignment)=>{ //clone student's repo pasted into submission portal
+const scoreSubmission = async (url, path, assignmentTitle, submissionType,submittedAt,dueDate)=>{ //clone student's repo pasted into submission portal
         //confirm that both the submission type and url verify that it is a googledoc
         console.log('-----Score Submission---------');
         try{
@@ -147,7 +145,7 @@ const scoreSubmission = async (url, path, assignmentTitle, submissionType,submis
                                             `Document incomplete.❌`;
                     if(filled){
                         score = 100; //automatic 100
-                        score=calculateLateScore(submission.submittedAt, assignment.dueDate,score);
+                        score=calculateLateScore(submittedAt, dueDate,score);
                     }
                     console.log('score googledoc',score);
                     return {
@@ -190,7 +188,8 @@ const scoreSubmission = async (url, path, assignmentTitle, submissionType,submis
                 //returns the score and output 
                 try{
                     let results = await gradeJavaSubmission(path);
-                    let finalScore=calculateLateScore(submission.submittedAt, assignment.dueDate,results.score);
+                    console.log('look here->>>', submittedAt);
+                    let finalScore=calculateLateScore(submittedAt, dueDate,results.score);
                     results = {
                         ...results, //keep original results (output)
                         score:finalScore
@@ -224,11 +223,15 @@ const createSubmission = async (req,res)=>{
     try{
         let result = {score:-100, output:''};
        //console.log(`Request from handleSubmission -> ${req.body}`);
-        let {url, assignmentId,userId, assignmentTitle, submissionType, assignment, submission} = req.body;
+        let {url, assignmentId,userId, assignmentTitle, submissionType, dueDate} = req.body;
         const path = `./uploads/${Date.now()}`; //where repo will be cloned to locally
+
+        const submittedAt = new Date(); //create the submission date
+        console.log(submittedAt);
+
   
-        result = await scoreSubmission(url,path,assignmentTitle, submissionType, submission, assignment);
-        console.log(`look here -->>> ${result.score}`);
+        result = await scoreSubmission(url,path,assignmentTitle, submissionType, submittedAt, dueDate);
+    
 
         let language = submissionType === 'github'? 'java' : 'none';
 
