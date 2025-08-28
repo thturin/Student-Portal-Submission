@@ -89,9 +89,9 @@ const verifyDocOwnership = async (req,res)=>{
         const submissionDate = new Date(submissionDateObj);
         const dueDate = new Date(dueDateObj);
         const diffTime = submissionDate-dueDate;
-        console.log(diffTime);
+        console.log('update hello look here-->>>',diffTime);
         const diffDays = Math.ceil(diffTime/(1000*60*60*24)); 
-        console.log(`Diff days -> ${diffDays}`);
+        console.log(`Diff days ->>>> ${diffDays}`);
         if (diffDays > 0 && score!==0){ //if submission is late and not a 0 
             //1 day late 
             if(diffDays===1){
