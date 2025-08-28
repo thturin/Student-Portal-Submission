@@ -111,7 +111,6 @@ const SubmitForm = ({onNewSubmission, user, submissions})=>{
 
             //VERIFY USER OWNERSHIP FOR GITHUB 
             if(submissionType=== 'github'){
-                console.log(url);
                 try{
                     const verifyRes = await axios.post(`${apiUrl}/verify-github-ownership`,{
                         url:url,
@@ -147,8 +146,7 @@ const SubmitForm = ({onNewSubmission, user, submissions})=>{
                         userId: user.id,
                         submissionType,
                         assignmentTitle:assignment.title,
-                        submission: existingSubmission,
-                        assignment: assignment
+                        dueDate: assignment.dueDate
                     };
                     const res = await axios.put(`${apiUrl}/submissions/${existingSubmission.id}`,data);
                     setScore(res.data.score); //score is added to database and evaluated on backend

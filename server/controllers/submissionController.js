@@ -86,7 +86,9 @@ const verifyDocOwnership = async (req,res)=>{
 
     const calculateLateScore = (submissionDate, dueDate, score)=>{
         //const submissionDate = parseISO(submissionDateString);
+        console.log(`submissionDate ${new Date(submissionDate)} dueDate${dueDate}`);
         const diffTime = submissionDate-dueDate;
+        console.log(diffTime);
         const diffDays = Math.ceil(diffTime/(1000*60*60*24)); 
         console.log(`Diff days -> ${diffDays}`);
         if (diffDays > 0 && score!==0){ //if submission is late and not a 0 
@@ -266,13 +268,14 @@ const createSubmission = async (req,res)=>{
 const updateSubmission = async(req,res)=>{
     try{
         const {id} = req.params; //ID pulled from the parameters 
-        const {url, assignmentId, userId, submissionType, assignmentTitle, submission, assignment} = req.body
+        const {url, assignmentId, userId, submissionType, assignmentTitle, dueDate} = req.body
         //console.log('Look here', id, req.body);
         const path = `./uploads/${Date.now()}`; //where repo will be cloned to locally
         let result = {score:-100, output:''};
+        const submissionDate = new Date();
 
         try{
-            result = await scoreSubmission(url,path,assignmentTitle, submissionType, submission, assignment);
+            result = await scoreSubmission(url,path,assignmentTitle, submissionType, submissionDate, dueDate);
         }catch(err){
             result = {
                 score: 0,
