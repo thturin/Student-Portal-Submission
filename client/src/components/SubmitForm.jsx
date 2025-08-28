@@ -146,7 +146,7 @@ const SubmitForm = ({onNewSubmission, user, submissions})=>{
                         userId: user.id,
                         submissionType,
                         assignmentTitle:assignment.title,
-                        dueDate: assignment.dueDate
+                        dueDate: new Date(assignment.dueDate).toISOString()
                     };
                     const res = await axios.put(`${apiUrl}/submissions/${existingSubmission.id}`,data);
                     setScore(res.data.score); //score is added to database and evaluated on backend
@@ -165,7 +165,7 @@ const SubmitForm = ({onNewSubmission, user, submissions})=>{
                         userId:user.id,
                         submissionType, //need this for scoreSubmission method in controller
                         assignmentTitle: assignment.title,
-                        dueDate: assignment.dueDate
+                        dueDate: new Date(assignment.dueDate).toISOString()
                     };
     
                     const res = await axios.post(`${apiUrl}/submit`,data); 
