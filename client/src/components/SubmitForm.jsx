@@ -135,18 +135,20 @@ const SubmitForm = ({onNewSubmission, user, submissions})=>{
             const existingSubmission = submissions.find(
                 sub=> String(sub.assignmentId) === String(assignmentId)
             );
-     
+            console.log('xxxxxxxxx',typeof(assignment.dueDate));
             //---------UPDATE SUBMISSION------------
             if(existingSubmission){ //go to the ssubmission and update it
+            
                 try{
                     setSubmissionExists(true);
+              
                     const data = {
                         url,
                         assignmentId,
                         userId: user.id,
                         submissionType,
                         assignmentTitle:assignment.title,
-                        dueDate: new Date(assignment.dueDate).toISOString()
+                        dueDate: assignment.dueDate
                     };
                     const res = await axios.put(`${apiUrl}/submissions/${existingSubmission.id}`,data);
                     setScore(res.data.score); //score is added to database and evaluated on backend
