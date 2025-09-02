@@ -62,21 +62,55 @@ const LoginBar = ({onLogin}) =>{
             }
 
         }
-
-
     };
 
+    // Modernized login form styling
     return (
-        //center the login text box with below
-       <form onSubmit={handleGithubLogin} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+        <div style={{
+            minHeight: '100vh',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            background: 'linear-gradient(135deg, #f8fafc 0%, #e0e7ff 100%)'
+        }}>
+            <form onSubmit={handleGithubLogin}
+                style={{
+                    background: '#fff',
+                    padding: '2.5rem 2rem',
+                    borderRadius: '16px',
+                    boxShadow: '0 8px 32px rgba(60, 72, 88, 0.12)',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    minWidth: '340px',
+                    gap: '1.5rem'
+                }}
+            >
+                <h2 style={{
+                    margin: 0,
+                    fontWeight: 700,
+                    fontSize: '1.7rem',
+                    color: '#3730a3',
+                    letterSpacing: '0.02em'
+                }}>
+                    Student Portal Login
+                </h2>
                 <input 
                     type="email"
                     placeholder="yourname@nycstudents.net"
                     value={email}
                     onChange={e => setEmail(e.target.value.trim())} //change useState of email
                     required
-                    style={{ padding: '8px', width: '250px' }}
+                    style={{
+                        padding: '0.75rem 1rem',
+                        width: '100%',
+                        borderRadius: '8px',
+                        border: '1px solid #c7d2fe',
+                        fontSize: '1rem',
+                        outline: 'none',
+                        transition: 'border-color 0.2s',
+                        boxSizing: 'border-box'
+                    }}
                 />
                 <input
                     type="password"
@@ -84,28 +118,51 @@ const LoginBar = ({onLogin}) =>{
                     value={password}
                     onChange={e => setPassword(e.target.value)}
                     required
-                    style={{ padding: '8px', width: '150px' }}
+                    style={{
+                        padding: '0.75rem 1rem',
+                        width: '100%',
+                        borderRadius: '8px',
+                        border: '1px solid #c7d2fe',
+                        fontSize: '1rem',
+                        outline: 'none',
+                        transition: 'border-color 0.2s',
+                        boxSizing: 'border-box'
+                    }}
                 />
                 {/* <button type="submit" style={{ padding: '8px 16px' }}>Login</button> */}
-                <button type="submit" style={{ padding: '8px 16px' }}>
+                <button type="submit"
+                    style={{
+                        padding: '0.75rem 1.5rem',
+                        borderRadius: '8px',
+                        border: 'none',
+                        background: 'linear-gradient(90deg, #6366f1 0%, #818cf8 100%)',
+                        color: '#fff',
+                        fontWeight: 600,
+                        fontSize: '1.1rem',
+                        cursor: 'pointer',
+                        boxShadow: '0 2px 8px rgba(99, 102, 241, 0.15)',
+                        transition: 'background 0.2s'
+                    }}
+                >
                     Login
                 </button>
-                {error && <span style={{ color: 'red', marginLeft: '10px' }}>{error}</span>}
-            </div>
-
-        {success && (
-            <p style={{ marginTop: '20px' }}>
-                Successful Login. Welcome <strong>{userName}</strong>
-            </p>
-        )}
-
-    </form>
+                {error && <span style={{ color: 'red', fontWeight: 500, fontSize: '1rem', marginTop: '-1rem' }}>{error}</span>}
+                {success && (
+                    <p style={{
+                        marginTop: '1rem',
+                        color: '#22c55e',
+                        fontWeight: 600,
+                        fontSize: '1.05rem'
+                    }}>
+                        Successful Login. Welcome <strong>{userName}</strong>
+                    </p>
+                )}
+            </form>
+        </div>
     );
 };
 
 export default LoginBar;
-
-
 
 //OLD LOGIN
     // const handleLogin = async (e)=>{
