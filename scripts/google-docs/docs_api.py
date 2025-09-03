@@ -12,7 +12,7 @@ app = Flask(__name__)
 
 # Environment variables
 #SERVICE_ACCOUNT_FILE = os.getenv('SERVICE_ACCOUNT_FILE', '../../credentials/doc_reader_service_account.json')
-GOOGLE_SCOPES = [os.getenv('GOOGLE_SCOPES')]
+GOOGLE_SCOPES = os.getenv('GOOGLE_SCOPES')
 if GOOGLE_SCOPES:
     GOOGLE_SCOPES = [scope.strip() for scope in GOOGLE_SCOPES.split(',')]
 else:
