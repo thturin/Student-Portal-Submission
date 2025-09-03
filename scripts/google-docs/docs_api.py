@@ -47,11 +47,6 @@ def get_docs_service():
         print(f"Error creating Google Docs service: {e}")
         raise
 
-# Test route
-@app.route('/test', methods=['GET'])
-def test():
-    return jsonify({'message': 'Flask is working!'})
-
 def extract_text(element):
     """Recursively extract all text from any document element"""
     text = ""
@@ -99,6 +94,7 @@ def check_doc_title():
         })
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+    
 
 @app.route('/check-doc', methods=['POST'])
 def check_document():
@@ -142,6 +138,42 @@ def check_document():
         
     except Exception as e:
         print(f"Error checking document: {e}")
+        return jsonify({'error': str(e)}), 500
+    
+    
+# Test route
+@app.route('/test', methods=['GET'])
+def test():
+    return jsonify({'message': 'Flask is working!'})
+
+@app.route('/debug/env', methods=['GET'])
+def debug_env():
+    keys = [
+         'GOOGLE_SCOPES',
+        'GOOGLE_SERVICE_ACCOUNT_JSON',
+        'SERVICE_ACCOUNT_FILE',
+        'FLASK_ENV',
+        'FLASK_PORT',
+        'FLASK_DEBUG'
+    ]
+    env_info = {k: os.getenv(k, None) for k in keys}
+    #hide service account
+    if env_info.get('GOOGLE_SERVICE_ACCOUNT_JSON'):
+        env_info['GOOGLE_SERVICE_ACCOUNT_JSON'] = '***SET***'
+    return jsonify(env_info)
+
+@app.route('/debug/google-creds', methods=['GET'])
+def debug_google_creds():
+    try:
+        creds = get_google_credentials()
+        info = {
+            'valid' : creds.valid,
+            'project_id': getattr(creds, 'project_id',None),
+            'client_email': getattr(creds, 'service_account_email', None),
+            'scopes': creds.scopes
+        }
+        return jsonify(info)
+    except Exception as e:
         return jsonify({'error': str(e)}), 500
 
 if os.getenv('FLASK_ENV')=='development':
