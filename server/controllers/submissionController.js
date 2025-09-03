@@ -122,22 +122,22 @@ const scoreSubmission = async (url, path, assignmentTitle, submissionType,submit
                 console.log('Checking Google Doc with ID:', documentId);
 
                 //CALL PYTHON ROUTE /CHECK-DOC-TITLE 
-                try{
-                    const titleResponse = await axios.get(`${process.env.SERVER_URL}/python/check-doc-title?documentId=${documentId}&assignmentName=${encodeURIComponent(assignmentTitle)}`);
-                    const {isCorrectDoc, docTitle} = titleResponse.data;
-                    if(!isCorrectDoc){
-                        return {
-                            score: 0,
-                            output: `❌ Document title "${docTitle}" does not match current assignment "${assignmentTitle.substring(0,4)}"`
-                        }
-                    }
-                }catch(err){
-                    console.error('Error calling /check-doc-title', err.message);
-                    return{
-                        score:0,
-                        output:`❌ Error checking document title: ${err.message}`
-                    }
-                }
+                // try{
+                //     const titleResponse = await axios.get(`${process.env.SERVER_URL}/python/check-doc-title?documentId=${documentId}&assignmentName=${encodeURIComponent(assignmentTitle)}`);
+                //     const {isCorrectDoc, docTitle} = titleResponse.data;
+                //     if(!isCorrectDoc){
+                //         return {
+                //             score: 0,
+                //             output: `❌ Document title "${docTitle}" does not match current assignment "${assignmentTitle.substring(0,4)}"`
+                //         }
+                //     }
+                // }catch(err){
+                //     console.error('Error calling /check-doc-title', err.message);
+                //     return{
+                //         score:0,
+                //         output:`❌ Error checking document title: ${err.message}`
+                //     }
+                // }
 
                 let response;
                 
