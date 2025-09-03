@@ -131,34 +131,43 @@ const scoreSubmission = async (url, path, assignmentTitle, submissionType,submit
                             output: `❌ Document title "${docTitle}" does not match current assignment "${assignmentTitle.substring(0,4)}"`
                         }
                     }
-
-                    //IF CORRECT, CALL PYTHON ROUTES /CHECK-DOC
-                    const response = await axios.post(`${process.env.SERVER_URL}/python/check-doc`,{
-                        documentId:documentId
-                    });
-
-                    //RECEIVE FROM REQUEST PYTHON ROUTE REQUEST
-                    const{filled, foundPlaceholders} = response.data;
-                    let score = 0;
-
-                    const output = filled ? 'Document completed successfully! ✅':
-                                            `Document incomplete.❌`;
-                    if(filled){
-                        score = 100; //automatic 100
-                        score=calculateLateScore(submittedAt, dueDate,score);
-                    }
-                    console.log('score googledoc',score);
-                    return {
-                        score: score,
-                        output: output
-                    };
                 }catch(err){
-                    console.error('General error in ScoreSubmission googledoc',err);
-                    return {
+                    console.error('Error calling /check-doc-title', err.message);
+                    return{
                         score:0,
-                        output: `❌ Unexpected error: ${err.message}`
+                        output:`❌ Error checking document title: ${err.message}`
                     }
                 }
+
+                let response;
+                
+                try{
+                    //IF CORRECT, CALL PYTHON ROUTES /CHECK-DOC
+                    response = await axios.post(`${process.env.SERVER_URL}/python/check-doc`,{
+                    documentId:documentId
+                });
+                }catch(err){
+                    console.error('Error calling /check-doc');
+                    return {
+                        score:0,
+                        output: `❌ Error checking document content: ${err.message}`
+                    }
+                }
+                //RECEIVE FROM REQUEST PYTHON ROUTE REQUEST
+                const{filled, foundPlaceholders} = response.data;
+                let score = 0;
+                const output = filled ? 'Document completed successfully! ✅':
+                                        `Document incomplete.❌`;
+                if(filled){
+                    score = 100; //automatic 100
+                    score=calculateLateScore(submittedAt, dueDate,score);
+                }
+                console.log('score googledoc',score);
+                return {
+                    score: score,
+                    output: output
+                };
+                
                 
 
             //GITHUB SUBMISSION

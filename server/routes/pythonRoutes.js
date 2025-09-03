@@ -9,7 +9,6 @@ router.get('/check-doc-title', async(req,res)=>{
     
     try{
         const {documentId, assignmentName} = req.query;
-        console.log('LOOK HERE --->',process.env.FLASK_API_URL);
         if(!documentId){
                 return res.status(400).json({error: 'Document ID is required'});
             }
