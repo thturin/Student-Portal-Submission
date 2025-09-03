@@ -13,6 +13,10 @@ app = Flask(__name__)
 # Environment variables
 #SERVICE_ACCOUNT_FILE = os.getenv('SERVICE_ACCOUNT_FILE', '../../credentials/doc_reader_service_account.json')
 GOOGLE_SCOPES = [os.getenv('GOOGLE_SCOPES')]
+if GOOGLE_SCOPES:
+    GOOGLE_SCOPES = [scope.strip() for scope in GOOGLE_SCOPES.split(',')]
+else:
+    GOOGLE_SCOPES = ['https://www.googleapis.com/auth/documents.readonly']
 
 #print("Looking for service account file at:", os.path.abspath(SERVICE_ACCOUNT_FILE))
 
@@ -154,7 +158,8 @@ def debug_env():
         'SERVICE_ACCOUNT_FILE',
         'FLASK_ENV',
         'FLASK_PORT',
-        'FLASK_DEBUG'
+        'FLASK_DEBUG',
+        'PORT'
     ]
     env_info = {k: os.getenv(k, None) for k in keys}
     #hide service account
