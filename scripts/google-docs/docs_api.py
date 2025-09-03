@@ -1,4 +1,5 @@
 import json
+import traceback
 from flask import Flask, request, jsonify
 from google.oauth2 import service_account
 from googleapiclient.discovery import build
@@ -97,6 +98,7 @@ def check_doc_title():
             'isCorrectDoc': is_correct_doc
         })
     except Exception as e:
+        print("exception in /check-doc-titl:",traceback.format_exec())
         return jsonify({'error': str(e)}), 500
     
 
