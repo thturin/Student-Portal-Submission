@@ -181,7 +181,10 @@ app.get('/health-debug', (req, res) => {
                 NODE_ENV: process.env.NODE_ENV,
                 PORT: process.env.PORT,
                 SESSION_SECRET: process.env.SESSION_SECRET ? 'SET' : 'MISSING',
-                DATABASE_URL: process.env.DATABASE_URL ? 'SET' : 'MISSING'
+                DATABASE_URL: process.env.DATABASE_URL ? 'SET' : 'MISSING',
+                FLASK_ENV: process.env.FLASK_ENV,
+                FLASK_API_URL : process.env.FLASK_API_URL
+
             },
             request: {
                 origin: req.headers.origin,

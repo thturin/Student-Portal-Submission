@@ -135,7 +135,6 @@ const SubmitForm = ({onNewSubmission, user, submissions})=>{
             const existingSubmission = submissions.find(
                 sub=> String(sub.assignmentId) === String(assignmentId)
             );
-            console.log('xxxxxxxxx',typeof(assignment.dueDate));
             //---------UPDATE SUBMISSION------------
             if(existingSubmission){ //go to the ssubmission and update it
             
@@ -202,6 +201,7 @@ const SubmitForm = ({onNewSubmission, user, submissions})=>{
             if(option === 2) return formatDistanceToNow(date, { addSuffix: true })
         };
 
+    //changes font color
     const isPastDue = (dueDateString) =>{
         const dueDate = parseISO(dueDateString);
         const now = new Date();
