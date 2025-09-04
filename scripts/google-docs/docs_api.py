@@ -1,4 +1,6 @@
 import json
+import logging
+import sys
 import traceback
 from flask import Flask, request, jsonify
 from google.oauth2 import service_account
@@ -14,12 +16,12 @@ app = Flask(__name__)
 
 #initial issue was stack trace is not showing in railyway log
 # configure logging to stdout so Gunicorn / Railway capture it
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s %(levelname)s %(name)s %(message)s",
-    stream=sys.stdout,
-)
-app.logger.setLevel(logging.INFO)
+# logging.basicConfig(
+#     level=logging.INFO,
+#     format="%(asctime)s %(levelname)s %(name)s %(message)s",
+#     stream=sys.stdout,
+# )
+# app.logger.setLevel(logging.INFO)
 
 
 # Environment variables
@@ -110,8 +112,8 @@ def check_doc_title():
             'isCorrectDoc': is_correct_doc
         })
     except Exception as e:
-        app.logger.exception("exception in check-doc-title")
-        #print("exception in /check-doc-titl:",traceback.format_exc())
+        #app.logger.exception("exception in check-doc-title")
+        print("exception in /check-doc-titl:",traceback.format_exc())
         return jsonify({'error': str(e)}), 500
     
 
