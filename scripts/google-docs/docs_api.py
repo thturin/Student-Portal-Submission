@@ -30,6 +30,7 @@ def get_google_credentials():
         print("Using google credentials from environment variable PRODUCTION")
         try:
             service_account_info = json.loads(service_account_json)
+            
             return service_account.Credentials.from_service_account_info(service_account_info, scopes=GOOGLE_SCOPES)
         except json.JSONDecodeError as e:
             print(f"Error parsing Google credentials JSON: {e}")
@@ -98,7 +99,7 @@ def check_doc_title():
             'isCorrectDoc': is_correct_doc
         })
     except Exception as e:
-        print("exception in /check-doc-titl:",traceback.format_exec())
+        print("exception in /check-doc-titl:",traceback.format_exc())
         return jsonify({'error': str(e)}), 500
     
 
