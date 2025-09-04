@@ -11,6 +11,17 @@ load_dotenv()
 
 app = Flask(__name__)
 
+
+#initial issue was stack trace is not showing in railyway log
+# configure logging to stdout so Gunicorn / Railway capture it
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s %(levelname)s %(name)s %(message)s",
+    stream=sys.stdout,
+)
+app.logger.setLevel(logging.INFO)
+
+
 # Environment variables
 #SERVICE_ACCOUNT_FILE = os.getenv('SERVICE_ACCOUNT_FILE', '../../credentials/doc_reader_service_account.json')
 GOOGLE_SCOPES = os.getenv('GOOGLE_SCOPES')
@@ -99,7 +110,8 @@ def check_doc_title():
             'isCorrectDoc': is_correct_doc
         })
     except Exception as e:
-        print("exception in /check-doc-titl:",traceback.format_exc())
+        app.logger.exception("exception in check-doc-title")
+        #print("exception in /check-doc-titl:",traceback.format_exc())
         return jsonify({'error': str(e)}), 500
     
 

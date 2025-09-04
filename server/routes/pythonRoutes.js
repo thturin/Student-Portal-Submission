@@ -6,7 +6,6 @@ require('dotenv').config(); //load environment variables from .env
 
 //ROOT LOCALHOST:5000/api/python
 router.get('/check-doc-title', async(req,res)=>{
-    print('HELLO HELLO')
     try{
         const {documentId, assignmentName} = req.query;
         if(!documentId){
