@@ -16,12 +16,12 @@ app = Flask(__name__)
 
 #initial issue was stack trace is not showing in railyway log
 # configure logging to stdout so Gunicorn / Railway capture it
-# logging.basicConfig(
-#     level=logging.INFO,
-#     format="%(asctime)s %(levelname)s %(name)s %(message)s",
-#     stream=sys.stdout,
-# )
-# app.logger.setLevel(logging.INFO)
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s %(levelname)s %(name)s %(message)s",
+    stream=sys.stdout,
+)
+app.logger.setLevel(logging.INFO)
 
 
 # Environment variables
@@ -43,7 +43,7 @@ def get_google_credentials():
         print("Using google credentials from environment variable PRODUCTION")
         try:
             service_account_info = json.loads(service_account_json)
-            
+            print('Returning credentials in PRODUCTION')
             return service_account.Credentials.from_service_account_info(service_account_info, scopes=GOOGLE_SCOPES)
         except json.JSONDecodeError as e:
             print(f"Error parsing Google credentials JSON: {e}")
@@ -60,6 +60,7 @@ def get_google_credentials():
             
 def get_docs_service():
     try:
+        print('getting google credentials and return a build with the credentials')
         creds = get_google_credentials()
         return build('docs','v1', credentials=creds)
     except Exception as e:
@@ -90,6 +91,8 @@ def extract_text(element):
 @app.route('/check-doc-title', methods=['GET'])
 def check_doc_title():
     try:
+        print("in check_doc_title()")
+        app.logger.exception("in the try of check-doc-title")
         document_id = request.args.get('documentId')
         assignment_name = request.args.get('assignmentName')
 
@@ -112,7 +115,7 @@ def check_doc_title():
             'isCorrectDoc': is_correct_doc
         })
     except Exception as e:
-        #app.logger.exception("exception in check-doc-title")
+        app.logger.exception("exception in check-doc-title")
         print("exception in /check-doc-titl:",traceback.format_exc())
         return jsonify({'error': str(e)}), 500
     
